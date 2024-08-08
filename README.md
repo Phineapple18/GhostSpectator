@@ -19,7 +19,7 @@ Plugin for SCP-SL game, that allows player to become a Ghost: Tutorial, that is 
   * challenge other Ghosts to a duel
 - Ghosts can be resurrected by SCP-049 regardless, if they were human or SCP-0492.
 
-## Required plugins and dependencies (1.3.0): 
+## Required plugins and dependencies (1.3.2): 
 - [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem/releases/tag/0.0.6) by ced777ric - plugin
 - [Harmony 2.2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - dependency (attached to one of the previous releases)
 
