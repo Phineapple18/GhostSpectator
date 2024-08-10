@@ -11,7 +11,7 @@ using GhostSpectator.Commands.ClientConsole;
 using GhostSpectator.Commands.ClientConsole.Duel;
 using GhostSpectator.Commands.ClientConsole.ShootingTarget;
 using GhostSpectator.Commands.ClientConsole.Voicechat;
-using GhostSpectator.Commands.RemoteAdminConsole;
+using GhostSpectator.Commands.RemoteAdmin;
 using PluginAPI.Helpers;
 using Serialization;
 

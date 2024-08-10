@@ -54,8 +54,8 @@ namespace GhostSpectator
         [Description("Areas, where Ghosts can spawn shooting targets. For each area, provide a pair of positions. Their coordinates will be used as a perimeter along every axis.")]
         public Dictionary<string, string> ShootingRanges { get; set; } = new Dictionary<string, string>()
         {
-            { "10, 995, -12", "-10, 996, -4" },
-            { "68, 983, -36", "142, 985, -12"}
+            { "10, 994, -12", "-10, 996, -4" },
+            { "68, 982, -36", "142, 985, -12"}
         };
 
         [Description("Minimum distance between the Ghosts, that will make them hear eachother via RoundSummary channel instead of Proximity channel (if they have enabled listening to Ghosts).")]

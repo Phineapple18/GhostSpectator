@@ -11,6 +11,7 @@ using Mirror;
 using NWAPIPermissionSystem;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
+using UnityEngine;
 
 namespace GhostSpectator.Commands.ClientConsole.ShootingTarget
 {
@@ -98,6 +99,7 @@ namespace GhostSpectator.Commands.ClientConsole.ShootingTarget
                 Log.Debug($"Destroyed first shooting target due to target limit ({Config.TargetLimit}).", Config.Debug, commandName);
             }
             AdminToyBase target = UnityEngine.Object.Instantiate<AdminToyBase>(targetBase);
+            target.transform.localScale = 0.15f * Vector3.one;
             target.OnSpawned(commandsender.ReferenceHub, arguments);
             component.ShootingTargets.Add(target);
             response = translation.CreatetargetSuccess.Replace("%targetname%", target.CommandName).Replace("%targetid%", target.netId.ToString());

@@ -91,6 +91,11 @@ namespace GhostSpectator
             player.PlayerInfo.IsNicknameHidden = false;
             player.CustomInfo = string.Empty;
             player.Health = player.MaxHealth;
+            player.ReferenceHub.transform.localScale = Vector3.one;
+            foreach (Player ply in Player.GetPlayers())
+            {
+                Plugin.setSize.Invoke(null, new object[] { player.ReferenceHub.networkIdentity, ply.Connection });
+            }
             player.EffectsManager.DisableAllEffects();
             player.ClearInventory();
             if (player.CheckPermission("gs.noclip"))
@@ -112,7 +117,7 @@ namespace GhostSpectator
             DuelExtensions.AbortDuel(player, DuelPartner);
             DuelExtensions.TryAbortDuelPreparation(player, out _);
             DuelExtensions.TryRemoveDuelRequest(player, out _, false);
-            foreach (AdminToyBase target in this.ShootingTargets)
+            foreach (AdminToyBase target in this.ShootingTargets.ToList())
             {
                 OtherExtensions.DestroyShootingTarget(this, target);
             }
