@@ -43,11 +43,10 @@ Plugin for SCP-SL game, that allows player to become a Ghost: Tutorial, that is 
 |duel_request_time|float|10f|Time, which the duel request will expire after.|
 
 ## Translation
-The translation file is in the same folder as config file and allows you to customize:
+The translation file is in the same folder as config file and allows you to customize e.g:
 - Ghost nickname
 - messages shown to Ghosts
-- whether or not the debug for command registering should be enabled
-- commands, their aliases and descripton
+- name, aliases and descripton of command
 - command responses
 
 ## Remote Admin Commands
