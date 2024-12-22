@@ -50,6 +50,8 @@ The translation file is in the same folder as the config file and allows you to 
 - hints displayed to Ghosts
 - command name, aliases, descripton and responses
 
+*IMPORTANT:* Make sure not to duplicate command names and/or aliases, if you translate them.
+
 ## Remote Admin Commands
 ### ghostspectator
 Parent command for managing Ghosts. Subcommands:
