@@ -39,13 +39,13 @@ namespace GhostSpectator.Commands.ClientConsole
             if (sender == null)
             {
                 response = translation.SenderNull;
-                Log.Debug("Command sender is null.", Config.Debug, commandName);
+                Log.Debug("Command sender doesn't exist.", Config.Debug, commandName);
                 return false;
             }
             if (!sender.CheckPermission("gs.firearm"))
             {
                 response = translation.NoPerms;
-                Log.Debug($"Player {sender.LogName} doesn't have required permission to use this command.", Config.Debug, commandName);
+                Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug, commandName);
                 return false;
             }
             Player commandsender = Player.Get(sender);
@@ -58,33 +58,32 @@ namespace GhostSpectator.Commands.ClientConsole
             if (arguments.IsEmpty())
             {
                 response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
-                Log.Debug($"Player {commandsender.Nickname} didn't provide arguments for command.", Config.Debug, commandName);
+                Log.Debug($"Player {commandsender.Nickname} didn't provide any argument.", Config.Debug, commandName);
                 return false;
             }
             if (arguments.At(0).ToLower() == "list")
             {
-                response = $"{translation.GivefirearmList}:" + string.Join("\n- ", from g in InventoryItemLoader.AvailableItems where g.Value.Category == ItemCategory.Firearm select g.Key);
+                response = $"{translation.GivefirearmList}:\n- " + string.Join("\n- ", from g in InventoryItemLoader.AvailableItems where g.Value is Firearm select g.Key);
                 return true;
             }
             if (!Enum.TryParse(arguments.At(0), out ItemType itemType))
             {
                 response = translation.ItemtypeOnly;
-                Log.Debug($"Player {commandsender.Nickname} didn't provide an item type.", Config.Debug, commandName);
+                Log.Debug($"Player {commandsender.Nickname} didn't provide any item type.", Config.Debug, commandName);
                 return false;
             }
-            if (!InventoryItemLoader.AvailableItems.Any(i => i.Key == itemType && i.Value.Category == ItemCategory.Firearm))
+            if (!InventoryItemLoader.TryGetItem(itemType, out Firearm firearm))
             {
                 response = translation.FirearmOnly;
-                Log.Debug($"Player {commandsender.Nickname} didn't provide an item type, that is a firearm.", Config.Debug, commandName);
+                Log.Debug($"Player {commandsender.Nickname} didn't provide any firearm.", Config.Debug, commandName);
                 return false;
             }
-            Firearm firearm = commandsender.AddItem(itemType) as Firearm;
+            commandsender.ReferenceHub.inventory.ServerAddItem(firearm.ItemTypeId, InventorySystem.Items.ItemAddReason.AdminCommand, firearm.ItemSerial, firearm.PickupDropModel);
             if (AttachmentsServerHandler.PlayerPreferences.TryGetValue(commandsender.ReferenceHub, out Dictionary<ItemType, uint> dictionary) && dictionary.TryGetValue(itemType, out uint code))
             {
                 firearm.ApplyAttachmentsCode(code, true);
                 Log.Debug($"Player {commandsender.Nickname} attachment preferences have been applied to the firearm.", Config.Debug, commandName);
             }
-            firearm.Status = new(firearm.AmmoManagerModule.MaxAmmo, FirearmStatusFlags.MagazineInserted, firearm.GetCurrentAttachmentsCode());
             response = translation.GivefirearmSuccess.Replace("%itemtype%", itemType.ToString());
             Log.Debug($"Player {commandsender.Nickname} has given themselves a {itemType}.", Config.Debug, commandName);
             return true;

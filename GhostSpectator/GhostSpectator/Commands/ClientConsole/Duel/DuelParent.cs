@@ -29,9 +29,9 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
             this.RegisterCommand(new Accept(translation.AcceptCommand, translation.AcceptDescription, translation.AcceptAliases));
             this.RegisterCommand(new Cancel(translation.CancelCommand, translation.CancelDescription, translation.CancelAliases));
             this.RegisterCommand(new ListDuel(translation.ListduelCommand, translation.ListduelDescription, translation.ListduelAliases));
-            this.RegisterCommand(new Ply(translation.PlayerCommand, translation.PlayerDescription, translation.PlayerAliases));
+            this.RegisterCommand(new Player(translation.PlayerCommand, translation.PlayerDescription, translation.PlayerAliases));
             this.RegisterCommand(new Reject(translation.RejectCommand, translation.RejectDescription, translation.RejectAliases));
-            Log.Debug($"Registered {this.AllCommands.Count()} command(s) for DuelParent.", translation.Debug, Translation.pluginName);
+            Log.Debug($"Loaded {this.AllCommands.Count()} command(s) for DuelParent.", translation.Debug, Translation.pluginName);
         }
 
         protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender, out string response)
@@ -54,7 +54,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
 
         internal const string _command = "duel";
 
-        internal const string _description = "Parent command. Type empty command for more information regarding subcommands.";
+        internal const string _description = "Parent command for Ghost duelling.";
 
         internal static readonly string[] _aliases = Array.Empty<string>();
 

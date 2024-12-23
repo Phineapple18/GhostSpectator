@@ -33,17 +33,17 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
             if (sender == null)
             {
                 response = translation.SenderNull;
-                Log.Debug("Command sender is null.", Config.Debug, commandName);
+                Log.Debug("Command sender doesn't exist.", Config.Debug, commandName);
                 return false;
             }
-            Player commandsender = Player.Get(sender);
+            PluginAPI.Core.Player commandsender = PluginAPI.Core.Player.Get(sender);
             if (!commandsender.IsGhost())
             {
                 response = translation.NotGhost;
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug, commandName);
                 return false;
             }
-            Player opponent = commandsender.GetGhostComponent().DuelPartner;
+            PluginAPI.Core.Player opponent = commandsender.GetComponent<GhostComponent>().DuelPartner;
             if (opponent != null)
             {
                 commandsender.AbandonDuel(opponent);
@@ -51,26 +51,26 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
                 Log.Debug($"Player {commandsender.Nickname} has cancelled a duel with {opponent.Nickname}.", Config.Debug, commandName);
                 return true;
             }
-            if (DuelExtensions.TryAbortDuelPreparation(commandsender, out string opponent2))
+            if (DuelExtensions.TryAbortDuelPreparation(commandsender, out string opponentName))
             {
-                response = translation.CancelDuelSuccess.Replace("%playernick%", opponent2);
-                Log.Debug($"Player {commandsender.Nickname} has cancelled pending duel with {opponent2}.", Config.Debug, commandName);
+                response = translation.CancelDuelSuccess.Replace("%playernick%", opponentName);
+                Log.Debug($"Player {commandsender.Nickname} has cancelled a pending duel with {opponentName}.", Config.Debug, commandName);
                 return true;
             }
-            if (DuelExtensions.TryRemoveDuelRequest(commandsender, out string opponent3))
+            if (DuelExtensions.TryRemoveDuelRequest(commandsender, out opponentName))
             {
-                response = translation.CancelRequestSuccess.Replace("%playernick%", opponent3);
-                Log.Debug($"Player {commandsender.Nickname} has cancelled a duel request with {opponent3}.", Config.Debug, commandName);
+                response = translation.CancelRequestSuccess.Replace("%playernick%", opponentName);
+                Log.Debug($"Player {commandsender.Nickname} has cancelled a duel request with {opponentName}.", Config.Debug, commandName);
                 return true;
             }
             response = translation.CancelFail;
-            Log.Debug($"Player {commandsender.Nickname} has no active/pending duels or duel requests.", Config.Debug, commandName);
+            Log.Debug($"Player {commandsender.Nickname} has no active or pending duels or duel requests.", Config.Debug, commandName);
             return false;
         }
 
         internal const string _command = "cancel";
 
-        internal const string _description = "Cancel your duel request or current duel.";
+        internal const string _description = "Cancel your duel, pending duel or duel request.";
 
         internal static readonly string[] _aliases = new[] { "cnx", "c" };
 

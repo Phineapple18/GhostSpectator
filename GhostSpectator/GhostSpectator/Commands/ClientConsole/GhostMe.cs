@@ -36,19 +36,19 @@ namespace GhostSpectator.Commands.ClientConsole
             if (sender == null)
             {
                 response = translation.SenderNull;
-                Log.Debug("Command sender is null.", Config.Debug, commandName);
+                Log.Debug("Command sender doesn't exist.", Config.Debug, commandName);
                 return false;
             }
             if (!sender.CheckPermission("gs.spawn.self"))
 			{
                 response = translation.NoPerms;
-                Log.Debug($"Player {sender.LogName} doesn't have required permission to use this command.", Config.Debug, commandName);
+                Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug, commandName);
                 return false;
             }
             if (!Round.IsRoundStarted)
             {
                 response = translation.RoundNotStarted;
-                Log.Debug("This command can't be used before round start.", Config.Debug, commandName);
+                Log.Debug($"Player {sender.LogName} tried to use this command before round start.", Config.Debug, commandName);
                 return false;
             }
             Player commandsender = Player.Get(sender);
@@ -64,7 +64,7 @@ namespace GhostSpectator.Commands.ClientConsole
                 if (Warhead.IsDetonated && Config.DespawnOnDetonation && !commandsender.CheckPermission("gs.warhead"))
                 {
                     response = translation.WarheadDetonated;
-                    Log.Debug($"Player {commandsender.Nickname} doesn't have required permission to spawn as Ghost after warhead detonation.", Config.Debug, commandName);
+                    Log.Debug($"Player {commandsender.Nickname} doesn't have permission to spawn as Ghost after warhead detonation.", Config.Debug, commandName);
                     return false;
                 }
                 GhostExtensions.Spawn(commandsender);
@@ -73,13 +73,13 @@ namespace GhostSpectator.Commands.ClientConsole
                 return true;
 			}
             response = translation.GhostmeFail;
-            Log.Debug($"Player {commandsender.Nickname} must be a Ghost or Spectator to use this command.", Config.Debug, commandName);
+            Log.Debug($"Player {commandsender.Nickname} is neither a Ghost nor Spectator.", Config.Debug, commandName);
             return false;
 		}
 
         internal const string _command = "ghostme";
 
-        internal const string _description = "Change yourself to Ghost from Spectator or vice versa.";
+        internal const string _description = "Spawn yourself as a Ghost or change back to Spectator.";
 
         internal static readonly string[] _aliases = new[] { "gme", "me" };
 

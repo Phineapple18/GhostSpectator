@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using CommandSystem;
 using GhostSpectator.Extensions;
+using NorthwoodLib.Pools;
 using NWAPIPermissionSystem;
 using PluginAPI.Core;
 
@@ -36,53 +37,57 @@ namespace GhostSpectator.Commands.ClientConsole.Voicechat
             if (sender == null)
             {
                 response = translation.SenderNull;
-                Log.Debug("Command sender is null.", Config.Debug, commandName);
+                Log.Debug("Command sender doesn't exist.", Config.Debug, commandName);
                 return false;
             }
             if (arguments.IsEmpty())
             {
                 response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
-                Log.Debug($"Player {sender.LogName} didn't provide arguments for command.", Config.Debug, commandName);
+                Log.Debug($"Player {sender.LogName} didn't provide any argument.", Config.Debug, commandName);
                 return false;
             }
-            if (!arguments.Any(a => OtherExtensions.voiceChats.Keys.Contains(a.ToLower()) || a.ToLower() == "all"))
+            IEnumerable<string> chats = arguments.Contains("all") ? OtherExtensions.voiceChats.Keys : OtherExtensions.voiceChats.Keys.Intersect(arguments);
+            if (chats.IsEmpty())
             {
                 response = translation.WrongArgument;
-                Log.Debug($"Player {sender.LogName} provided nonexistent argument: {arguments.ElementAt(0)}.", Config.Debug, commandName);
+                Log.Debug($"Player {sender.LogName} provided non-existent argument(s).", Config.Debug, commandName);
                 return false;
             }
             Player commandsender = Player.Get(sender);
-            IEnumerable<string> chats = arguments.Any(a => a.ToLower() == "all") ? OtherExtensions.voiceChats.Keys : arguments.Intersect(OtherExtensions.voiceChats.Keys);
-            Dictionary<string, List<string>> results = new() { { "success", new() }, { "noperm", new() }, { "alreadydisabled", new() } };
-            bool result = false;
+            StringBuilder success = StringBuilderPool.Shared.Rent();
+            StringBuilder failure = StringBuilderPool.Shared.Rent();
+            success.Append($"{translation.DisablevoicechatSuccess}:");
+            failure.Append($"{translation.DisablevoicechatFail}:");
+            int numS = 0;
+            int numF = 0;
             foreach (string chat in chats)
             {
                 if (!commandsender.CheckPermission($"gs.listen.{chat}"))
                 {
-                    results["noperm"].Add(chat);
+                    failure.Append($" {chat},");
+                    numF++;
                     Log.Debug($"Player {commandsender.Nickname} doesn't have permission to disable listening to {OtherExtensions.voiceChats[chat].Value}.", Config.Debug, commandName);
                     continue;
                 }
                 if (commandsender.TemporaryData.Remove(OtherExtensions.voiceChats[chat].Key))
                 {
-                    results["success"].Add(chat);
-                    result = true;
-                    Log.Debug($"Player {commandsender.Nickname} has disabled listening to {OtherExtensions.voiceChats[chat].Value}.", Config.Debug, commandName);
+                    success.Append($" {chat},");
+                    numS++;
                     continue;
                 }
-                results["alreadydisabled"].Add(chat);
+                failure.Append($" {chat},");
                 Log.Debug($"Player {commandsender.Nickname} has already disabled listening to {OtherExtensions.voiceChats[chat].Value}.", Config.Debug, commandName);
             }
-            response = result ? $"{translation.DisablevoicechatSuccess}: {string.Join(", ", results["success"])}." 
-                     : results["alreadydisabled"].Count > 0 ? $"{translation.DisablevoicechatFail}: {string.Join(", ", results["alreadydisabled"])}." 
-                     : $"{translation.DisablevoicechatFailNoperm}: {string.Join(", ", results["noperm"])}.";
-            Log.Debug($"Player {commandsender.Nickname} {(result ? "" : "un")}successfully disabled themselves {(result ? results["success"].Count : results["noperm"].Count + results["alreadydisabled"].Count)} voicechat(s).", Config.Debug, commandName);
-            return result;
+            StringBuilder result = numS == 0 ? failure : success;
+            result.Replace(',', '.', result.Length - 1, 1);
+            response = StringBuilderPool.Shared.ToStringReturn(result).TrimEnd(Array.Empty<char>());
+            Log.Debug($"Player {sender.LogName} disabled successfully ({numS}) and unsuccessfully ({numF}) voicechats.", Config.Debug, commandName);
+            return numS > 0;
         }
 
         internal const string _command = "disablevoicechat";
 
-        internal const string _description = "Disable listening to selected voicechat(s).";
+        internal const string _description = "Disable listening to chosen voicechat(s).";
 
         internal static readonly string[] _aliases = new[] { "dvc" };
 

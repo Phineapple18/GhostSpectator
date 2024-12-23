@@ -11,7 +11,7 @@ using PluginAPI.Core;
 
 namespace GhostSpectator.Commands.ClientConsole.Duel
 {
-    public class Accept : ICommand
+    public class Accept : ICommand, IUsageProvider
     {
         public Accept(string command, string description, string[] aliases)
         {
@@ -20,6 +20,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
             Command = !string.IsNullOrWhiteSpace(command) ? command : _command;
             Description = description;
             Aliases = aliases;
+            Usage = new[] { "PlayerNickname (whole or part, case-insensitive)"};
             Log.Debug($"Registered {this.Command} subcommand.", translation.Debug, Translation.pluginName);
         }
 
@@ -34,45 +35,43 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
             if (sender == null)
             {
                 response = translation.SenderNull;
-                Log.Debug("Command sender is null.", Config.Debug, commandName);
+                Log.Debug("Command sender doesn't exist.", Config.Debug, commandName);
                 return false;
             }
             if (!sender.CheckPermission("gs.duel"))
             {
                 response = translation.NoPerms;
-                Log.Debug($"Player {sender.LogName} doesn't have required permission to use this command.", Config.Debug, commandName);
+                Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug, commandName);
                 return false;
             }
             if (Warhead.IsDetonated)
             {
                 response = translation.WarheadDetonated;
-                Log.Debug($"Player {sender.LogName} can't use this command after warhead detonation.", Config.Debug, commandName);
+                Log.Debug($"Player {sender.LogName} tried to use this command after warhead detonation.", Config.Debug, commandName);
                 return false;
             }
-            Player commandsender = Player.Get(sender);
+            PluginAPI.Core.Player commandsender = PluginAPI.Core.Player.Get(sender);
             if (!commandsender.IsGhost())
             {
                 response = translation.NotGhost;
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug, commandName);
                 return false;
             }
-            if (!DuelExtensions.DuelRequests.Values.Any(p => p.Item1 == commandsender))
+            if (arguments.IsEmpty())
+            {
+                response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
+                Log.Debug($"Player {sender.LogName} didn't provide arguments.", Config.Debug, commandName);
+                return false;
+            }
+            List<PluginAPI.Core.Player> allRequesters = (from p in DuelExtensions.DuelRequests where p.Value.Item1 == commandsender select p.Key).ToList();
+            if (allRequesters.IsEmpty())
             {
                 response = translation.NoDuelRequests;
                 Log.Debug($"Player {commandsender.Nickname} has no duel requests.", Config.Debug, commandName);
                 return false;
             }
-            List<Player> allRequesters = (from p in DuelExtensions.DuelRequests where p.Value.Item1 == commandsender select p.Key).ToList();
-            Player requester = null;
-            if (arguments.IsEmpty())
-            {
-                requester = allRequesters.First();
-            }
-            else
-            {
-                requester = allRequesters.FirstOrDefault(p => string.Equals(p.Nickname, string.Join(" ", arguments), StringComparison.OrdinalIgnoreCase));
-                requester ??= allRequesters.FirstOrDefault(p => p.Nickname.IndexOf(string.Join(" ", arguments), StringComparison.OrdinalIgnoreCase) >= 0);
-            }
+            PluginAPI.Core.Player requester = requester = allRequesters.FirstOrDefault(p => string.Equals(p.Nickname, string.Join(" ", arguments), StringComparison.OrdinalIgnoreCase));
+            requester ??= allRequesters.FirstOrDefault(p => p.Nickname.IndexOf(string.Join(" ", arguments), StringComparison.OrdinalIgnoreCase) >= 0);
             if (requester == null)
             {
                 response = translation.NoPlayers;
@@ -87,7 +86,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
 
         internal const string _command = "accept";
 
-        internal const string _description = "Accept duel offer from a player. Provide player nickname, whole or part of it, otherwise the first offer will be accepted. The case is ignored.";
+        internal const string _description = "Accept a duel offer from other Ghost.";
 
         internal static readonly string[] _aliases = new[] { "a" };
 
@@ -98,6 +97,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
+        public string[] Usage { get; }
         public bool SanitizeResponse { get; }
         private static Config Config => Plugin.Singleton.pluginConfig;
     }

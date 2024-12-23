@@ -33,10 +33,10 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
             if (sender == null)
             {
                 response = translation.SenderNull;
-                Log.Debug("Command sender is null.", Config.Debug, commandName);
+                Log.Debug("Command sender doesn't exist.", Config.Debug, commandName);
                 return false;
             }
-            Player commandsender = Player.Get(sender);
+            PluginAPI.Core.Player commandsender = PluginAPI.Core.Player.Get(sender);
             if (!commandsender.IsGhost())
             {
                 response = translation.NotGhost;
@@ -49,13 +49,13 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
                 Log.Debug($"Player {commandsender.Nickname} has no duel requests.", Config.Debug, commandName);
                 return false;
             }
-            response = $"{translation.ListduelSuccess}: \n- {string.Join("\n- ", from kvp in DuelExtensions.DuelRequests where kvp.Value.Item1 == commandsender select kvp.Key.Nickname)}";
+            response = $"{translation.ListduelSuccess}:\n- {string.Join("\n- ", from kvp in DuelExtensions.DuelRequests where kvp.Value.Item1 == commandsender select kvp.Key.Nickname)}";
             return true;
         }
 
         internal const string _command = "list";
 
-        internal const string _description = "Print a list of all players, who challenged you to a duel.";
+        internal const string _description = "Print a list of all players who challenged you to a duel.";
 
         internal static readonly string[] _aliases = new[] { "l" };
 

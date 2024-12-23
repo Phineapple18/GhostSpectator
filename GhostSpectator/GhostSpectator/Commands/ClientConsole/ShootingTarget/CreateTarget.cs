@@ -11,7 +11,6 @@ using Mirror;
 using NWAPIPermissionSystem;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
-using UnityEngine;
 
 namespace GhostSpectator.Commands.ClientConsole.ShootingTarget
 {
@@ -40,13 +39,13 @@ namespace GhostSpectator.Commands.ClientConsole.ShootingTarget
             if (sender == null)
             {
                 response = translation.SenderNull;
-                Log.Debug("Command sender is null.", Config.Debug, commandName);
+                Log.Debug("Command sender doesn't exist.", Config.Debug, commandName);
                 return false;
             }
             if (!sender.CheckPermission("gs.target"))
             {
                 response = translation.NoPerms;
-                Log.Debug($"Player {sender.LogName} doesn't have required permission to use this command.", Config.Debug, commandName);
+                Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug, commandName);
                 return false;
             }
             Player commandsender = Player.Get(sender);
@@ -62,23 +61,22 @@ namespace GhostSpectator.Commands.ClientConsole.ShootingTarget
                 Log.Debug("Spawning shooting targets is not allowed.", Config.Debug, commandName);
                 return false;
             }
-            if (!OtherExtensions.ShootingRanges.Any(a => a.Contains(commandsender.Position)))
+            if (!TargetExtensions.ShootingRanges.Any(a => a.Contains(commandsender.Position)))
             {
                 response = translation.WrongArea;
-                Log.Debug($"Player {commandsender.Nickname} can't spawn a shooting target outside of shooting range(s).", Config.Debug, commandName);
+                Log.Debug($"Player {commandsender.Nickname} tried to create target outside the shooting range(s).", Config.Debug, commandName);
                 return false;
             }
-            IFpcRole fpcRole = commandsender.RoleBase as IFpcRole;
-            if (!fpcRole.FpcModule.IsGrounded)
+            if (!(commandsender.RoleBase as IFpcRole).FpcModule.IsGrounded)
             {
                 response = translation.NotGrounded;
-                Log.Debug($"Player {commandsender.Nickname} must stand on the ground to spawn a shooting target.", Config.Debug, commandName);
+                Log.Debug($"Player {commandsender.Nickname} must stand on the ground.", Config.Debug, commandName);
                 return false;
             }
             if (arguments.IsEmpty())
             {
                 response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
-                Log.Debug($"Player {commandsender.Nickname} didn't provide arguments for command.", Config.Debug, commandName);
+                Log.Debug($"Player {commandsender.Nickname} didn't provide any argument.", Config.Debug, commandName);
                 return false;
             }
             AdminToyBase targetBase = null;
@@ -89,17 +87,17 @@ namespace GhostSpectator.Commands.ClientConsole.ShootingTarget
             catch (Exception)
             {
                 response = translation.WrongArgument;
-                Log.Debug($"Player {commandsender.Nickname} provided nonexistent argument: {arguments.ElementAt(0)}.", Config.Debug, commandName);
+                Log.Debug($"Player {commandsender.Nickname} provided non-existent argument.", Config.Debug, commandName);
                 return false;
             }
-            GhostComponent component = commandsender.GetGhostComponent();
+            GhostComponent component = commandsender.GetComponent<GhostComponent>();
             if (component.ShootingTargets.Count >= Config.TargetLimit)
             {
-                OtherExtensions.DestroyShootingTarget(component, component.ShootingTargets.ElementAt(0));
-                Log.Debug($"Destroyed first shooting target due to target limit ({Config.TargetLimit}).", Config.Debug, commandName);
+                TargetExtensions.DestroyShootingTarget(component, component.ShootingTargets.ElementAt(0));
+                Log.Debug($"Destroyed first shooting target due to target limit of {Config.TargetLimit}.", Config.Debug, commandName);
             }
             AdminToyBase target = UnityEngine.Object.Instantiate<AdminToyBase>(targetBase);
-            target.transform.localScale = 0.15f * Vector3.one;
+            target.netIdentity.visible = Visibility.ForceHidden;
             target.OnSpawned(commandsender.ReferenceHub, arguments);
             component.ShootingTargets.Add(target);
             response = translation.CreatetargetSuccess.Replace("%targetname%", target.CommandName).Replace("%targetid%", target.netId.ToString());
@@ -117,7 +115,7 @@ namespace GhostSpectator.Commands.ClientConsole.ShootingTarget
         {
             { "dboy", "TargetDBoy" },
             { "sport", "TargetSport" },
-            { "bin", "TargetBinary" }
+            { "binary", "TargetBinary" }
         };
 
         private readonly string commandName;

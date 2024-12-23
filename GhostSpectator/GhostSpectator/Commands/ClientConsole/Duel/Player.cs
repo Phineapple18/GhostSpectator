@@ -12,16 +12,16 @@ using UnityEngine;
 
 namespace GhostSpectator.Commands.ClientConsole.Duel
 {
-    public class Ply : ICommand, IUsageProvider
+    public class Player : ICommand, IUsageProvider
     {
-        public Ply(string command, string description, string[] aliases)
+        public Player(string command, string description, string[] aliases)
         {
             translation = Translation.AccessTranslation();
             commandName = $"{Translation.pluginName}.{this.GetType().Name}";
             Command = !string.IsNullOrWhiteSpace(command) ? command : _command;
             Description = description;
             Aliases = aliases;
-            Usage = new[] { "PlayerNickname" };
+            Usage = new[] { "PlayerNickname (whole or part, case-insensitive)" };
             Log.Debug($"Registered {this.Command} subcommand.", translation.Debug, Translation.pluginName);
         }
 
@@ -36,65 +36,60 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
             if (sender == null)
             {
                 response = translation.SenderNull;
-                Log.Debug("Command sender is null.", Config.Debug, commandName);
+                Log.Debug("Command sender doesn't exist.", Config.Debug, commandName);
                 return false;
             }
             if (!sender.CheckPermission("gs.duel"))
             {
                 response = translation.NoPerms;
-                Log.Debug($"Player {sender.LogName} doesn't have required permission to use this command.", Config.Debug, commandName);
+                Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug, commandName);
                 return false;
             }
             if (Warhead.IsDetonated)
             {
                 response = translation.WarheadDetonated;
-                Log.Debug($"Player {sender.LogName} can't use this command after warhead detonation.", Config.Debug, commandName);
+                Log.Debug($"Player {sender.LogName} tried to use this command after warhead detonation.", Config.Debug, commandName);
                 return false;
             }
-            Player commandsender = Player.Get(sender);
+            PluginAPI.Core.Player commandsender = PluginAPI.Core.Player.Get(sender);
             if (!commandsender.IsGhost())
             {
                 response = translation.NotGhost;
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug, commandName);
                 return false;
             }
-            GhostComponent component = commandsender.GetGhostComponent();
+            GhostComponent component = commandsender.GetComponent<GhostComponent>();
             if (component.DuelPartner != null)
             {
                 response = translation.ActiveDuelSelf.Replace("%playernick%", component.DuelPartner.Nickname);
-                Log.Debug($"Player {commandsender.Nickname} has already active duel with {component.DuelPartner.Nickname}.", Config.Debug, commandName);
+                Log.Debug($"Player {commandsender.Nickname} has already an active duel with {component.DuelPartner.Nickname}.", Config.Debug, commandName);
                 return false;
             }
             if (commandsender.HasPendingDuel())
             {
                 response = translation.ActivePendingDuel;
-                Log.Debug($"Player {commandsender.Nickname} has already pending duel with {component.DuelPartner.Nickname}.", Config.Debug, commandName);
+                Log.Debug($"Player {commandsender.Nickname} has already a pending duel with {component.DuelPartner.Nickname}.", Config.Debug, commandName);
                 return false;
             }
             if (arguments.IsEmpty())
             {
-                response = response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
-                Log.Debug($"Player {sender.LogName} didn't provide arguments for command.", Config.Debug, commandName);
+                response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
+                Log.Debug($"Player {sender.LogName} didn't provide arguments.", Config.Debug, commandName);
                 return false;
             }
-            List<Player> players = new();
-            string nickname = string.Join(" ", arguments);
-            var ghostList = GhostExtensions.GhostPlayerList.Where(p => p != commandsender).ToList();
-            if (ghostList.Any(p => string.Equals(p.Nickname, nickname, StringComparison.OrdinalIgnoreCase)))
+            string opponentName = string.Join(" ", arguments);
+            List<PluginAPI.Core.Player> players = GhostExtensions.GhostPlayerList.Where(p => p != commandsender && string.Equals(p.Nickname, opponentName, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (players.IsEmpty())
             {
-                players = ghostList.Where(p => string.Equals(p.Nickname, nickname, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-            else
-            {
-                players = ghostList.Where(p => p.Nickname.IndexOf(nickname, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+                players = GhostExtensions.GhostPlayerList.Where(p => p.Nickname.IndexOf(opponentName, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
             }
             if (players.IsEmpty())
             {
                 response = translation.NoGhosts;
-                Log.Debug($"There is no Ghost, that is not {commandsender.Nickname}, with/containing provided nickname.", Config.Debug, commandName);
+                Log.Debug($"There is no Ghost, that is not {commandsender.Nickname}, with or containing provided nickname.", Config.Debug, commandName);
                 return false;
             }
-            Player opponent = players.ElementAt(0);
+            PluginAPI.Core.Player opponent = players.ElementAt(0);
             if (players.Count > 1)
             {
                 for (int i = 1; i < players.Count; i++)
@@ -105,16 +100,16 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
                     }
                 }
             }
-            if (opponent.GetGhostComponent().DuelPartner != null)
+            if (opponent.GetComponent<GhostComponent>().DuelPartner != null)
             {
                 response = translation.ActiveDuelOther.Replace("%playernick%", opponent.Nickname);
-                Log.Debug($"Player {commandsender.Nickname} can't challenge {opponent.Nickname} to duel as they already have active duel.", Config.Debug, commandName);
+                Log.Debug($"Player {commandsender.Nickname} can't challenge {opponent.Nickname} to a duel as they already have an active duel.", Config.Debug, commandName);
                 return false;
             }
-            if (DuelExtensions.DuelRequests.TryGetValue(commandsender, out Tuple<Player, int> previousOpponent) && previousOpponent.Item1 == opponent)
+            if (DuelExtensions.DuelRequests.TryGetValue(commandsender, out Tuple<PluginAPI.Core.Player, int> previousOpponent) && previousOpponent.Item1 == opponent)
             {
                 response = translation.RequestAlreadySent;
-                Log.Debug($"Player {commandsender.Nickname} already sent duel request to {opponent.Nickname}.", Config.Debug, commandName);
+                Log.Debug($"Player {commandsender.Nickname} already sent a duel request to {opponent.Nickname}.", Config.Debug, commandName);
                 return false;
             }
             commandsender.RequestDuel(opponent, previousOpponent?.Item1);
@@ -125,7 +120,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
 
         internal const string _command = "player";
 
-        internal const string _description = "Challenge another Ghost to a duel by typing their nickname, whole or part of it. The case is ignored.";
+        internal const string _description = "Challenge another Ghost to a duel.";
 
         internal static readonly string[] _aliases = new[] { "p", "pl", "ply" };
 

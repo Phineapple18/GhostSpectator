@@ -10,7 +10,7 @@ using PluginAPI.Core;
 
 namespace GhostSpectator.Commands.ClientConsole.Duel
 {
-    public class Reject : ICommand
+    public class Reject : ICommand, IUsageProvider
     {
         public Reject(string command, string description, string[] aliases)
         {
@@ -19,6 +19,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
             Command = !string.IsNullOrWhiteSpace(command) ? command : _command;
             Description = description;
             Aliases = aliases;
+            Usage = new[] { "PlayerNickname (whole or part, case-insensitive)" };
             Log.Debug($"Registered {this.Command} subcommand.", translation.Debug, Translation.pluginName);
         }
 
@@ -33,10 +34,10 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
             if (sender == null)
             {
                 response = translation.SenderNull;
-                Log.Debug("Command sender is null.", Config.Debug, commandName);
+                Log.Debug("Command sender doesn't exist.", Config.Debug, commandName);
                 return false;
             }
-            Player commandsender = Player.Get(sender);
+            PluginAPI.Core.Player commandsender = PluginAPI.Core.Player.Get(sender);
             if (!commandsender.IsGhost())
             {
                 response = translation.NotGhost;
@@ -49,23 +50,21 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
                 Log.Debug($"Player {commandsender.Nickname} has no duel requests.", Config.Debug, commandName);
                 return false;
             }
-            List<Player> allRequesters = (from p in DuelExtensions.DuelRequests where p.Value.Item1 == commandsender select p.Key).ToList();
-            Player requester = null;
             if (arguments.IsEmpty())
             {
-                foreach (Player player in allRequesters)
-                {
-                    commandsender.RejectDuel(player);
-                }
-                response = translation.RejectSuccessAll;
-                Log.Debug($"Player {commandsender.Nickname} has rejected all duel requests.", Config.Debug, commandName);
-                return true;
+                response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
+                Log.Debug($"Player {sender.LogName} didn't provide arguments.", Config.Debug, commandName);
+                return false;
             }
-            else
+            List<PluginAPI.Core.Player> allRequesters = (from p in DuelExtensions.DuelRequests where p.Value.Item1 == commandsender select p.Key).ToList();
+            if (allRequesters.IsEmpty())
             {
-                requester = allRequesters.FirstOrDefault(p => string.Equals(p.Nickname, string.Join(" ", arguments), StringComparison.OrdinalIgnoreCase));
-                requester ??= allRequesters.FirstOrDefault(p => p.Nickname.IndexOf(string.Join(" ", arguments), StringComparison.OrdinalIgnoreCase) >= 0);
+                response = translation.NoDuelRequests;
+                Log.Debug($"Player {commandsender.Nickname} has no duel requests.", Config.Debug, commandName);
+                return false;
             }
+            PluginAPI.Core.Player requester = requester = allRequesters.FirstOrDefault(p => string.Equals(p.Nickname, string.Join(" ", arguments), StringComparison.OrdinalIgnoreCase));
+            requester ??= allRequesters.FirstOrDefault(p => p.Nickname.IndexOf(string.Join(" ", arguments), StringComparison.OrdinalIgnoreCase) >= 0);
             if (requester == null)
             {
                 response = translation.NoPlayers;
@@ -80,7 +79,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
 
         internal const string _command = "reject";
 
-        internal const string _description = "Reject duel offer from player(s). Provide player nickname, whole or part of it, otherwise all offers will be rejected. The case is ignored.";
+        internal const string _description = "Reject a duel offer from other Ghost.";
 
         internal static readonly string[] _aliases = new[] { "r" };
 
@@ -91,6 +90,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
+        public string[] Usage { get; }
         public bool SanitizeResponse { get; }
         private static Config Config => Plugin.Singleton.pluginConfig;
     }

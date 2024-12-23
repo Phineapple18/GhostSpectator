@@ -37,7 +37,7 @@ namespace GhostSpectator.Commands.ClientConsole.ShootingTarget
             if (sender == null)
             {
                 response = translation.SenderNull;
-                Log.Debug("Command sender is null.", Config.Debug, commandName);
+                Log.Debug("Command sender doesn't exist.", Config.Debug, commandName);
                 return false;
             }
             Player commandsender = Player.Get(sender);
@@ -47,17 +47,17 @@ namespace GhostSpectator.Commands.ClientConsole.ShootingTarget
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug, commandName);
                 return false;
             }
-            GhostComponent component = commandsender.GetGhostComponent();
+            GhostComponent component = commandsender.GetComponent<GhostComponent>();
             if (component.ShootingTargets.Count == 0)
             {
                 response = translation.NoTargets;
-                Log.Debug($"Player {commandsender.Nickname} doesn't have any spawned shooting targets.", Config.Debug, commandName);
+                Log.Debug($"Player {commandsender.Nickname} doesn't have any shooting targets.", Config.Debug, commandName);
                 return false;
             }
             if (arguments.IsEmpty())
             {
                 response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
-                Log.Debug($"Player {commandsender.Nickname} didn't provide arguments for command.", Config.Debug, commandName);
+                Log.Debug($"Player {commandsender.Nickname} didn't provide any argument.", Config.Debug, commandName);
                 return false;
             }
             if (arguments.At(0).ToLower() == "list")
@@ -68,16 +68,16 @@ namespace GhostSpectator.Commands.ClientConsole.ShootingTarget
             if (!uint.TryParse(arguments.At(0), out uint targetId))
             {
                 response = translation.MustBeId;
-                Log.Debug($"Player {commandsender.Nickname} provided argument in wrong format.", Config.Debug, commandName);
+                Log.Debug($"Player {commandsender.Nickname} didn't provide ID of the shooting target.", Config.Debug, commandName);
                 return false;
             }
             if (!component.ShootingTargets.TryGetFirst(t => t.netId == targetId, out AdminToyBase target))
             {
                 response = translation.DestroyTargetFail.Replace("%targetid%", target.netId.ToString());
-                Log.Debug($"Player {commandsender.Nickname} doesn't have any spawned shooting target with ID {arguments.ElementAt(0)}.", Config.Debug, commandName);
+                Log.Debug($"Player {commandsender.Nickname} doesn't have any shooting target with ID {arguments.ElementAt(0)}.", Config.Debug, commandName);
                 return false;
             }
-            OtherExtensions.DestroyShootingTarget(component, target);
+            TargetExtensions.DestroyShootingTarget(component, target);
             response = translation.DestroyTargetSuccess.Replace("%targetname%", target.CommandName).Replace("%targetid%", target.netId.ToString());
             Log.Debug($"Player {commandsender.Nickname} destroyed their target ({target}) with ID {targetId}.", Config.Debug, commandName);
             return true;
@@ -85,7 +85,7 @@ namespace GhostSpectator.Commands.ClientConsole.ShootingTarget
 
         internal const string _command = "DestroyTarget";
 
-        internal const string _description = "Destroy your shooting target or print a list of your targets.";
+        internal const string _description = "Destroy your shooting target or print a list of your shooting targets.";
 
         internal static readonly string[] _aliases = new[] { "dstg", "dtg" };
 
