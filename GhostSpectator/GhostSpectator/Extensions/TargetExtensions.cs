@@ -20,24 +20,6 @@ namespace GhostSpectator.Extensions
             Log.Debug($"Destroyed shooting target {target.name} with ID {target.netId}.", Config.Debug, PluginName);
         }
 
-        internal static void HandleVisibility(this HashSet<AdminToyBase> targetList)
-        {
-            foreach (AdminToyBase target in targetList)
-            {
-                foreach (Player ply in Player.GetPlayers())
-                {
-                    if (ply.IsGhost())
-                    {
-                        target.netIdentity.AddObserver(ply.ReferenceHub.netIdentity.connectionToClient);
-                    }
-                    else
-                    {
-                        target.netIdentity.RemoveObserver(ply.ReferenceHub.netIdentity.connectionToClient);
-                    }
-                }
-            }
-        }
-
         internal static List<Bounds> ShootingRanges { get; private set; } = new();
         private static Config Config => Plugin.Singleton.pluginConfig;
         private static string PluginName => Plugin.Singleton.pluginHandler.PluginName;
