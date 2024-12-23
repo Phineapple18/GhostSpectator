@@ -4,21 +4,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using AdminToys;
 using InventorySystem.Items;
-using Mirror;
+using InventorySystem.Items.Firearms;
+using InventorySystem.Items.Firearms.Modules;
 using PluginAPI.Core;
 using UnityEngine;
 
 namespace GhostSpectator.Extensions
 {
-    internal static class OtherExtensions
+    public static class OtherExtensions
     {
-        internal static void DestroyShootingTarget(GhostComponent component, AdminToyBase target)
+        internal static void RefreshAmmo(this Player player)
         {
-            NetworkServer.Destroy(target.gameObject);
-            component.ShootingTargets.Remove(target);
-            Log.Debug($"Destroyed shooting target {target.name} with ID {target.netId}.", Config.Debug, PluginName);
+            if (player.CurrentItem is Firearm firearm && firearm.GetTotalStoredAmmo() < firearm.GetTotalMaxAmmo())
+            {
+                MagazineModule module = firearm.Modules.FirstOrDefault(m => m is MagazineModule) as MagazineModule;
+                module.ServerModifyAmmo(firearm.GetTotalMaxAmmo());
+            }
         }
 
         public static bool IsGhostItem(this ItemBase item)
@@ -35,8 +37,5 @@ namespace GhostSpectator.Extensions
 
         internal static HashSet<ItemBase> GhostItemList { get; } = new();
         internal static List<Vector3> SpawnPositions { get; private set; } = new();
-        internal static List<Bounds> ShootingRanges { get; private set; } = new();
-        private static Config Config => Plugin.Singleton.pluginConfig;
-        private static string PluginName => Plugin.Singleton.pluginHandler.PluginName;
     }
 }

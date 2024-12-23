@@ -16,7 +16,7 @@ namespace GhostSpectator.Extensions
             player.TemporaryData.Add(dataName, "spawning");
             try
             {
-                player.GetGhostComponent().enabled = true;
+                player.GetComponent<GhostComponent>().enabled = true;
             }
             catch (Exception)
             {
@@ -25,15 +25,15 @@ namespace GhostSpectator.Extensions
             Log.Debug($"Player {player.Nickname} has been turned into Ghost.", Config.Debug, PluginName);
         }
 
-        public static void Despawn(Player player, bool toSpectator = true)
+        public static void Despawn(Player player, bool forceSpectator = true)
         {
-            player.GetGhostComponent().enabled = false;
-            if (toSpectator)
+            player.GetComponent<GhostComponent>().enabled = false;
+            if (forceSpectator)
             {
                 player.SetRole(RoleTypeId.Spectator);
             }
             player.TemporaryData.Remove(dataName);
-            Log.Debug($"Player {player.Nickname} is no longer a Ghost{(toSpectator ? " and changed role to Spectator" : "")}.", Config.Debug, PluginName);
+            Log.Debug($"Player {player.Nickname} is no longer a Ghost{(forceSpectator ? " and has changed role to Spectator" : "")}.", Config.Debug, PluginName);
         }
 
         public static bool IsGhost(this ReferenceHub hub)
@@ -54,11 +54,6 @@ namespace GhostSpectator.Extensions
         public static bool IsGhostDespawning(this Player player)
         {
             return player != null && player.TemporaryData.StoredData.Any(kvp => kvp.Key == dataName && (string)kvp.Value == "despawning");
-        }
-
-        public static GhostComponent GetGhostComponent(this Player player)
-        {
-            return player.GameObject.GetComponent<GhostComponent>();
         }
 
         public const string dataName = "IsGhostSpectator";
