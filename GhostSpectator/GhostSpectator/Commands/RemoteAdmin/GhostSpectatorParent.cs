@@ -29,7 +29,7 @@ namespace GhostSpectator.Commands.RemoteAdmin
             this.RegisterCommand(new Despawn(translation.DespawnCommand, translation.DespawnDescription, translation.DespawnAliases));
             this.RegisterCommand(new List(translation.ListghostCommand, translation.ListghostDescription, translation.ListghostAliases));
             this.RegisterCommand(new Spawn(translation.SpawnCommand, translation.SpawnDescription, translation.SpawnAliases));
-            Log.Debug($"Registered {this.AllCommands.Count()} command(s) for {this.Command} parent command.", translation.Debug, Translation.pluginName);
+            Log.Debug($"Loaded {this.AllCommands.Count()} command(s) for {this.Command} parent command.", translation.Debug, Translation.pluginName);
         }
 
         protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender, out string response)
@@ -52,7 +52,7 @@ namespace GhostSpectator.Commands.RemoteAdmin
 
         internal const string _command = "ghostspectator";
 
-        internal const string _description = "Parent command. Type empty command for more information regarding subcommands.";
+        internal const string _description = "Parent command for managing Ghosts.";
 
         internal static readonly string[] _aliases = new[] { "ghost", "gsp", "gs" };
 

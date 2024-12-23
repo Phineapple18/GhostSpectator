@@ -9,7 +9,6 @@ using GhostSpectator.Extensions;
 using NorthwoodLib.Pools;
 using NWAPIPermissionSystem;
 using PluginAPI.Core;
-using Utils;
 
 namespace GhostSpectator.Commands.RemoteAdmin
 {
@@ -22,7 +21,7 @@ namespace GhostSpectator.Commands.RemoteAdmin
             Command = !string.IsNullOrWhiteSpace(command) ? command : _command;
             Description = description;
             Aliases = aliases;
-            Usage = new[] { "%player%/all" };
+            Usage = new[] { "PlayerID/all" };
             Log.Debug($"Registered {this.Command} subcommand.", translation.Debug, Translation.pluginName);
         }
 
@@ -37,60 +36,51 @@ namespace GhostSpectator.Commands.RemoteAdmin
             if (sender == null)
             {
                 response = translation.SenderNull;
-                Log.Debug("Command sender is null.", Config.Debug, commandName);
+                Log.Debug("Command sender doesn't exist.", Config.Debug, commandName);
                 return false;
             }
             if (!sender.CheckPermission("gs.spawn.other"))
             {
                 response = translation.NoPerms;
-                Log.Debug($"Player {sender.LogName} doesn't have required permission to use this command.", Config.Debug, commandName);
+                Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug, commandName);
                 return false;
             }
             if (!Round.IsRoundStarted)
 			{
 				response = translation.RoundNotStarted;
-                Log.Debug("This command can't be used before round start.", Config.Debug, commandName);
+                Log.Debug($"Player {sender.LogName} tried to use this command before round start.", Config.Debug, commandName);
                 return false;
 			}
             if (Warhead.IsDetonated && Config.DespawnOnDetonation && !sender.CheckPermission("gs.warhead"))
 			{
 				response = translation.WarheadDetonated;
-                Log.Debug($"Player {sender.LogName} can't use this command after warhead detonation.", Config.Debug, commandName);
+                Log.Debug($"Player {sender.LogName} doesn't have permission use this command after warhead detonation.", Config.Debug, commandName);
                 return false;
 			}
             if (arguments.IsEmpty())
 			{
                 response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
-                Log.Debug($"Player {sender.LogName} didn't provide arguments for command.", Config.Debug, commandName);
+                Log.Debug($"Player {sender.LogName} didn't provide any argument.", Config.Debug, commandName);
                 return false;
 			}
-            List<ReferenceHub> validHubs = arguments.At(0).ToLower() == "all" ? ReferenceHub.AllHubs.ToList() : RAUtils.ProcessPlayerIdOrNamesList(arguments, 0, out string[] _);
-            if (validHubs.IsEmpty())
+            List<Player> validPlayers = arguments.At(0).ToLower() == "all" ? Player.GetPlayers() : Player.GetPlayers().Where(p => arguments.Contains(p.PlayerId.ToString())).ToList();
+            if (validPlayers.IsEmpty())
 			{
                 response = translation.NoPlayers;
-                Log.Debug("Provided player(s) doesn't exist.", Config.Debug, commandName);
+                Log.Debug($"Player {sender.LogName} provided non-existent player(s).", Config.Debug, commandName);
                 return false;
             }
-            if (validHubs.Count == 1 && validHubs[0].isLocalPlayer)
-            {
-                response = translation.DedicatedServer;
-                Log.Debug($"Player {sender.LogName} attempted to use this command on Dedicated Server.", Config.Debug, commandName);
-                return false;
-            }
-            validHubs.Remove(Server.Instance.ReferenceHub);
             StringBuilder success = StringBuilderPool.Shared.Rent(); 
             StringBuilder failure = StringBuilderPool.Shared.Rent();
-            success.AppendLine($"{translation.SpawnSuccess}:");
+            success.AppendLine(translation.SpawnSuccess);
             failure.AppendLine($"{translation.SpawnFail}:");
             int numS = 0;
             int numF = 0;
-            foreach (ReferenceHub hub in validHubs)
+            foreach (Player player in validPlayers)
 			{
-				Player player = Player.Get(hub);
                 if (!player.IsGhost())
                 {
                     GhostExtensions.Spawn(player);
-                    success.AppendLine($"- {player.Nickname}");
                     numS++;
                     continue;
                 }
@@ -103,12 +93,12 @@ namespace GhostSpectator.Commands.RemoteAdmin
             StringBuilder result = numS == 0 ? failure : numF == 0 ? success : success.Append(failure);
             response = StringBuilderPool.Shared.ToStringReturn(result).TrimEnd(Array.Empty<char>());
             Log.Debug($"Player {sender.LogName} spawned successfully ({numS}) and unsuccessfully ({numF}) players as Ghosts.", Config.Debug, commandName);
-            return true;
+            return numS > 0;
 		}
 
         internal const string _command = "spawn";
 
-        internal const string _description = "Spawn selected player(s) as Ghost. Separate entries with space.";
+        internal const string _description = "Spawn chosen player(s) as Ghost. Separate entries with space.";
 
         internal static readonly string[] _aliases = new[] { "s" };
 

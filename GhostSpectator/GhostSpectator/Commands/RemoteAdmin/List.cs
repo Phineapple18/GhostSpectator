@@ -34,13 +34,13 @@ namespace GhostSpectator.Commands.RemoteAdmin
             if (sender == null)
             {
                 response = translation.SenderNull;
-                Log.Debug("Command sender is null.", Config.Debug, commandName);
+                Log.Debug("Command sender doesn't exist.", Config.Debug, commandName);
                 return false;
             }
             if (!sender.CheckPermission("gs.list"))
             {
                 response = translation.NoPerms;
-                Log.Debug($"Player {sender.LogName} doesn't have required permission to use this command.", Config.Debug, commandName);
+                Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug, commandName);
                 return false;
             }
             response = $"{translation.ListghostSuccess.Replace("%count%", GhostExtensions.GhostPlayerList.Count().ToString())}:\n- {string.Join("\n- ", from player in GhostExtensions.GhostPlayerList select player.Nickname)}";
