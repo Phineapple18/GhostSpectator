@@ -83,7 +83,6 @@ namespace GhostSpectator
             player.EffectsManager.DisableEffect<PitDeath>();
 
             player.RefreshAmmo();
-            this.ShootingTargets.HandleVisibility();
         }
 
         public void OnDisable()
