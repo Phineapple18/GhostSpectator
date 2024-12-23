@@ -10,7 +10,7 @@ Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into G
 - Depending on the assigned permissions, Ghosts can:
   * noclip
   * drop or throw items or throwables (except their ghost item)
-  * create a shooting target(s), that is visible only to Ghosts
+  * create a shooting target(s)
   * give themselves a firearm with infinite ammunition 
   * listen to SCP and Spectators chats (via command or automatically)
   * listen to other Ghosts via RoundSummary chat, if they are not within Proximity Chat or further than certain distance (via command or automatically)
