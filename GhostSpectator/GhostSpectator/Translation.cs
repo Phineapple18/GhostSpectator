@@ -19,44 +19,44 @@ namespace GhostSpectator
 {
     public class Translation
     {
-        [Description("MISCELLANOUS TRANSLATION. Don't translate words between two '%'." +
+        [Description("MISCELLANOUS TRANSLATION. Don't translate words put between two '%'." +
                      "\n# Nickname of Ghost.")]
         public string GhostNickname { get; set; } = "GHOST";
 
-        [Description("Broadcast sent to Ghost upon spawn.")]
+        [Description("Broadcast sent to a Ghost upon spawn.")]
         public string SpawnMessage { get; set; } = "<size=50><color=%colour%>You are a Ghost!</color>\n<size=30>Drop the %teleportitem% to teleport to a random alive player.</size>";
 
-        [Description("Hints shown to Ghost, when dropping teleport item.")]
+        [Description("Hints shown to a Ghost, when dropping the teleport item.")]
         public string TeleportSuccess { get; set; } = "You have been teleported to <color=green>%playernick%</color>.";
 
         public string TeleportFail { get; set; } = "There is nobody you can teleport to.";
 
-        [Description("Duel related hints shown to Ghost.")]
-        public string DuelAbandoned { get; set; } = "Your duel has been abandoned by your opponent (<color=red>%playernick%</color>).";
+        [Description("Duel hints shown to a Ghost.")]
+        public string DuelAbandoned { get; set; } = "Player <color=red>%playernick%</color> has abandoned the duel with you.";
 
         public string DuelAborted { get; set; } = "Your duel with <color=red>%playernick%</color> has been aborted.";
 
-        public string DuelPrepare { get; set; } = "Prepare for duel!";
+        public string DuelPrepare { get; set; } = "Prepare for a duel!";
 
-        public string DuelStarted { get; set; } = "Duel has started!";
+        public string DuelStarted { get; set; } = "The duel has started!";
 
-        public string DuelWon { get; set; } = "You have won duel against <color=green>%playernick%</color>.";
+        public string DuelWon { get; set; } = "You have won a duel against <color=green>%playernick%</color>.";
 
-        public string DuelLost { get; set; } = "You have lost duel against <color=red>%playernick%</color>.";
+        public string DuelLost { get; set; } = "You have a lost duel to <color=red>%playernick%</color>.";
 
         public string DuelRequestCancelled { get; set; } = "Player <color=red>%playernick%</color> has cancelled their duel request.";
 
         public string DuelRequestExpired { get; set; } = "Your duel request for <color=red>%playernick%</color> has expired.";
 
-        public string DuelRequestReceived { get; set; } = "Player <color=red>%playernick%</color> has challenged you to duel!\nUse the client command console to accept or reject it within <color=yellow>%time%s</color> or let the offer expire.";
+        public string DuelRequestReceived { get; set; } = "Player <color=red>%playernick%</color> has challenged you to a duel!\nUse the client command console to accept or reject it within <color=yellow>%time%s</color> or let the offer expire.";
 
         public string DuelRequestRejected { get; set; } = "Player <color=red>%playernick%</color> has rejected your duel request.";
 
-        [Description("COMMANDS\' TRANSLATION. Don't translate words between two '%'." +
+        [Description("COMMANDS\' TRANSLATION. Don't translate words put between two '%'." +
                      "\n# Should debug be enabled for command registering?")]
         public bool Debug { get; set; } = false;
 
-        [Description("Translation for GhostSpectator parent command and its subcommands. Make sure not to duplicate commands or aliases." +
+        [Description("Translation of GhostSpectator parent command and its subcommands. Make sure not to duplicate commands or aliases." +
                      "\n# GhostSpectator parent command.")]
         public string GhostspectatorParentCommand { get; set; } = GhostSpectatorParent._command;
 
@@ -71,7 +71,7 @@ namespace GhostSpectator
 
         public string[] DespawnAliases { get; set; } = Despawn._aliases;
 
-        public string DespawnSuccess { get; set; } = "Succesfully despawned %count% existing player(s) from Ghosts";
+        public string DespawnSuccess { get; set; } = "Succesfully despawned %count% Ghost(s).";
 
         public string DespawnFail { get; set; } = "Command failed for %count% existing player(s) (not a Ghost)";
 
@@ -91,11 +91,11 @@ namespace GhostSpectator
 
         public string[] SpawnAliases { get; set; } = Spawn._aliases;
 
-        public string SpawnSuccess { get; set; } = "Succesfully turned %count% existing player(s) into Ghosts";
+        public string SpawnSuccess { get; set; } = "Succesfully spawned %count% Ghosts.";
 
         public string SpawnFail { get; set; } = "Command failed for %count% existing player(s) (already a Ghost)";
 
-        [Description("Translation for Duel parent command and its subcommands. Make sure not to duplicate commands or aliases." +
+        [Description("Translation of Duel parent command and its subcommands. Make sure not to duplicate commands or aliases." +
                      "\n# Duel parent command.")]
         public string DuelParentCommand { get; set; } = DuelParent._command;
 
@@ -110,7 +110,7 @@ namespace GhostSpectator
 
         public string[] AcceptAliases { get; set; } = Accept._aliases;
 
-        public string AcceptSuccess { get; set; } = "You have accepted duel request from %playernick%.";
+        public string AcceptSuccess { get; set; } = "You have accepted a duel request from %playernick%.";
 
         [Description("Cancel command.")]
         public string CancelCommand { get; set; } = Cancel._command;
@@ -121,7 +121,7 @@ namespace GhostSpectator
 
         public string CancelDuelSuccess { get; set; } = "You have cancelled your duel with %playernick%.";
 
-        public string CancelRequestSuccess { get; set; } = "You have cancelled your duel request for %playernick%.";
+        public string CancelRequestSuccess { get; set; } = "You have cancelled your duel request to %playernick%.";
 
         public string CancelFail { get; set; } = "You don't have any active duel nor duel requests.";
 
@@ -132,14 +132,14 @@ namespace GhostSpectator
 
         public string[] ListduelAliases { get; set; } = ListDuel._aliases;
 
-        public string ListduelSuccess { get; set; } = "You have been challenged to duel by following players";
+        public string ListduelSuccess { get; set; } = "You have been challenged to a duel by following player(s)";
 
         [Description("Player command.")]
-        public string PlayerCommand { get; set; } = Ply._command;
+        public string PlayerCommand { get; set; } = Player._command;
 
-        public string PlayerDescription { get; set; } = Ply._description;
+        public string PlayerDescription { get; set; } = Player._description;
 
-        public string[] PlayerAliases { get; set; } = Ply._aliases;
+        public string[] PlayerAliases { get; set; } = Player._aliases;
 
         public string PlayerSuccess { get; set; } = "You have challenged %playernick% to duel.";
 
@@ -150,11 +150,9 @@ namespace GhostSpectator
 
         public string[] RejectAliases { get; set; } = Reject._aliases;
 
-        public string RejectSuccessAll { get; set; } = "You have rejected all duel requests.";
-
         public string RejectSuccessPlayer { get; set; } = "You have rejected duel request from %playernick%.";
 
-        [Description("Translation for client commands. Make sure not to duplicate commands or aliases." +
+        [Description("Translation of other client commands. Make sure not to duplicate commands or aliases." +
                      "\n# CreateTarget command.")]
 
         public string CreatetargetCommand { get; set; } = CreateTarget._command;
@@ -163,7 +161,7 @@ namespace GhostSpectator
 
         public string[] CreatetargetAliases { get; set; } = CreateTarget._aliases;
 
-        public string CreatetargetSuccess { get; set; } = "You have spawned a shooting target (%targetname%) with ID %targetid%.";
+        public string CreatetargetSuccess { get; set; } = "You have created a shooting target (%targetname%) with ID %targetid%.";
 
         [Description("DestroyTarget command.")]
         public string DestroyTargetCommand { get; set; } = DestroyTarget._command;
@@ -172,11 +170,11 @@ namespace GhostSpectator
 
         public string[] DestroyTargetAliases { get; set; } = DestroyTarget._aliases;
 
-        public string DestroyTargetList { get; set; } = "List of spawned targets (%count%)";
+        public string DestroyTargetList { get; set; } = "List of spawned shooting targets (%count%)";
 
-        public string DestroyTargetSuccess { get; set; } = "You have despawned your shooting target (%targetname%) with ID %targetid%.";
+        public string DestroyTargetSuccess { get; set; } = "You have destroyed your shooting target (%targetname%) with ID %targetid%.";
 
-        public string DestroyTargetFail { get; set; } = "You don't have any spawned shooting target with ID %targetid%.";
+        public string DestroyTargetFail { get; set; } = "You don't have any shooting target created with ID %targetid%.";
 
         [Description("DisableVoicechat command.")]
         public string DisablevoicechatCommand { get; set; } = DisableVoicechat._command;
@@ -185,11 +183,9 @@ namespace GhostSpectator
 
         public string[] DisablevoicechatAliases { get; set; } = DisableVoicechat._aliases;
 
-        public string DisablevoicechatSuccess { get; set; } = "Successfully disabled listening to following groups";
+        public string DisablevoicechatSuccess { get; set; } = "Successfully disabled listening to the following group(s)";
 
-        public string DisablevoicechatFail { get; set; } = "You already have disabled listening to following group(s)";
-
-        public string DisablevoicechatFailNoperm { get; set; } = "You don't have permission to disable listening to following group(s)";
+        public string DisablevoicechatFail { get; set; } = "You either don't have permission or have already disabled listening to the following group(s)";
 
         [Description("EnableVoicechat command.")]
         public string EnablevoicechatCommand { get; set; } = EnableVoicechat._command;
@@ -198,11 +194,9 @@ namespace GhostSpectator
 
         public string[] EnablevoicechatAliases { get; set; } = EnableVoicechat._aliases;
 
-        public string EnableVoicechatSuccess { get; set; } = "Successfully enabled listening to following groups";
+        public string EnableVoicechatSuccess { get; set; } = "Successfully enabled listening to the following groups";
 
-        public string EnablevoicechatFail { get; set; } = "You already have enabled listening to following group(s)";
-
-        public string EnablevoicechatFailNoperm { get; set; } = "You don't have permission to listen to following group(s)";
+        public string EnablevoicechatFail { get; set; } = "You either don't have permission or have already enabled listening to the following group(s)";
 
         [Description("GhostMe command.")]
         public string GhostmeCommand { get; set; } = GhostMe._command;
@@ -211,7 +205,7 @@ namespace GhostSpectator
 
         public string[] GhostmeAliases { get; set; } = GhostMe._aliases;
 
-        public string GhostmeGhostSuccess { get; set; } = "You have changed yourself to Ghost.";
+        public string GhostmeGhostSuccess { get; set; } = "You have changed yourself to a Ghost.";
 
         public string GhostmeSpecSuccess { get; set; } = "You have changed yourself to Spectator.";
 
@@ -228,7 +222,7 @@ namespace GhostSpectator
 
         public string GivefirearmSuccess { get; set; } = "You have given yourself a %itemtype%. Drop it to get rid of it.";
 
-        [Description("Translation for command interface.")]
+        [Description("Translation of the command interface.")]
         public string Aliases { get; set; } = "Aliases";
 
         public string Description { get; set; } = "Description";
@@ -237,49 +231,47 @@ namespace GhostSpectator
 
         public string Usage { get; set; } = "Usage";
 
-        [Description("Translation for other command responses.")]
+        [Description("Translation of other command responses.")]
 
-        public string ActiveDuelOther { get; set; } = "Player %playernick% already has active duel.";
+        public string ActiveDuelOther { get; set; } = "Player %playernick% already has an active duel.";
 
-        public string ActiveDuelSelf { get; set; } = "You already have active duel with %playernick%.";
+        public string ActiveDuelSelf { get; set; } = "You already have an active duel with %playernick%.";
 
-        public string ActivePendingDuel { get; set; } = "You already have pending duel with %playernick%.";
-
-        public string DedicatedServer { get; set; } = "You can't use that command on Dedicated Server.";
+        public string ActivePendingDuel { get; set; } = "You already have a pending duel with %playernick%.";
 
         public string FirearmOnly { get; set; } = "You can only give yourself a firearm.";
 
         public string ItemtypeOnly { get; set; } = "Provided argument is not an ItemType.";
 
-        public string MustBeId { get; set; } = "Argument must be an ID of your spawned shooting target.";
+        public string MustBeId { get; set; } = "Argument must be an ID of your shooting target.";
 
         public string NoDuelRequests { get; set; } = "You don't have any pending duel requests.";
 
-        public string NoGhosts { get; set; } = "No Ghost (that is not you) was found with the provided nickname.";
+        public string NoGhosts { get; set; } = "No Ghost (that is not you) was found with the provided nickname or part of it.";
 
         public string NoPerms { get; set; } = "You don't have permission to use this command.";
 
         public string NoPlayers { get; set; } = "Provided player(s) doesn't exist.";
 
-        public string NoTargets { get; set; } = "You don't have any spawned shooting targets.";
+        public string NoTargets { get; set; } = "You don't have any created shooting targets.";
 
-        public string NoTargetsAllowed { get; set; } = "You have reached the maximum allowed number of spawned shooting targets.";
+        public string NoTargetsAllowed { get; set; } = "You have reached the limit of created shooting targets.";
 
         public string NotEnabled { get; set; } = "GhostSpectator is not enabled.";
 
         public string NotGhost { get; set; } = "You can only use this command, if you are a Ghost.";
 
-        public string NotGrounded { get; set; } = "You must stand on the ground to spawn shooting target.";
+        public string NotGrounded { get; set; } = "You must stand on the ground to create a shooting target.";
 
-        public string RequestAlreadySent { get; set; } = "You have already sent duel request to this player.";
+        public string RequestAlreadySent { get; set; } = "You have already sent a duel request to this player.";
 
-        public string RoundNotStarted { get; set; } = "You can't use that command before round start.";
+        public string RoundNotStarted { get; set; } = "You can't use this command before round start.";
 
         public string SenderNull { get; set; } = "Command sender is null.";
 
         public string WarheadDetonated { get; set; } = "You can't use this command after warhead detonation.";
 
-        public string WrongArea { get; set; } = "You can spawn shooting targets only in designated shooting range(s).";
+        public string WrongArea { get; set; } = "You can create shooting targets only in designated shooting range(s).";
 
         public string WrongArgument { get; set; } = "Provided argument(s) doesn't exist.";
 

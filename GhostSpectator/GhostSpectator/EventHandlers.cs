@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 using GhostSpectator.Extensions;
-using InventorySystem.Items.Firearms;
 using MEC;
 using NWAPIPermissionSystem;
 using PlayerRoles;
@@ -19,12 +18,6 @@ namespace GhostSpectator
 {
     internal class EventHandlers
     {
-        [PluginEvent(ServerEventType.PlaceBlood)]
-        internal bool OnPlaceBlood(PlaceBloodEvent ev)
-        {
-            return !ev.Player.IsGhost();
-        }
-
         [PluginEvent(ServerEventType.PlayerCoinFlip)]
         internal bool OnPlayerCoinFlip(PlayerCoinFlipEvent ev)
         {
@@ -60,14 +53,20 @@ namespace GhostSpectator
 		    {
                 return false;
 			}
-            return ev.Player.GetGhostComponent().DuelPartner == ev.Target && ev.Target.GetGhostComponent().DuelPartner == ev.Player;
+            return ev.Player.GetComponent<GhostComponent>().DuelPartner == ev.Target && ev.Target.GetComponent<GhostComponent>().DuelPartner == ev.Player;
+        }
+
+        [PluginEvent(ServerEventType.PlayerDamagedShootingTarget)]
+        internal bool OnPlayerDamagedShootingTarget(PlayerDamagedShootingTargetEvent ev)
+        {
+            return !ev.Player.IsGhost() || ev.Player.GetComponent<GhostComponent>().ShootingTargets.Contains(ev.ShootingTarget);
         }
 
         [PluginEvent(ServerEventType.PlayerDamagedWindow)]
         internal bool OnPlayerDamagedWindow(PlayerDamagedWindowEvent ev)
 		{
 			return !ev.Player.IsGhost();
-		}
+		}        
 
         [PluginEvent(ServerEventType.PlayerDropItem)]
         internal bool OnPlayerDropItem(PlayerDropItemEvent ev)
@@ -79,7 +78,7 @@ namespace GhostSpectator
                     IEnumerable<Player> validPlayers = Player.GetPlayers().Where(p => p.IsAlive && !(p.IsGhost() || p.Role == RoleTypeId.Scp079 || config.RoleTeleportBlacklist.Contains(p.Role)));
                     if (validPlayers.IsEmpty())
                     {
-                        ev.Player.ReceiveHint(translation.TeleportFail, 3f);
+                        ev.Player.ReceiveHint(translation.TeleportFail);
                         Log.Debug($"Player {ev.Player.Nickname} failed to teleport due to missing valid players.", config.Debug, pluginName);
                     }
                     else
@@ -94,7 +93,7 @@ namespace GhostSpectator
 				if (!ev.Player.CheckPermission("gs.item"))
 				{
                     ev.Player.RemoveItem(ev.Item);
-                    Log.Debug($"Removed item {ev.Item.ItemTypeId} from player's {ev.Player.Nickname} inventory.", config.Debug, pluginName);
+                    Log.Debug($"Removed item {ev.Item.ItemTypeId} from inventory of player {ev.Player.Nickname}.", config.Debug, pluginName);
                 }
             }
             return true;
@@ -123,11 +122,17 @@ namespace GhostSpectator
 			if (ev.Player.IsGhost())
 			{
                 ev.Player.Position = OtherExtensions.SpawnPositions.ElementAt(random.Next(OtherExtensions.SpawnPositions.Count));
-                Log.Debug($"Player {ev.Player.Nickname} exited safely Pocket Dimension.", config.Debug, pluginName);
+                Log.Debug($"Player {ev.Player.Nickname} exited safely Pocket Dimension as a Ghost.", config.Debug, pluginName);
                 return false;
 			}
 			return true;
 		}
+
+        [PluginEvent(ServerEventType.PlayerHandcuff)]
+        internal bool OnPlayerHandcuff(PlayerHandcuffEvent ev)
+        {
+            return !ev.Player.IsGhost();
+        }
 
         [PluginEvent(ServerEventType.PlayerLeft)]
         internal void OnPlayerLeft(PlayerLeftEvent ev)
@@ -148,25 +153,6 @@ namespace GhostSpectator
 		{
             return !ev.Player.IsGhost();
         }
-
-        [PluginEvent(ServerEventType.PlayerShotWeapon)]
-        internal bool OnPlayerShotWeapon(PlayerShotWeaponEvent ev)
-		{
-			if (ev.Player.IsGhost())
-			{
-				if (ev.Firearm.ItemTypeId == ItemType.ParticleDisruptor)
-				{
-					return ev.Player.CheckPermission("gs.item");
-				}
-				if (ev.Firearm.Status.Ammo == 0)
-				{
-                    uint attachments = ev.Firearm.Status.Attachments;
-                    ev.Firearm.Status = new(ev.Firearm.AmmoManagerModule.MaxAmmo, FirearmStatusFlags.MagazineInserted, attachments);
-                    Log.Debug($"Refilled ammo for player {ev.Player.Nickname}.", config.Debug, pluginName);
-                }
-            }
-			return true;
-		}
 
         [PluginEvent(ServerEventType.PlayerSpawn)]
         internal void OnPlayerSpawn(PlayerSpawnEvent ev)
@@ -261,7 +247,7 @@ namespace GhostSpectator
 				{
                     GhostExtensions.Despawn(player);
 				}
-				Log.Debug("Despawned all Ghosts, who don't have warhead permission, due to warhead detonation.", config.Debug, pluginName);
+				Log.Debug("Despawned all Ghosts, who don't have permission, due to warhead detonation.", config.Debug, pluginName);
 			}
 		}
 
