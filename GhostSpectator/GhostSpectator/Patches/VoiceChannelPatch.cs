@@ -21,7 +21,7 @@ namespace GhostSpectator.Patches
     [HarmonyPatch(typeof(VoiceTransceiver), "ServerReceiveMessage")]
     public class VoiceChannelPatch
     {
-        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
 

@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 using GhostSpectator.Extensions;
 using HarmonyLib;
-using Respawning;
+using Respawning.Waves;
 
 namespace GhostSpectator.Patches
 {
-    [HarmonyPatch(typeof(RespawnManager), "CheckSpawnable")]
+    [HarmonyPatch(typeof(WaveSpawner), nameof(WaveSpawner.CanBeSpawned))]
     internal class CheckSpawnablePatch
     {
-        internal static void Postfix(ReferenceHub ply, ref bool __result)
+        internal static void Postfix(ReferenceHub player, ref bool __result)
         {
-            if (ply.IsGhost())
+            if (player.IsGhost())
             {
                 __result = true;
             }

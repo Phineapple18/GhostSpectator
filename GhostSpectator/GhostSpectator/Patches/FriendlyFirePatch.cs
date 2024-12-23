@@ -15,8 +15,7 @@ namespace GhostSpectator.Patches
     {
         internal static void Postfix(ReferenceHub damagedPlayer, DamageHandlerBase handler, ref bool __result)
         {
-            AttackerDamageHandler attackHandler = handler as AttackerDamageHandler;
-            if (__result && attackHandler.Attacker.Hub.IsGhost() && damagedPlayer.IsGhost())
+            if (__result && (handler as AttackerDamageHandler).Attacker.Hub.IsGhost() && damagedPlayer.IsGhost())
             {
                 __result = false;
             }

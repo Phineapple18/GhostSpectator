@@ -9,7 +9,9 @@ using System.Reflection.Emit;
 
 using GhostSpectator.Extensions;
 using HarmonyLib;
+using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
+using InventorySystem.Items.Firearms.Modules;
 using NorthwoodLib.Pools;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl.Thirdperson;
@@ -25,7 +27,7 @@ namespace GhostSpectator.Patches
         }
     }
 
-    [HarmonyPatch(typeof(FirearmExtensions), nameof(FirearmExtensions.ServerSendAudioMessage))]
+    [HarmonyPatch(typeof(AudioModule), "ServerSendToNearbyPlayers")]
     internal class FirearmSoundPatch
     {
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
@@ -33,16 +35,20 @@ namespace GhostSpectator.Patches
             List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
 
             Label moveNext = generator.DefineLabel();
-            newInstructions.FindAll((CodeInstruction i) => i.opcode == OpCodes.Ldloca_S).ElementAt(4).labels.Add(moveNext);
-            int index = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Ldfld && (FieldInfo)i.operand == AccessTools.Field(typeof(ReferenceHub), nameof(ReferenceHub.roleManager)));
-            int offset = -1;
+            newInstructions.FindAll((CodeInstruction i) => i.opcode == OpCodes.Ldloca_S).ElementAt(1).labels.Add(moveNext);
+            int index = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Call && (MethodInfo)i.operand == AccessTools.PropertyGetter(typeof(HashSet<ReferenceHub>.Enumerator), "Current"));
+            int offset = 2;
 
             newInstructions.InsertRange(index + offset, new List<CodeInstruction>
             {
-                new(OpCodes.Ldloc_1),
-                new(OpCodes.Ldloc_S, 5),
-                new(OpCodes.Call, AccessTools.Method(typeof(FirearmSoundPatch), nameof(OverrideGunShot), new[] { typeof(ReferenceHub), typeof(ReferenceHub) })),
-                new(OpCodes.Brtrue_S, moveNext)
+                new(OpCodes.Ldloc_S, 4),
+                new(OpCodes.Ldloca_S, 3),
+                new(OpCodes.Call, AccessTools.PropertyGetter(typeof(HashSet<ReferenceHub>.Enumerator), "Current")),
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Call, AccessTools.PropertyGetter(typeof(FirearmSubcomponentBase), nameof(FirearmSubcomponentBase.Firearm))),
+                new(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(ItemBase), nameof(ItemBase.Owner))),
+                new(OpCodes.Call, AccessTools.Method(typeof(FirearmSoundPatch), nameof(MuteShot), new[] { typeof(ReferenceHub), typeof(ReferenceHub) })),
+                new(OpCodes.Brtrue_S, moveNext),
             });
 
             for (int i = 0; i < newInstructions.Count; i++)
@@ -53,9 +59,9 @@ namespace GhostSpectator.Patches
             ListPool<CodeInstruction>.Shared.Return(newInstructions);
         }
 
-        private static bool OverrideGunShot(ReferenceHub shooter, ReferenceHub hub)
+        private static bool MuteShot(ReferenceHub receiver, ReferenceHub shooter)
         {
-            return shooter.IsGhost() && hub.GetRoleId() == RoleTypeId.Scp939;
+            return shooter.IsGhost() && !receiver.IsGhost() && receiver.IsAlive();
         }
     }
 }

@@ -9,8 +9,8 @@ using System.Reflection.Emit;
 
 using GhostSpectator.Extensions;
 using HarmonyLib;
-using InventorySystem.Items;
 using NorthwoodLib.Pools;
+using PlayerRoles;
 using PlayerRoles.PlayableScps.Scp939;
 using PlayerRoles.PlayableScps.Scp939.Ripples;
 
@@ -25,31 +25,16 @@ namespace GhostSpectator.Patches
         }
     }
 
-    [HarmonyPatch(typeof(FirearmRippleTrigger), "OnServerSoundPlayed")]
+    [HarmonyPatch(typeof(FirearmRippleTrigger), "OnFirearmPlayed")]
     internal class FirearmRipplePatch
     {
-        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+        internal static bool Prefix(PlayerRoleBase shooterRole)
         {
-            List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
-
-            Label ret = generator.DefineLabel();
-            int index = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Callvirt && (MethodInfo)i.operand == AccessTools.PropertyGetter(typeof(ItemBase), "Owner"));
-
-            newInstructions.InsertRange(index, new List<CodeInstruction>
+            if (shooterRole.TryGetOwner(out ReferenceHub hub) && hub.IsGhost())
             {
-                new(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(ItemBase), nameof(ItemBase.Owner))),
-                new(OpCodes.Call, AccessTools.Method(typeof(GhostExtensions), nameof(GhostExtensions.IsGhost), new[] { typeof(ReferenceHub) })),
-                new(OpCodes.Brtrue_S, ret),
-                new(OpCodes.Ldarg_1)
-            });
-
-            newInstructions[newInstructions.Count - 1].WithLabels(ret);
-            for (int i = 0; i < newInstructions.Count; i++)
-            {
-                yield return newInstructions[i];
+                return false;
             }
-
-            ListPool<CodeInstruction>.Shared.Return(newInstructions);
+            return true;
         }
     }
 

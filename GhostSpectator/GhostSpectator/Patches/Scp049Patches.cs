@@ -25,26 +25,26 @@ namespace GhostSpectator.Patches
             Label nextCondition1 = generator.DefineLabel();
             newInstructions.FindAll((CodeInstruction i) => i.opcode == OpCodes.Ldarg_1).ElementAt(2).labels.Add(nextCondition1);
             int index1 = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Ldsfld && (FieldInfo)i.operand == AccessTools.Field(typeof(Scp049ResurrectAbility), "DeadZombies"));
-            int offset1= 4;
+            int offset1 = 5;
 
             newInstructions.InsertRange(index1 + offset1, new List<CodeInstruction>
             {
-                new(OpCodes.Brtrue_S, nextCondition1),
                 new(OpCodes.Ldsfld, AccessTools.Field(typeof(EventHandlers), nameof(EventHandlers.deadZombies))),
                 new(OpCodes.Ldloc_0),
-                new(OpCodes.Callvirt, AccessTools.Method(typeof(HashSet<ReferenceHub>), nameof(HashSet<ReferenceHub>.Contains), new[] { typeof(ReferenceHub) }))
+                new(OpCodes.Callvirt, AccessTools.Method(typeof(HashSet<ReferenceHub>), nameof(HashSet<ReferenceHub>.Contains), new[] { typeof(ReferenceHub) })),
+                new(OpCodes.Brtrue_S, nextCondition1)
             });
 
             Label nextCondition2 = generator.DefineLabel();
             newInstructions.FindAll((CodeInstruction i) => i.opcode == OpCodes.Ldarg_0).ElementAt(2).labels.Add(nextCondition2);
             int index2 = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Call && (MethodInfo)i.operand == AccessTools.Method(typeof(Scp049ResurrectAbility), "IsSpawnableSpectator"));
-            int offset2 = 1;
+            int offset2 = 2;
 
             newInstructions.InsertRange(index2 + offset2, new List<CodeInstruction>
             {
-                new(OpCodes.Brtrue_S, nextCondition2),
                 new(OpCodes.Ldloc_0),
-                new(OpCodes.Call, AccessTools.Method(typeof(BeginConditionsPatch), nameof(IsDead), new[] { typeof(ReferenceHub) }))
+                new(OpCodes.Call, AccessTools.Method(typeof(BeginConditionsPatch), nameof(IsDead), new[] { typeof(ReferenceHub) })),
+                new(OpCodes.Brtrue_S, nextCondition2)
             });
 
             for (int i = 0; i < newInstructions.Count; i++)
