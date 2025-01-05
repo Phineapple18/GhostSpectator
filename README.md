@@ -1,4 +1,4 @@
-# GhostSpectator
+# GhostSpectator (2.0.0)
 Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into Ghosts: Tutorials undetectable to alive players and not affecting the round. Depending on the config, Ghosts can perform various activities, such as teleporting to alive players, practising target shooting or challenging another Ghost to a duel.
 
 ## Features
@@ -16,7 +16,7 @@ Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into G
   * listen to other Ghosts via RoundSummary chat, if they are not within Proximity Chat or further than certain distance (via command or automatically)
   * challenge other Ghosts to a duel
 
-## Required plugins and dependencies (2.0.0): 
+## Required plugins and dependencies: 
 - [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem/releases/tag/0.0.6) by ced777ric - plugin
 - [Harmony 2.2.2.0 (net48)](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - dependency (attached to one of the previous releases)
 
