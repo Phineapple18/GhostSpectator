@@ -1,16 +1,16 @@
-# GhostSpectator (2.0.0)
-Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into Ghosts: Tutorials undetectable to alive players and not affecting the round. Depending on the config, Ghosts can perform various activities, such as teleporting to alive players, practising target shooting or challenging another Ghost to a duel.
+# GhostSpectator (2.0.1)
+Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into Ghosts: Tutorials undetectable to alive players and not affecting the round. Depending on the config, Ghosts can perform various activities, such as teleporting to alive players or random rooms, practising target shooting or challenging another Ghost to a duel.
 
 ## Features
 - Ghosts can pass through most doors.
-- Ghosts can teleport to a random alive player by dropping a ghost item. There is an option to exclude teleportation to certain roles.
+- Ghosts can teleport to a random alive player or room by dropping a ghost item (Lantern). Dropping lit lantern teleports to a player, while unlit to a room. There is an option to exclude teleportation to certain roles.
 - Ghosts are always visible to each other, Spectators spactating a Ghost and Overwatchers. Depending on the config, Ghosts can be visible to Spectators spectating a non-Ghost player and Filmmakers.
 - Ghosts can't pick up or use items.
 - Ghosts can't interact with objects (except resetting their shooting targets).
 - Depending on the assigned permissions, Ghosts can:
   * noclip
   * drop or throw items or throwables (except their ghost item)
-  * create a shooting target(s)
+  * create a shooting target(s), that are visible only to them
   * give themselves a firearm with infinite ammunition 
   * listen to SCP and Spectators chats (via command or automatically)
   * listen to other Ghosts via RoundSummary chat, if they are not within Proximity Chat or further than certain distance (via command or automatically)
@@ -34,7 +34,6 @@ Place the *Harmony* dll (net48) in "...\AppData\Roaming\SCP Secret Laboratory\Pl
 |ghost_health|float|150f|Ghost health.|
 |spawnmessage_duration|ushort|5|Spawn message duration.|
 |spawn_positions|List\<string>|- 9, 1002, 1|Ghost spawn positions.|
-|teleport_item|ItemType|Lantern|Item given to every Ghost, that allows them to teleport to alive players when dropped. Set to \"None\" to disable.|
 |role_teleport_blacklist|List\<RoleTypeId\>|- Tutorial|Roles, that Ghosts cannot teleport to. SCP-079 is already included.|
 |despawn_on_detonation|bool|true|Should Ghosts, that don't have permission, be despawned and not allowed to spawn after warhead detonation?|
 |always_see_ghosts|bool|false|Should Spectators be able to see Ghosts, if the spectated player is not a Ghost?|
@@ -64,8 +63,8 @@ Parent command for managing Ghosts. Subcommands:
 Parent command for Ghost duelling. Subcommands:
 - accept - Accept a duel offer from other Ghost. Usage: PlayerNickname (whole or part, case-insensitive)
 - cancel - Cancel your duel, pending duel or duel request.
+- challenge - Challenge another Ghost to a duel. Usage: PlayerNickname (whole or part, case-insensitive)
 - list (duel) - Print a list of all players who challenged you to a duel.
-- player - Challenge another Ghost to a duel. Usage: PlayerNickname (whole or part, case-insensitive)
 - reject - Reject a duel offer from other Ghost. Usage: PlayerNickname (whole or part, case-insensitive)
 
 ### Miscellanous commands
