@@ -22,7 +22,7 @@ namespace GhostSpectator
     public class Plugin
     {
         [PluginPriority(LoadPriority.Medium)]
-		[PluginEntryPoint(Translation.pluginName, "2.0.0", null, "Phineapple18")]
+		[PluginEntryPoint(Translation.pluginName, "2.0.1", null, "Phineapple18")]
 		public void OnLoad()
 		{
             if (!pluginConfig.IsEnabled)

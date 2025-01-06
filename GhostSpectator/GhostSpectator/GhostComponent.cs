@@ -14,6 +14,7 @@ using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PlayerRoles.PlayableScps.Scp049;
 using PluginAPI.Core;
+using Respawning.Waves;
 using UnityEngine;
 
 namespace GhostSpectator
@@ -30,6 +31,14 @@ namespace GhostSpectator
         public void OnEnable()
         {
             int reviveNum = Scp049ResurrectAbility.GetResurrectionsNumber(player.ReferenceHub);
+            if (player.Role == RoleTypeId.Spectator)
+            {
+                DeadTime += player.RoleBase.ActiveTime;
+            }
+            else
+            {
+                PreviousTeam = player.ReferenceHub.GetFaction().GetSpawnableTeam();
+            }
             player.ReferenceHub.roleManager.ServerSetRole(this.RoleType, RoleChangeReason.RemoteAdmin, RoleSpawnFlags.AssignInventory);
             if (reviveNum > 0)
             {
@@ -44,12 +53,9 @@ namespace GhostSpectator
             player.Position = new(0f, 700f, 0f);
             Timing.CallDelayed(0.1f, () => player.Position = OtherExtensions.SpawnPositions.ElementAt(new System.Random().Next(OtherExtensions.SpawnPositions.Count)));
             player.ReferenceHub.interCoordinator.AddBlocker(this);
-            if (config.TeleportItem != ItemType.None)
-            {
-                ghostItem = player.AddItem(config.TeleportItem);
-                OtherExtensions.GhostItemList.Add(this.ghostItem);
-                Log.Debug($"Ghost item {config.TeleportItem} has been given to player {player.Nickname}.", config.Debug, pluginName);
-            }
+            ghostItem = player.AddItem(GhostItemType);
+            OtherExtensions.GhostItemList.Add(this.ghostItem);
+            Log.Debug($"Ghost item {GhostItemType} has been given to player {player.Nickname}.", config.Debug, pluginName);
 
             if (player.CheckPermission("gs.noclip"))
             {
@@ -67,9 +73,10 @@ namespace GhostSpectator
 
             if (!string.IsNullOrWhiteSpace(translation.SpawnMessage))
             {
-                string message = translation.SpawnMessage.Replace("%colour%", config.GhostColor).Replace("%teleportitem%", config.TeleportItem.ToString());
+                string message = translation.SpawnMessage.Replace("%colour%", config.GhostColor);
                 player.SendBroadcast(message, config.SpawnmessageDuration, Broadcast.BroadcastFlags.Normal, true);
             }
+
             player.TemporaryData.StoredData[GhostExtensions.dataName] = "spawned";
             Log.Debug($"Enabled {this.GetType().Name} for player {player.Nickname}.", config.Debug, pluginName);
         }
@@ -114,13 +121,13 @@ namespace GhostSpectator
             }
             foreach (AdminToyBase target in this.ShootingTargets.ToList())
             {
-                TargetExtensions.DestroyShootingTarget(this, target);
+                TargetExtensions.DestroyShootingTarget(player, target);
             }
 
             DuelExtensions.AbortDuel(player, DuelPartner);
             DuelExtensions.TryAbortDuelPreparation(player, out _);
             DuelExtensions.TryRemoveDuelRequest(player, out _, false);
-            
+
             Log.Debug($"Disabled {this.GetType().Name} for player {player.Nickname}.", config.Debug, pluginName);
         }
 
@@ -136,7 +143,10 @@ namespace GhostSpectator
 
         public BlockedInteraction BlockedInteractions => BlockedInteraction.GeneralInteractions | BlockedInteraction.BeDisarmed | BlockedInteraction.GrabItems;
         public bool CanBeCleared => !base.enabled;
+        internal float DeadTime { get; set; }
         public Player DuelPartner { get; internal set; }
+        private ItemType GhostItemType { get; } = ItemType.Lantern;
+        internal Team PreviousTeam { get; set; }
         private RoleTypeId RoleType { get; } = RoleTypeId.Tutorial;
         public HashSet<AdminToyBase> ShootingTargets { get; } = new();
     }

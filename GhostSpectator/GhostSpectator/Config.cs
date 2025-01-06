@@ -30,9 +30,6 @@ namespace GhostSpectator
         [Description("Ghost spawn positions.")]
         public List<string> SpawnPositions { get; set; } = new List<string>{ "9, 1002, 1" };
 
-        [Description("Item given to every Ghost, that allows them to teleport to alive players when dropped. Set to \"None\" to disable.")]
-        public ItemType TeleportItem { get; set; } = ItemType.Lantern;
-
         [Description("Roles, that Ghosts cannot teleport to. SCP-079 is already included.")]
         public List<RoleTypeId> RoleTeleportBlacklist { get; set; } = new List<RoleTypeId>
         {

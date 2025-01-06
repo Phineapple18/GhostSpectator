@@ -24,12 +24,14 @@ namespace GhostSpectator
         public string GhostNickname { get; set; } = "GHOST";
 
         [Description("Broadcast sent to a Ghost upon spawn.")]
-        public string SpawnMessage { get; set; } = "<size=50><color=%colour%>You are a Ghost!</color>\n<size=30>Drop the %teleportitem% to teleport to a random alive player.</size>";
+        public string SpawnMessage { get; set; } = "<size=50><color=%colour%>You are a Ghost!</color>\n<size=30>Drop the Lantern to teleport to a random alive player (lit) or a random room (unlit).</size>";
 
         [Description("Hints shown to a Ghost, when dropping the teleport item.")]
-        public string TeleportSuccess { get; set; } = "You have been teleported to <color=green>%playernick%</color>.";
+        public string TeleportPlayerSuccess { get; set; } = "You have been teleported to <color=green>%playernick%</color>.";
 
-        public string TeleportFail { get; set; } = "There is nobody you can teleport to.";
+        public string TeleportPlayerFail { get; set; } = "There is nobody you can teleport to.";
+
+        public string TeleportRoomFail { get; set; } = "You can't teleport to any room after warhead detonation.";
 
         [Description("Duel hints shown to a Ghost.")]
         public string DuelAbandoned { get; set; } = "Player <color=red>%playernick%</color> has abandoned the duel with you.";
@@ -125,6 +127,15 @@ namespace GhostSpectator
 
         public string CancelFail { get; set; } = "You don't have any active duel nor duel requests.";
 
+        [Description("Challenge command.")]
+        public string ChallengeCommand { get; set; } = Challenge._command;
+
+        public string ChallengeDescription { get; set; } = Challenge._description;
+
+        public string[] ChallengeAliases { get; set; } = Challenge._aliases;
+
+        public string ChallengeSuccess { get; set; } = "You have challenged %playernick% to duel.";
+
         [Description("List command.")]
         public string ListduelCommand { get; set; } = ListDuel._command;
 
@@ -133,15 +144,6 @@ namespace GhostSpectator
         public string[] ListduelAliases { get; set; } = ListDuel._aliases;
 
         public string ListduelSuccess { get; set; } = "You have been challenged to a duel by following player(s)";
-
-        [Description("Player command.")]
-        public string PlayerCommand { get; set; } = Player._command;
-
-        public string PlayerDescription { get; set; } = Player._description;
-
-        public string[] PlayerAliases { get; set; } = Player._aliases;
-
-        public string PlayerSuccess { get; set; } = "You have challenged %playernick% to duel.";
 
         [Description("Reject command.")]
         public string RejectCommand { get; set; } = Reject._command;

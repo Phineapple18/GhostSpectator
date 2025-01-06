@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using GhostSpectator.Extensions;
+using InventorySystem.Items.ToggleableLights.Lantern;
+using MapGeneration;
 using MEC;
 using NWAPIPermissionSystem;
 using PlayerRoles;
@@ -12,6 +14,7 @@ using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
 using PluginAPI.Events;
+using Respawning.Waves;
 using UnityEngine;
 
 namespace GhostSpectator
@@ -32,13 +35,22 @@ namespace GhostSpectator
                 Log.Debug($"Added player {ev.Player.Nickname} to dead zombies list.", config.Debug, pluginName);
                 return;
             }
-            if (!(ev.Player.Role == RoleTypeId.Spectator && ev.Player.IsGhostSpawning() || (ev.Player.IsGhostDespawning() || ev.Player.IsGhost()) && ev.NewRole == RoleTypeId.Spectator) && deadZombies.Remove(ev.Player.ReferenceHub))
+            if (!(ev.Player.Role == RoleTypeId.Spectator && ev.Player.IsGhostSpawning() || (ev.Player.IsGhostDespawning() || ev.Player.IsGhost()) && ev.NewRole == RoleTypeId.Spectator))
             {
-                Log.Debug($"Removed player {ev.Player.Nickname} from dead zombies list.", config.Debug, pluginName);
+                if (deadZombies.Remove(ev.Player.ReferenceHub))
+                {
+                    Log.Debug($"Removed player {ev.Player.Nickname} from dead zombies list.", config.Debug, pluginName);
+                }
+                if (ev.Player.TryGetComponent<GhostComponent>(out GhostComponent component) && component.DeadTime != 0f)
+                {
+                    component.DeadTime = 0f;
+                    component.PreviousTeam = ev.Player.ReferenceHub.GetFaction().GetSpawnableTeam();
+                    Log.Debug($"Reset dead time for player {ev.Player.Nickname}.", config.Debug, pluginName);
+                }
             }
             if (ev.Player.IsGhost())
             {
-                GhostExtensions.Despawn(ev.Player, false);
+                GhostExtensions.Despawn(ev.Player, ev.NewRole, false);
             }
         }
 
@@ -73,24 +85,43 @@ namespace GhostSpectator
 		{
             if (ev.Player.IsGhost())
             {
-				if (ev.Item.IsGhostItem())
-				{
-                    IEnumerable<Player> validPlayers = Player.GetPlayers().Where(p => p.IsAlive && !(p.IsGhost() || p.Role == RoleTypeId.Scp079 || config.RoleTeleportBlacklist.Contains(p.Role)));
-                    if (validPlayers.IsEmpty())
+                if (ev.Item.IsGhostItem())
+                {
+                    if ((ev.Item as LanternItem).IsEmittingLight)
                     {
-                        ev.Player.ReceiveHint(translation.TeleportFail);
-                        Log.Debug($"Player {ev.Player.Nickname} failed to teleport due to missing valid players.", config.Debug, pluginName);
+                        IEnumerable<Player> validPlayers = Player.GetPlayers().Where(p => p.IsAlive && !(p.IsGhost() || p.Role == RoleTypeId.Scp079 || config.RoleTeleportBlacklist.Contains(p.Role)));
+                        if (validPlayers.IsEmpty())
+                        {
+                            ev.Player.ReceiveHint(translation.TeleportPlayerFail);
+                            Log.Debug($"Player {ev.Player.Nickname} failed to teleport due to missing valid players.", config.Debug, pluginName);
+                        }
+                        else
+                        {
+                            Player target = validPlayers.ElementAt(random.Next(validPlayers.Count()));
+                            ev.Player.Position = target.Position + Vector3.up;
+                            ev.Player.ReceiveHint(translation.TeleportPlayerSuccess.Replace("%playernick%", target.Nickname), 5f);
+                            Log.Debug($"Player {ev.Player.Nickname} was successfully teleported to player {target.Nickname}.", config.Debug, pluginName);
+                        }
                     }
                     else
                     {
-                        Player target = validPlayers.ElementAt(random.Next(validPlayers.Count()));
-                        ev.Player.Position = target.Position + Vector3.up;
-                        ev.Player.ReceiveHint(translation.TeleportSuccess.Replace("%playernick%", target.Nickname), 5f);
-                        Log.Debug($"Player {ev.Player.Nickname} was teleported to player {target.Nickname}.", config.Debug, pluginName);
+                        if (Warhead.IsDetonated)
+                        {
+                            ev.Player.ReceiveHint(translation.TeleportRoomFail, 5f);
+                            Log.Debug($"Player {ev.Player.Nickname} failed to teleport, because the warhead is already detonated.", config.Debug, pluginName);
+                        }
+                        else
+                        {
+                            IEnumerable<RoomIdentifier> rooms = RoomIdentifier.AllRoomIdentifiers.Where(r => r.Name is RoomName.Unnamed or RoomName.Outside);
+                            RoomIdentifier room = rooms.ElementAt(random.Next(rooms.Count()));
+                            ev.Player.Position = room.transform.position + Vector3.up;
+                            Log.Debug($"Player {ev.Player.Nickname} was successfully teleported to a random room.", config.Debug, pluginName);
+                        }
+
                     }
                     return false;
                 }
-				if (!ev.Player.CheckPermission("gs.item"))
+                if (!ev.Player.CheckPermission("gs.item"))
 				{
                     ev.Player.RemoveItem(ev.Item);
                     Log.Debug($"Removed item {ev.Item.ItemTypeId} from inventory of player {ev.Player.Nickname}.", config.Debug, pluginName);
@@ -195,7 +226,7 @@ namespace GhostSpectator
         {
             foreach (Player player in GhostExtensions.GhostPlayerList)
             {
-                GhostExtensions.Despawn(player, false);
+                GhostExtensions.Despawn(player, player.Role, false);
             }
             Log.Debug("Despawned all Ghosts due to round end.", config.Debug, pluginName);
         }

@@ -22,7 +22,7 @@
     <DefineConstants>TRACE;DEBUG;CHRISTMAS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -51,6 +51,10 @@
     </Reference>
     <Reference Include="Mirror">
       <HintPath>$(SLMain)\Mirror.dll</HintPath>
+    </Reference>
+    <Reference Include="Mirror-Publicized, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SLPlugin)\dependencies\Mirror-Publicized.dll</HintPath>
     </Reference>
     <Reference Include="NorthwoodLib, Version=1.3.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -94,7 +98,7 @@
     <Compile Include="Commands\ClientConsole\Duel\Cancel.cs" />
     <Compile Include="Commands\ClientConsole\Duel\DuelParent.cs" />
     <Compile Include="Commands\ClientConsole\Duel\ListDuel.cs" />
-    <Compile Include="Commands\ClientConsole\Duel\Player.cs" />
+    <Compile Include="Commands\ClientConsole\Duel\Challenge.cs" />
     <Compile Include="Commands\ClientConsole\Duel\Reject.cs" />
     <Compile Include="Commands\ClientConsole\GhostMe.cs" />
     <Compile Include="Commands\ClientConsole\GiveFirearm.cs" />
@@ -115,7 +119,7 @@
     <Compile Include="GhostComponent.cs" />
     <Compile Include="Patches\ApplyDamagePatch.cs" />
     <Compile Include="Patches\BulletDecalPatch.cs" />
-    <Compile Include="Patches\CheckSpawnablePatch.cs" />
+    <Compile Include="Patches\SpawningPatches.cs" />
     <Compile Include="Patches\DisruptorPatches.cs" />
     <Compile Include="Patches\ChristmasPatches.cs" />
     <Compile Include="Patches\FriendlyFirePatch.cs" />
