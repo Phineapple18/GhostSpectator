@@ -37,7 +37,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
                 Log.Debug("Command sender doesn't exist.", Config.Debug, commandName);
                 return false;
             }
-            PluginAPI.Core.Player commandsender = PluginAPI.Core.Player.Get(sender);
+            Player commandsender = Player.Get(sender);
             if (!commandsender.IsGhost())
             {
                 response = translation.NotGhost;
@@ -56,14 +56,14 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
                 Log.Debug($"Player {sender.LogName} didn't provide arguments.", Config.Debug, commandName);
                 return false;
             }
-            List<PluginAPI.Core.Player> allRequesters = (from p in DuelExtensions.DuelRequests where p.Value.Item1 == commandsender select p.Key).ToList();
+            List<Player> allRequesters = (from p in DuelExtensions.DuelRequests where p.Value.Item1 == commandsender select p.Key).ToList();
             if (allRequesters.IsEmpty())
             {
                 response = translation.NoDuelRequests;
                 Log.Debug($"Player {commandsender.Nickname} has no duel requests.", Config.Debug, commandName);
                 return false;
             }
-            PluginAPI.Core.Player requester = requester = allRequesters.FirstOrDefault(p => string.Equals(p.Nickname, string.Join(" ", arguments), StringComparison.OrdinalIgnoreCase));
+            Player requester = requester = allRequesters.FirstOrDefault(p => string.Equals(p.Nickname, string.Join(" ", arguments), StringComparison.OrdinalIgnoreCase));
             requester ??= allRequesters.FirstOrDefault(p => p.Nickname.IndexOf(string.Join(" ", arguments), StringComparison.OrdinalIgnoreCase) >= 0);
             if (requester == null)
             {

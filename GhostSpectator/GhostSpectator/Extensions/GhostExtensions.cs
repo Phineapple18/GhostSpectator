@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using PlayerRoles;
 using PluginAPI.Core;
+using Respawning.Waves;
 
 namespace GhostSpectator.Extensions
 {
@@ -25,9 +26,19 @@ namespace GhostSpectator.Extensions
             Log.Debug($"Player {player.Nickname} has been turned into Ghost.", Config.Debug, PluginName);
         }
 
-        public static void Despawn(Player player, bool forceSpectator = true)
+        public static void Despawn(Player player, RoleTypeId newRole = RoleTypeId.Spectator, bool forceSpectator = true)
         {
-            player.GetComponent<GhostComponent>().enabled = false;
+            GhostComponent component = player.GetComponent<GhostComponent>();
+            component.enabled = false;
+            if (newRole == RoleTypeId.Spectator)
+            {
+                component.DeadTime += player.RoleBase.ActiveTime;
+            }
+            else
+            {
+                component.DeadTime = 0f;
+                component.PreviousTeam = player.ReferenceHub.GetFaction().GetSpawnableTeam();
+            }
             if (forceSpectator)
             {
                 player.SetRole(RoleTypeId.Spectator);

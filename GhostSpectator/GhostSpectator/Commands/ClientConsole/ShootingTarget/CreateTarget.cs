@@ -93,13 +93,10 @@ namespace GhostSpectator.Commands.ClientConsole.ShootingTarget
             GhostComponent component = commandsender.GetComponent<GhostComponent>();
             if (component.ShootingTargets.Count >= Config.TargetLimit)
             {
-                TargetExtensions.DestroyShootingTarget(component, component.ShootingTargets.ElementAt(0));
+                TargetExtensions.DestroyShootingTarget(commandsender, component.ShootingTargets.ElementAt(0));
                 Log.Debug($"Destroyed first shooting target due to target limit of {Config.TargetLimit}.", Config.Debug, commandName);
             }
-            AdminToyBase target = UnityEngine.Object.Instantiate<AdminToyBase>(targetBase);
-            target.netIdentity.visible = Visibility.ForceHidden;
-            target.OnSpawned(commandsender.ReferenceHub, arguments);
-            component.ShootingTargets.Add(target);
+            AdminToyBase target = TargetExtensions.CreateShootingTarget(commandsender, targetBase, arguments);
             response = translation.CreatetargetSuccess.Replace("%targetname%", target.CommandName).Replace("%targetid%", target.netId.ToString());
             Log.Debug($"Player {commandsender.Nickname} created a shooting target ({target.CommandName}) with ID {target.netId}.", Config.Debug, commandName);
             return true;

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AdminToys;
 using CommandSystem;
 using GhostSpectator.Extensions;
+using Mirror;
 using PluginAPI.Core;
 using Utils.NonAllocLINQ;
 
@@ -77,7 +78,7 @@ namespace GhostSpectator.Commands.ClientConsole.ShootingTarget
                 Log.Debug($"Player {commandsender.Nickname} doesn't have any shooting target with ID {arguments.ElementAt(0)}.", Config.Debug, commandName);
                 return false;
             }
-            TargetExtensions.DestroyShootingTarget(component, target);
+            TargetExtensions.DestroyShootingTarget(commandsender, target);
             response = translation.DestroyTargetSuccess.Replace("%targetname%", target.CommandName).Replace("%targetid%", target.netId.ToString());
             Log.Debug($"Player {commandsender.Nickname} destroyed their target ({target}) with ID {targetId}.", Config.Debug, commandName);
             return true;

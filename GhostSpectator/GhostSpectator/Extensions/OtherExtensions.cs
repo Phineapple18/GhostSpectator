@@ -16,10 +16,23 @@ namespace GhostSpectator.Extensions
     {
         internal static void RefreshAmmo(this Player player)
         {
-            if (player.CurrentItem is Firearm firearm && firearm.GetTotalStoredAmmo() < firearm.GetTotalMaxAmmo())
+            if (player.CurrentItem is Firearm firearm)
             {
-                MagazineModule module = firearm.Modules.FirstOrDefault(m => m is MagazineModule) as MagazineModule;
-                module.ServerModifyAmmo(firearm.GetTotalMaxAmmo());
+                int maxAmmo = firearm.GetTotalMaxAmmo();
+                int storedAmmo = firearm.GetTotalStoredAmmo();
+                if (storedAmmo < maxAmmo)
+                {
+                    try
+                    {
+                        MagazineModule module = firearm.Modules.First(m => m is MagazineModule) as MagazineModule;
+                        module.ServerModifyAmmo(maxAmmo);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        CylinderAmmoModule module = firearm.Modules.First(m => m is CylinderAmmoModule) as CylinderAmmoModule;
+                        player.AddAmmo(module.AmmoType, (ushort)(maxAmmo - storedAmmo));
+                    }
+                }
             }
         }
 

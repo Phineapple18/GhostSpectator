@@ -24,7 +24,7 @@ namespace GhostSpectator.Commands.ClientConsole
             Command = !string.IsNullOrWhiteSpace(translation.GivefirearmCommand) ? translation.GivefirearmCommand : _command;
             Description = translation.GivefirearmDescription;
             Aliases = translation.GivefirearmAliases;
-            Usage = new[] { "%item%/list" };
+            Usage = new[] { "ItemType/list" };
             Log.Debug($"Registered {this.Command} command.", translation.Debug, Translation.pluginName);
         }
 

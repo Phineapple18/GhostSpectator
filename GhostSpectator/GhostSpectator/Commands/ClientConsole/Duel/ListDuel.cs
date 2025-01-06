@@ -36,7 +36,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
                 Log.Debug("Command sender doesn't exist.", Config.Debug, commandName);
                 return false;
             }
-            PluginAPI.Core.Player commandsender = PluginAPI.Core.Player.Get(sender);
+            Player commandsender = Player.Get(sender);
             if (!commandsender.IsGhost())
             {
                 response = translation.NotGhost;

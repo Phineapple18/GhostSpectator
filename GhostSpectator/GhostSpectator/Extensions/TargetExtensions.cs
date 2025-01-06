@@ -13,10 +13,21 @@ namespace GhostSpectator.Extensions
 {
     internal static class TargetExtensions
     {
-        internal static void DestroyShootingTarget(GhostComponent component, AdminToyBase target)
+        internal static AdminToyBase CreateShootingTarget(Player player, AdminToyBase targetBase, ArraySegment<string> arguments)
         {
+            AdminToyBase target = UnityEngine.Object.Instantiate<AdminToyBase>(targetBase);
+            target.netIdentity.visible = Visibility.ForceHidden;
+            target.OnSpawned(player.ReferenceHub, arguments);
+            target.netIdentity.AddObserver(player.ReferenceHub.netIdentity.connectionToClient);
+            player.GetComponent<GhostComponent>().ShootingTargets.Add(target);
+            return target;
+        }
+
+        internal static void DestroyShootingTarget(Player player, AdminToyBase target)
+        {
+            target.netIdentity.visible = Visibility.Default;
             NetworkServer.Destroy(target.gameObject);
-            component.ShootingTargets.Remove(target);
+            player.GetComponent<GhostComponent>().ShootingTargets.Remove(target);
             Log.Debug($"Destroyed shooting target {target.name} with ID {target.netId}.", Config.Debug, PluginName);
         }
 

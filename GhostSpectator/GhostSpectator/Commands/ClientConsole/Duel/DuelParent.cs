@@ -28,8 +28,8 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
         {
             this.RegisterCommand(new Accept(translation.AcceptCommand, translation.AcceptDescription, translation.AcceptAliases));
             this.RegisterCommand(new Cancel(translation.CancelCommand, translation.CancelDescription, translation.CancelAliases));
+            this.RegisterCommand(new Challenge(translation.ChallengeCommand, translation.ChallengeDescription, translation.ChallengeAliases));
             this.RegisterCommand(new ListDuel(translation.ListduelCommand, translation.ListduelDescription, translation.ListduelAliases));
-            this.RegisterCommand(new Player(translation.PlayerCommand, translation.PlayerDescription, translation.PlayerAliases));
             this.RegisterCommand(new Reject(translation.RejectCommand, translation.RejectDescription, translation.RejectAliases));
             Log.Debug($"Loaded {this.AllCommands.Count()} command(s) for DuelParent.", translation.Debug, Translation.pluginName);
         }
