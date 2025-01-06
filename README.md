@@ -11,7 +11,7 @@ Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into G
   * noclip
   * drop or throw items or throwables (except their ghost item)
   * create a shooting target(s), that are visible only to them
-  * give themselves a firearm with infinite ammunition 
+  * give themselves a firearm with infinite ammunition, without having to reload (expect for a revolver, which must be reloaded)
   * listen to SCP and Spectators chats (via command or automatically)
   * listen to other Ghosts via RoundSummary chat, if they are not within Proximity Chat or further than certain distance (via command or automatically)
   * challenge other Ghosts to a duel
