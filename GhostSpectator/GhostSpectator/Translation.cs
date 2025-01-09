@@ -251,7 +251,7 @@ namespace GhostSpectator
 
         public string NoGhosts { get; set; } = "No Ghost (that is not you) was found with the provided nickname or part of it.";
 
-        public string NoPerms { get; set; } = "You don't have permission to use this command.";
+        public string NoPerms { get; set; } = "You don't have permission to use this feature.";
 
         public string NoPlayers { get; set; } = "Provided player(s) doesn't exist.";
 
