@@ -89,6 +89,11 @@ namespace GhostSpectator
                 {
                     if ((ev.Item as LanternItem).IsEmittingLight)
                     {
+                        if (!ev.Player.CheckPermission("gs.teleport.player"))
+                        {
+                            ev.Player.ReceiveHint(translation.NoPerms, 5f);
+                            return false;
+                        }
                         IEnumerable<Player> validPlayers = Player.GetPlayers().Where(p => p.IsAlive && !(p.IsGhost() || p.Role == RoleTypeId.Scp079 || config.RoleTeleportBlacklist.Contains(p.Role)));
                         if (validPlayers.IsEmpty())
                         {
@@ -105,6 +110,11 @@ namespace GhostSpectator
                     }
                     else
                     {
+                        if (!ev.Player.CheckPermission("gs.teleport.room"))
+                        {
+                            ev.Player.ReceiveHint(translation.NoPerms, 5f);
+                            return false;
+                        }
                         if (Warhead.IsDetonated)
                         {
                             ev.Player.ReceiveHint(translation.TeleportRoomFail, 5f);
