@@ -1,4 +1,4 @@
-# GhostSpectator (2.0.1)
+# GhostSpectator (2.0.2)
 Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into Ghosts: Tutorials undetectable to alive players and not affecting the round. Depending on the config, Ghosts can perform various activities, such as teleporting to alive players or random rooms, practising target shooting or challenging another Ghost to a duel.
 
 ## Features
@@ -90,6 +90,8 @@ Parent command for Ghost duelling. Subcommands:
 - gs.spawn.other - allows a player to use *spawn* and *despawn* commands
 - gs.spawn.self - allows a player to use *ghostme* command
 - gs.target - allows a player to use *createtarget* command
+- gs.teleport.player - allows a player to teleport to an alive player
+- gs.teleport.room - allows a player to teleport to a random room
 - gs.warhead - allows a player to remain Ghost and use *ghostme* and *spawn* commands after warhead detonation
 
 ## Credits
