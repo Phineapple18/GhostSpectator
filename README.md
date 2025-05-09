@@ -13,7 +13,7 @@ Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into G
   * create a shooting target(s), that are visible only to them
   * give themselves a firearm with infinite ammunition, without having to reload (expect for a revolver, which must be reloaded)
   * listen to SCP and Spectators chats (via command or automatically)
-  * listen to other Ghosts via RoundSummary chat, if they are not within Proximity Chat or further than certain distance (via command or automatically)
+  * listen to other Ghosts via RoundSummary chat, if they are not within certain distance (via command or automatically)
   * challenge other Ghosts to a duel
 
 ## Required plugins and dependencies: 
@@ -40,7 +40,7 @@ Place the *Harmony* dll (net48) in "...\AppData\Roaming\SCP Secret Laboratory\Pl
 |filmmaker_see_ghosts|bool|false|Should Filmmakers be able to see Ghosts?|
 |target_limit|int|1|How many shooting targets at once can one Ghost have created?|
 |shooting_ranges|Dictionary\<string, string>|10, 995, -12: -10, 996, -4<br/> 68, 983, -36: 142, 985, -12|Areas where Ghosts can create shooting targets. The area exists between a pair of coordinates on each axis.|
-|hear_distance|float|10f|Minimum distance between the Ghosts, that will make them hear eachother via RoundSummary channel instead of Proximity channel (if they have enabled listening to Ghosts).|
+|hear_distance|float|10f|Minimum distance between the Ghosts, that will make them hear eachother via RoundSummary channel (if they have enabled listening to Ghosts).|
 |duel_request_time|float|10f|Time after which the duel request will expire.|
 
 ## Translation
@@ -82,7 +82,7 @@ Parent command for Ghost duelling. Subcommands:
 - gs.list - allows a player to use *list* (RA) command
 - gs.listen.dead - allows a player to listen Spectators (via command)
 - gs.autolisten.dead - allows the above automatically, when spawned as a Ghost
-- gs.listen.ghost - allows a player to lsiten to other Ghosts via RoundSummary chat, if they are not within Proximity chat or further than configurable distance (via command)
+- gs.listen.ghost - allows a player to lsiten to other Ghosts via RoundSummary chat, if they are not within certain distance (via command)
 - gs.autolisten.ghost - allows the above automatically, when spawned as a Ghost
 - gs.listen.scp - allows a player to listen to SCPs (via command)
 - gs.autolisten.scp - allows the above automatically, when spawned as a Ghost
