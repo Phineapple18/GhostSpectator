@@ -1,4 +1,4 @@
-# GhostSpectator (2.0.2)
+# GhostSpectator (3.0.0)
 Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into Ghosts: Tutorials undetectable to alive players and not affecting the round. Depending on the config, Ghosts can perform various activities f.e teleport to alive players or random rooms, spawn a toy or challenge another Ghost to a duel.
 
 ## Features
@@ -17,30 +17,31 @@ Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into G
   * challenge other Ghosts to a duel
 
 ## Required plugins and dependencies:
-- [Harmony 2.2.2.0 (net48)](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - dependency (attached to one of the previous releases)
+- [Harmony 2.2.2.0 (net48)](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - dependency
 
 ## Installation
-Place *GhostSpectator* and *NWAPIPermissionSystem* dlls in "...\AppData\Roaming\SCP Secret Laboratory\LabAPI-Beta\plugins\global OR port_number".
+Place *GhostSpectator* dll in "...\AppData\Roaming\SCP Secret Laboratory\LabAPI-Beta\plugins\global OR port_number".
 
-Place the *Harmony* dll (net48) in "...\AppData\Roaming\SCP Secret Laboratory\LabAPI-Beta\plugins\global OR port_number\dependencies".
+Place *Harmony* dll (net48) in "...\AppData\Roaming\SCP Secret Laboratory\LabAPI-Beta\plugins\global OR port_number\dependencies".
 
 ## Config
 |Name|Type|Default value|Description|
 |---|---|---|---|
-|is_enabled|bool|true|Should plugin be enabled?|
 |debug|bool|false|Should debug be enabled?|
 |ghost_color|string|'#A0A0A0'|Ghost nickname color.|
 |ghost_health|float|150f|Ghost health.|
 |spawnmessage_duration|ushort|5|Spawn message duration.|
-|spawn_positions|List\<string>|- 9, 1002, 1|Ghost spawn positions.|
+|spawn_positions|List\<Vector3>|- x: 9, y: 1002, z: 1|Ghost spawn positions.|
 |role_teleport_blacklist|List\<RoleTypeId\>|- Tutorial|Roles, that Ghosts cannot teleport to. SCP-079 is already included.|
 |despawn_on_detonation|bool|true|Should Ghosts, that don't have permission, be despawned and not allowed to spawn after warhead detonation?|
 |always_see_ghosts|bool|false|Should Spectators be able to see Ghosts, if the spectated player is not a Ghost?|
 |filmmaker_see_ghosts|bool|false|Should Filmmakers be able to see Ghosts?|
-|target_limit|int|1|How many shooting targets at once can one Ghost have created?|
-|shooting_ranges|Dictionary\<string, string>|10, 995, -12: -10, 996, -4<br/> 68, 983, -36: 142, 985, -12|Areas where Ghosts can create shooting targets. The area exists between a pair of coordinates on each axis.|
-|hear_distance|float|10f|Minimum distance between the Ghosts, that will make them hear eachother via RoundSummary channel (if they have enabled listening to Ghosts).|
+|target_limit|int|1|How many toys can one Ghost have at once?|
+|shooting_ranges|Dictionary\<Vector3, Vector3>|? x: 10, y: 294, z: -12<br/>: x: 10, y: 296, z: -4<br/> ? x: 68, y: 282, z: -36<br/>: x: 142, y: 285, z: -12|Areas where Ghosts can create toys. The area exists between a pair of coordinates on each axis.|
+|hear_distance|float|10f|Minimum distance between the Ghosts, that will make them hear eachother via RoundSummary channel.|
 |duel_request_time|float|10f|Time after which the duel request will expire.|
+|ss_settings_enabled|bool|false|Should server-specific settings for this plugin be enabled?|
+|send_settings_on_spawn|bool|false|Should server-specific settings be automatically activated for Ghosts upon spawn?|
 
 ## Translation
 The translation file is in the same folder as the config file and allows you to customize e.g:
