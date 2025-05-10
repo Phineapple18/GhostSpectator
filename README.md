@@ -1,5 +1,5 @@
 # GhostSpectator (2.0.2)
-Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into Ghosts: Tutorials undetectable to alive players and not affecting the round. Depending on the config, Ghosts can perform various activities, such as teleporting to alive players or random rooms, practising target shooting or challenging another Ghost to a duel.
+Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into Ghosts: Tutorials undetectable to alive players and not affecting the round. Depending on the config, Ghosts can perform various activities f.e teleport to alive players or random rooms, spawn a toy or challenge another Ghost to a duel.
 
 ## Features
 - Ghosts can pass through most doors.
@@ -10,20 +10,19 @@ Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into G
 - Depending on the assigned permissions, Ghosts can:
   * noclip
   * drop or throw items or throwables (except their ghost item)
-  * create a shooting target(s), that are visible only to them
-  * give themselves a firearm with infinite ammunition, without having to reload (expect for a revolver, which must be reloaded)
+  * create toys (capybara and shooting targets), that are visible only to Ghosts
+  * give themselves a firearm (when emptied, player will receive ammo)
   * listen to SCP and Spectators chats (via command or automatically)
   * listen to other Ghosts via RoundSummary chat, if they are not within certain distance (via command or automatically)
   * challenge other Ghosts to a duel
 
-## Required plugins and dependencies: 
-- [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem/releases/tag/0.0.6) by ced777ric - plugin
+## Required plugins and dependencies:
 - [Harmony 2.2.2.0 (net48)](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - dependency (attached to one of the previous releases)
 
 ## Installation
-Place *GhostSpectator* and *NWAPIPermissionSystem* dlls in "...\AppData\Roaming\SCP Secret Laboratory\PluginAPI\plugins\global OR port_number".
+Place *GhostSpectator* and *NWAPIPermissionSystem* dlls in "...\AppData\Roaming\SCP Secret Laboratory\LabAPI-Beta\plugins\global OR port_number".
 
-Place the *Harmony* dll (net48) in "...\AppData\Roaming\SCP Secret Laboratory\PluginAPI\plugins\global OR port_number\dependencies".
+Place the *Harmony* dll (net48) in "...\AppData\Roaming\SCP Secret Laboratory\LabAPI-Beta\plugins\global OR port_number\dependencies".
 
 ## Config
 |Name|Type|Default value|Description|
@@ -49,7 +48,7 @@ The translation file is in the same folder as the config file and allows you to 
 - hints displayed to Ghosts
 - command name, aliases, descripton and responses
 
-*IMPORTANT:* Make sure not to duplicate command names and/or aliases, if you translate them.
+*IMPORTANT:* If you translate command names and/or aliases (except subcommands), make sure not to duplicate them.
 
 ## Remote Admin Commands
 ### ghostspectator
@@ -64,35 +63,37 @@ Parent command for Ghost duelling. Subcommands:
 - accept - Accept a duel offer from other Ghost. Usage: PlayerNickname (whole or part, case-insensitive)
 - cancel - Cancel your duel, pending duel or duel request.
 - challenge - Challenge another Ghost to a duel. Usage: PlayerNickname (whole or part, case-insensitive)
-- list (duel) - Print a list of all players who challenged you to a duel.
+- list (duel) - Print a list of all players who you challenged and who challenged you to a duel.
 - reject - Reject a duel offer from other Ghost. Usage: PlayerNickname (whole or part, case-insensitive)
 
 ### Miscellanous commands
-- createtarget - Create a shooting target. Usage: dboy/sport/binary
-- destroytarget - Destroy your shooting target or print a list of your shooting targets. Usage: NetId/list
-- disablevoicechat - Disable listening to chosen voicechat(s). Usage: scp/dead/ghost/all
-- enablevoicechat - Enable listening to chosen voicechat(s). Usage: scp/dead/ghost/all
+- createtoy - Create a toy. Usage: Capybara/TargetDBoy/TargetSport/TargetBinary
+- destroytoy - Destroy your toy or print a list of your toys. Usage: NetId/list
+- disablevoicechat - Disable listening to chosen voicechat(s). Usage: ghost/scp/spectator/all
+- enablevoicechat - Enable listening to chosen voicechat(s). Usage: ghost/scp/spectator/all
 - ghostme - Spawn yourself as a Ghost or change back to Spectator.
-- givefirearm - Give yourself a firearm or print a list of available firearms. Usage: Itemtype/list
+- givefirearm - Give yourself a firearm or print a list of available firearms. Usage: Item ID/Itemtype/list
 
 ## Permissions
 - gs.duel - allows a player to use *player* and *accept* commands
 - gs.firearm - allows a player to use *givefirearm* command
 - gs.item - allows a player to drop and throw items (expect ghost item)
 - gs.list - allows a player to use *list* (RA) command
-- gs.listen.dead - allows a player to listen Spectators (via command)
-- gs.autolisten.dead - allows the above automatically, when spawned as a Ghost
 - gs.listen.ghost - allows a player to lsiten to other Ghosts via RoundSummary chat, if they are not within certain distance (via command)
 - gs.autolisten.ghost - allows the above automatically, when spawned as a Ghost
 - gs.listen.scp - allows a player to listen to SCPs (via command)
 - gs.autolisten.scp - allows the above automatically, when spawned as a Ghost
+- gs.listen.spectator - allows a player to listen Spectators (via command)
+- gs.autolisten.spectator - allows the above automatically, when spawned as a Ghost
 - gs.noclip - allows a player to have noclip permitted
+- gs.settings - allows a player to activate and deactivate server-specific settings for this plugin
 - gs.spawn.other - allows a player to use *spawn* and *despawn* commands
 - gs.spawn.self - allows a player to use *ghostme* command
-- gs.target - allows a player to use *createtarget* command
+- gs.toy - allows a player to use *createtoy* command
 - gs.teleport.player - allows a player to teleport to an alive player
 - gs.teleport.room - allows a player to teleport to a random room
 - gs.warhead - allows a player to remain Ghost and use *ghostme* and *spawn* commands after warhead detonation
+- gs.waveinfo - allows a player to check waves timer and tokens
 
 ## Credits
 - Original plugin creator: [Thundermaker300](https://github.com/Thundermaker300)
