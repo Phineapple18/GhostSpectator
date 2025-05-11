@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.10.35122.118
+VisualStudioVersion = 17.12.35728.132 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GhostSpectator", "GhostSpectator\GhostSpectator.csproj", "{B5847A5D-457A-4D68-A465-1C60CBA6C36F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GhostSpectator", "GhostSpectator\GhostSpectator.csproj", "{E4DFA2DF-8367-4921-B5F0-D565759CC02D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,12 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B5847A5D-457A-4D68-A465-1C60CBA6C36F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B5847A5D-457A-4D68-A465-1C60CBA6C36F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B5847A5D-457A-4D68-A465-1C60CBA6C36F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B5847A5D-457A-4D68-A465-1C60CBA6C36F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4DFA2DF-8367-4921-B5F0-D565759CC02D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4DFA2DF-8367-4921-B5F0-D565759CC02D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4DFA2DF-8367-4921-B5F0-D565759CC02D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4DFA2DF-8367-4921-B5F0-D565759CC02D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {CD7FF236-EFB0-4C96-A614-933184313743}
 	EndGlobalSection
 EndGlobal
