@@ -1,11 +1,10 @@
-﻿#if CHRISTMAS
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using GhostSpectator.Extensions;
+using GhostSpectator.Features.Extensions;
 using HarmonyLib;
 using InventorySystem.Items.FlamingoTapePlayer;
 using PlayerRoles.PlayableScps.Scp1507;
@@ -32,5 +31,4 @@ namespace GhostSpectator.Patches
             return !__instance.Owner.IsGhost();
         }
     }
-} 
-#endif
+}

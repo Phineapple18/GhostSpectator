@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Reflection.Emit;
 
-using GhostSpectator.Extensions;
+using GhostSpectator.Features.Extensions;
 using HarmonyLib;
 using NorthwoodLib.Pools;
+using PlayerRoles;
 using PlayerRoles.PlayableScps.Scp049;
-using PluginAPI.Core;
 
 namespace GhostSpectator.Patches
 {
     [HarmonyPatch(typeof(Scp049ResurrectAbility), "CheckBeginConditions")]
     internal class BeginConditionsPatch
     {
-        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+        internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
             List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
 
@@ -29,7 +29,7 @@ namespace GhostSpectator.Patches
 
             newInstructions.InsertRange(index1 + offset1, new List<CodeInstruction>
             {
-                new(OpCodes.Ldsfld, AccessTools.Field(typeof(EventHandlers), nameof(EventHandlers.deadZombies))),
+                new(OpCodes.Ldsfld, AccessTools.Field(typeof(EventHandler), nameof(EventHandler.deadZombies))),
                 new(OpCodes.Ldloc_0),
                 new(OpCodes.Callvirt, AccessTools.Method(typeof(HashSet<ReferenceHub>), nameof(HashSet<ReferenceHub>.Contains), new[] { typeof(ReferenceHub) })),
                 new(OpCodes.Brtrue_S, nextCondition1)
@@ -57,14 +57,14 @@ namespace GhostSpectator.Patches
 
         private static bool IsDead(ReferenceHub hub)
         {
-            return Player.Get(hub).TemporaryData.Contains(GhostExtensions.dataName);
+            return !hub.IsAlive() || hub.IsGhost() || hub.IsGhostDespawning() || hub.IsGhostSpawning();
         }
     }
 
     [HarmonyPatch(typeof(Scp049ResurrectAbility), "ServerValidateAny")]
     internal class ValidateAnyPatch
-	{
-        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+    {
+        internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
             List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
 
@@ -90,7 +90,7 @@ namespace GhostSpectator.Patches
 
         private static bool IsDead(ReferenceHub hub)
         {
-            return Player.Get(hub).TemporaryData.Contains(GhostExtensions.dataName);
+            return !hub.IsAlive() || hub.IsGhost() || hub.IsGhostDespawning() || hub.IsGhostSpawning();
         }
     }
 }

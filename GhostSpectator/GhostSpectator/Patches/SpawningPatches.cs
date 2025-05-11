@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using GhostSpectator.Extensions;
+using GhostSpectator.Features;
+using GhostSpectator.Features.Extensions;
 using HarmonyLib;
 using PlayerRoles;
-using PluginAPI.Core;
 using Respawning.Waves;
 
 namespace GhostSpectator.Patches
@@ -29,14 +29,13 @@ namespace GhostSpectator.Patches
     {
         internal static void Postfix(ReferenceHub hub, Team targetTeam, ref float __result)
         {
-            Player player = Player.Get(hub);
-            if (player.TryGetComponent<GhostComponent>(out GhostComponent component))
+            if (hub.TryGetGhostComponent(out GhostComponent component))
             {
-                if (player.Role == RoleTypeId.Spectator && component.DeadTime == 0f)
+                if (hub.GetRoleId() == RoleTypeId.Spectator && component.DeadTime == 0f)
                 {
                     return;
                 }
-                float result = player.IsGhost() ? -__result + player.RoleBase.ActiveTime / 15f : __result;
+                float result = hub.IsGhost() ? -__result + hub.roleManager.CurrentRole.ActiveTime / 15f : __result;
                 result += component.DeadTime / 15f;
                 if (component.PreviousTeam == targetTeam)
                 {
