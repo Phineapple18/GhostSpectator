@@ -1,10 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B5847A5D-457A-4D68-A465-1C60CBA6C36F}</ProjectGuid>
+    <ProjectGuid>{E4DFA2DF-8367-4921-B5F0-D565759CC02D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>GhostSpectator</RootNamespace>
@@ -19,7 +19,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;CHRISTMAS</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -33,44 +33,33 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SLPlugin)\dependencies\0Harmony.dll</HintPath>
+    <Reference Include="0Harmony">
+      <HintPath>$(SecretLabFiles)\LabAPI-Beta\dependencies\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SLMain)\Assembly-CSharp.dll</HintPath>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(SecretLabSteam)\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SLMain)\Assembly-CSharp-firstpass.dll</HintPath>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>$(SecretLabSteam)\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
-    <Reference Include="CommandSystem.Core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SLMain)\CommandSystem.Core.dll</HintPath>
+    <Reference Include="CommandSystem.Core">
+      <HintPath>$(SecretLabSteam)\CommandSystem.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="LabApi">
+      <HintPath>$(SecretLabSteam)\LabApi.dll</HintPath>
     </Reference>
     <Reference Include="Mirror">
-      <HintPath>$(SLMain)\Mirror.dll</HintPath>
+      <HintPath>$(SecretLabSteam)\Mirror.dll</HintPath>
     </Reference>
     <Reference Include="Mirror-Publicized, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SLPlugin)\dependencies\Mirror-Publicized.dll</HintPath>
+      <HintPath>$(SecretLabSteam)\LabAPI-Beta\dependencies\7777\Mirror-Publicized.dll</HintPath>
     </Reference>
-    <Reference Include="NorthwoodLib, Version=1.3.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SLMain)\NorthwoodLib.dll</HintPath>
+    <Reference Include="NorthwoodLib">
+      <HintPath>$(SecretLabSteam)\NorthwoodLib.dll</HintPath>
     </Reference>
-    <Reference Include="NWAPIPermissionSystem, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SLPlugin)\NWAPIPermissionSystem.dll</HintPath>
-    </Reference>
-    <Reference Include="PluginAPI, Version=13.1.5.0, Culture=neutral, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SLMain)\PluginAPI.dll</HintPath>
-    </Reference>
-    <Reference Include="Pooling, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SLMain)\Pooling.dll</HintPath>
+    <Reference Include="Pooling">
+      <HintPath>$(SecretLabSteam)\Pooling.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -80,30 +69,33 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SLMain)\UnityEngine.CoreModule.dll</HintPath>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(SecretLabSteam)\Unity.TextMeshPro.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SLMain)\UnityEngine.PhysicsModule.dll</HintPath>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(SecretLabSteam)\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>$(SecretLabSteam)\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
     <Reference Include="YamlDotNet, Version=11.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SLMain)\YamlDotNet.dll</HintPath>
+      <HintPath>$(SecretLabSteam)\YamlDotNet.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\ClientConsole\Duel\Accept.cs" />
-    <Compile Include="Commands\ClientConsole\Duel\Cancel.cs" />
-    <Compile Include="Commands\ClientConsole\Duel\DuelParent.cs" />
-    <Compile Include="Commands\ClientConsole\Duel\ListDuel.cs" />
-    <Compile Include="Commands\ClientConsole\Duel\Challenge.cs" />
-    <Compile Include="Commands\ClientConsole\Duel\Reject.cs" />
+    <Compile Include="Commands\ClientConsole\CheckWaveInfo.cs" />
+    <Compile Include="Commands\ClientConsole\Duelling\Accept.cs" />
+    <Compile Include="Commands\ClientConsole\Duelling\Cancel.cs" />
+    <Compile Include="Commands\ClientConsole\Duelling\Challenge.cs" />
+    <Compile Include="Commands\ClientConsole\Duelling\DuelParent.cs" />
+    <Compile Include="Commands\ClientConsole\Duelling\ListDuel.cs" />
+    <Compile Include="Commands\ClientConsole\Duelling\Reject.cs" />
     <Compile Include="Commands\ClientConsole\GhostMe.cs" />
+    <Compile Include="Commands\ClientConsole\GhostSettings.cs" />
     <Compile Include="Commands\ClientConsole\GiveFirearm.cs" />
-    <Compile Include="Commands\ClientConsole\ShootingTarget\CreateTarget.cs" />
-    <Compile Include="Commands\ClientConsole\ShootingTarget\DestroyTarget.cs" />
+    <Compile Include="Commands\ClientConsole\Toys\CreateToy.cs" />
+    <Compile Include="Commands\ClientConsole\Toys\DestroyToy.cs" />
     <Compile Include="Commands\ClientConsole\Voicechat\DisableVoicechat.cs" />
     <Compile Include="Commands\ClientConsole\Voicechat\EnableVoicechat.cs" />
     <Compile Include="Commands\RemoteAdmin\Despawn.cs" />
@@ -111,32 +103,27 @@
     <Compile Include="Commands\RemoteAdmin\List.cs" />
     <Compile Include="Commands\RemoteAdmin\Spawn.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="EventHandlers.cs" />
-    <Compile Include="Extensions\DuelExtensions.cs" />
-    <Compile Include="Extensions\GhostExtensions.cs" />
-    <Compile Include="Extensions\OtherExtensions.cs" />
-    <Compile Include="Extensions\TargetExtensions.cs" />
-    <Compile Include="GhostComponent.cs" />
-    <Compile Include="Patches\ApplyDamagePatch.cs" />
-    <Compile Include="Patches\BulletDecalPatch.cs" />
-    <Compile Include="Patches\SpawningPatches.cs" />
-    <Compile Include="Patches\DisruptorPatches.cs" />
+    <Compile Include="EventHandler.cs" />
+    <Compile Include="Features\Extensions\Duel.cs" />
+    <Compile Include="Features\Extensions\Ghost.cs" />
+    <Compile Include="Features\Extensions\Other.cs" />
+    <Compile Include="Features\Extensions\Toy.cs" />
+    <Compile Include="Features\GhostComponent.cs" />
+    <Compile Include="Features\SSGhostSpectator.cs" />
+    <Compile Include="MainClass.cs" />
     <Compile Include="Patches\ChristmasPatches.cs" />
-    <Compile Include="Patches\FriendlyFirePatch.cs" />
-    <Compile Include="Patches\HitregPatch.cs" />
-    <Compile Include="Patches\MakingSoundPatches.cs" />
+    <Compile Include="Patches\DamagePatches.cs" />
+    <Compile Include="Patches\DetectionPatches.cs" />
+    <Compile Include="Patches\DisruptorPatch.cs" />
     <Compile Include="Patches\Scp049Patches.cs" />
     <Compile Include="Patches\Scp939Patches.cs" />
-    <Compile Include="Patches\TeslaPatches.cs" />
-    <Compile Include="Patches\VisibilityPatch.cs" />
-    <Compile Include="Patches\VoiceChannelPatch.cs" />
-    <Compile Include="Plugin.cs" />
+    <Compile Include="Patches\SpawningPatches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Translation.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetDir)$(TargetFileName)" "$(SLPlugin)\$(TargetFileName)"</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetDir)$(TargetFileName)" "$(SecretLabFiles)\LabAPI-Beta\plugins\7777\$(TargetFileName)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -7,14 +7,12 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 
 using PlayerRoles;
+using UnityEngine;
 
 namespace GhostSpectator
 {
     public class Config
     {
-        [Description("Should the plugin be enabled?")]
-        public bool IsEnabled { get; set; } = true;
-
         [Description("Should debug be enabled?")]
         public bool Debug { get; set; } = false;
 
@@ -28,13 +26,10 @@ namespace GhostSpectator
         public ushort SpawnmessageDuration { get; set; } = 5;
 
         [Description("Ghost spawn positions.")]
-        public List<string> SpawnPositions { get; set; } = new List<string>{ "9, 1002, 1" };
+        public List<Vector3> SpawnPositions { get; set; } = new List<Vector3>{ new(9f, 302f, 1f) };
 
         [Description("Roles, that Ghosts cannot teleport to. SCP-079 is already included.")]
-        public List<RoleTypeId> RoleTeleportBlacklist { get; set; } = new List<RoleTypeId>
-        {
-            RoleTypeId.Tutorial
-        };
+        public List<RoleTypeId> RoleTeleportBlacklist { get; set; } = new List<RoleTypeId> { RoleTypeId.Tutorial };
 
         [Description("Should Ghosts, that don't have permission, be despawned and not allowed to spawn after warhead detonation?")]
         public bool DespawnOnDetonation { get; set; } = true;
@@ -45,20 +40,26 @@ namespace GhostSpectator
         [Description("Should Filmmakers be able to see Ghosts?")]
         public bool FilmmakerSeeGhosts { get; set; } = false;
 
-        [Description("How many shooting targets at once can one Ghost have created?")]
-        public int TargetLimit { get; set; } = 1;
+        [Description("How many toys can one Ghost have at once?")]
+        public int ToyLimit { get; set; } = 1;
 
-        [Description("Areas where Ghosts can create shooting targets. The area exists between a pair of coordinates on each axis.")]
-        public Dictionary<string, string> ShootingRanges { get; set; } = new Dictionary<string, string>()
+        [Description("Areas where Ghosts can create toys. The area exists between a pair of coordinates on each axis.")]
+        public Dictionary<Vector3, Vector3> ToySpawnAreas { get; set; } = new Dictionary<Vector3, Vector3>()
         {
-            { "10, 994, -12", "-10, 996, -4" },
-            { "68, 982, -36", "142, 985, -12"}
+            { new(10f, 294f, -12f), new(-10f, 296f, -3f) },
+            { new(68f, 282f, -36f), new(142f, 285f, -12f) }
         };
 
-        [Description("Minimum distance between the Ghosts, that will make them hear eachother via RoundSummary channel instead of Proximity channel (if they have enabled listening to Ghosts).")]
+        [Description("Minimum distance between the Ghosts, that will make them hear eachother via RoundSummary channel.")]
         public float HearDistance { get; set; } = 10f;
 
         [Description("Time after which the duel request will expire.")]
         public float DuelRequestTime { get; set; } = 10f;
+
+        [Description("Should server-specific settings for this plugin be enabled?")]
+        public bool SsSettingsEnabled { get; set; } = false;
+
+        [Description("Should server-specific settings be automatically activated for Ghosts upon spawn?")]
+        public bool SendSettingsOnSpawn { get; set; } = false;
     }
 }
