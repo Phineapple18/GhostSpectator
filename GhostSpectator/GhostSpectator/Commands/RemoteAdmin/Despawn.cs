@@ -5,100 +5,94 @@ using System.Text;
 using System.Threading.Tasks;
 
 using CommandSystem;
-using GhostSpectator.Extensions;
+using GhostSpectator.Features.Extensions;
+using Log = LabApi.Features.Console.Logger;
+using LabApi.Features.Permissions;
+using LabApi.Features.Wrappers;
 using NorthwoodLib.Pools;
-using NWAPIPermissionSystem;
-using PluginAPI.Core;
+using Utils.NonAllocLINQ;
 
 namespace GhostSpectator.Commands.RemoteAdmin
 {
-	public class Despawn : ICommand, IUsageProvider
-	{
+    public class Despawn : ICommand, IUsageProvider
+    {
         public Despawn(string command, string description, string[] aliases)
         {
             translation = Translation.AccessTranslation();
-            commandName = $"{Translation.pluginName}.{this.GetType().Name}";
-            Command = !string.IsNullOrWhiteSpace(command) ? command : _command;
+            Command = command ?? _command;
             Description = description;
             Aliases = aliases;
             Usage = new[] { "PlayerID/all" };
-            Log.Debug($"Registered {this.Command} subcommand.", translation.Debug, Translation.pluginName);
+            Log.Debug($"Registered {this.Command} subcommand.", translation.Debug);
         }
 
-		public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
-		{
-            if (Plugin.Singleton == null)
-			{
-                response = translation.NotEnabled;
-                Log.Debug($"Plugin {Translation.pluginName} is not enabled.", translation.Debug, commandName);
+        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
+        {
+            if (MainClass.Instance == null)
+            {
+                response = translation.PluginNotEnabled;
+                Log.Debug("Plugin GhostSpectator is not enabled.", translation.Debug);
                 return false;
-			}
+            }
             if (sender == null)
             {
                 response = translation.SenderNull;
-                Log.Debug("Command sender doesn't exist.", Config.Debug, commandName);
+                Log.Debug("Command sender doesn't exist.", Config.Debug);
                 return false;
             }
-            if (!sender.CheckPermission("gs.spawn.other"))
-			{
-                response = translation.NoPerms;
-                Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug, commandName);
-				return false;
-			}
-            if (arguments.IsEmpty())
-			{
-                response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
-                Log.Debug($"Player {sender.LogName} didn't provide any argument.", Config.Debug, commandName);
+            if (!sender.HasPermissions("gs.spawn.other"))
+            {
+                response = translation.NoPermission;
+                Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug);
                 return false;
-			}
-            List<Player> validPlayers = arguments.At(0).ToLower() == "all" ? Player.GetPlayers() : Player.GetPlayers().Where(p => arguments.Contains(p.PlayerId.ToString())).ToList();
+            }
+            if (arguments.IsEmpty())
+            {
+                response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
+                Log.Debug($"Player {sender.LogName} didn't provide any argument.", Config.Debug );
+                return false;
+            }
+            List<Player> validPlayers = arguments.At(0).ToLower() == "all" ? Player.ReadyList.ToList() : Player.ReadyList.Where(p => arguments.Contains(p.PlayerId.ToString())).ToList();
             if (validPlayers.IsEmpty())
             {
                 response = translation.NoPlayers;
-                Log.Debug($"Player {sender.LogName} provided non-existent player(s).", Config.Debug, commandName);
+                Log.Debug($"Player {sender.LogName} provided non-existent player(s).", Config.Debug);
                 return false;
             }
             StringBuilder success = StringBuilderPool.Shared.Rent();
             StringBuilder failure = StringBuilderPool.Shared.Rent();
             success.AppendLine(translation.DespawnSuccess);
             failure.AppendLine($"{translation.DespawnFail}:");
-            int numS = 0;
-            int numF = 0;
-            foreach (Player player in validPlayers)
+            int[] num = new int[2] { 0, 0 };
+            validPlayers.ForEach<Player>(player =>
             {
                 if (player.IsGhost())
                 {
-                    GhostExtensions.Despawn(player);
-                    numS++;
-                    continue;
+                    Ghost.Despawn(player);
+                    num[1]++;
+                    return;
                 }
                 failure.AppendLine($"- {player.Nickname}");
-                numF++;
-                Log.Debug($"Player {player.Nickname} is not a Ghost.", Config.Debug, commandName);
-            }
-            success.Replace("%count%", numS.ToString());
-            failure.Replace("%count%", numF.ToString());
-            StringBuilder result = numS == 0 ? failure : numF == 0 ? success : success.Append(failure);
+                num[0]++;
+                Log.Debug($"Player {player.Nickname} is not a Ghost.", Config.Debug);
+            });
+            success.Replace("%count%", num[1].ToString());
+            failure.Replace("%count%", num[0].ToString());
+            StringBuilder result = num[1] == 0 ? failure : num[0] == 0 ? success : success.Append(failure);
             response = StringBuilderPool.Shared.ToStringReturn(result).TrimEnd(Array.Empty<char>());
-            Log.Debug($"Player {sender.LogName} despawned successfully ({numS}) and unsuccessfully ({numF}) Ghosts.", Config.Debug, commandName);
-            return numS > 0;
-		}
+            Log.Debug($"Player {sender.LogName} despawned successfully ({num[1]}) and unsuccessfully ({num[0]}) Ghosts.", Config.Debug);
+            return num[1] > 0;
+        }
 
         internal const string _command = "despawn";
-
         internal const string _description = "Despawn chosen Ghost(s) to Spectator. Separate entries with space.";
-
         internal static readonly string[] _aliases = new[] { "d" };
-
-        private readonly string commandName;
-
         private readonly Translation translation;
 
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
         public string[] Usage { get; }
-        public bool SanitizeResponse { get; }
-        private static Config Config => Plugin.Singleton.pluginConfig;
+        private static Config Config => MainClass.Instance.pluginConfig;
     }
 }

@@ -9,19 +9,18 @@ using GhostSpectator.Features.Extensions;
 using Log = LabApi.Features.Console.Logger;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
-using PlayerRoles;
 
 namespace GhostSpectator.Commands.ClientConsole
 {
     [CommandHandler(typeof(ClientCommandHandler))]
-    public class GhostMe : ICommand
+    public class CheckWaveInfo : ICommand
     {
-        public GhostMe()
+        public CheckWaveInfo()
         {
             translation = Translation.AccessTranslation();
-            Command = translation.GhostmeCommand ?? _command;
-            Description = translation.GhostmeDescription;
-            Aliases = translation.GhostmeAliases;
+            Command = translation.CheckwaveinfoCommand ?? _command;
+            Description = translation.CheckwaveinfoDescription;
+            Aliases = translation.CheckwaveinfoAliases;
             Log.Debug($"Registered {this.Command} command.", translation.Debug);
         }
 
@@ -39,7 +38,7 @@ namespace GhostSpectator.Commands.ClientConsole
                 Log.Debug("Command sender doesn't exist.", Config.Debug);
                 return false;
             }
-            if (!sender.HasPermissions("gs.spawn.self"))
+            if (!sender.HasPermissions("gs.waveinfo"))
             {
                 response = translation.NoPermission;
                 Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug);
@@ -52,39 +51,29 @@ namespace GhostSpectator.Commands.ClientConsole
                 return false;
             }
             Player commandsender = Player.Get(sender);
-            if (commandsender.IsGhost())
+            if (!commandsender.IsGhost())
             {
-                Ghost.Despawn(commandsender);
-                response = translation.GhostmeSpecSuccess;
-                Log.Debug($"Player {commandsender.Nickname} turned themselves into Spectator.", Config.Debug);
-                return true;
+                response = translation.NotGhost;
+                Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
+                return false;
             }
-            if (commandsender.Role == RoleTypeId.Spectator)
-            {
-                if (Warhead.IsDetonated && Config.DespawnOnDetonation && !commandsender.HasPermissions("gs.warhead"))
-                {
-                    response = translation.WarheadDetonated;
-                    Log.Debug($"Player {commandsender.Nickname} doesn't have permission to spawn as Ghost after warhead detonation.", Config.Debug);
-                    return false;
-                }
-                Ghost.Spawn(commandsender);
-                response = translation.GhostmeGhostSuccess;
-                Log.Debug($"Player {commandsender.Nickname} turned themselves into Ghost.", Config.Debug);
-                return true;
-            }
-            response = translation.GhostmeFail;
-            Log.Debug($"Player {commandsender.Nickname} is neither a Ghost nor Spectator.", Config.Debug);
-            return false;
+            string mtfTimer = RespawnWaves.PrimaryMtfWave.TimeLeft.ToString();
+            string mtfTokens = RespawnWaves.PrimaryMtfWave.RespawnTokens.ToString();
+            string ciTimer = RespawnWaves.PrimaryChaosWave.TimeLeft.ToString();
+            string ciTokens = RespawnWaves.PrimaryChaosWave.RespawnTokens.ToString();
+            response = translation.CheckwaveinfoSuccess.Replace("%timermtf%", mtfTimer).Replace("%tokensmtf%", mtfTokens).Replace("%timerci%", ciTimer).Replace("%tokensci%", ciTokens);
+            return true;
         }
 
-        internal const string _command = "ghostme";
-        internal const string _description = "Spawn yourself as a Ghost or change back to Spectator.";
-        internal static readonly string[] _aliases = new[] { "gme", "me" };
+        internal const string _command = "checkwaveinfo";
+        internal const string _description = "Check timers and tokens.";
+        internal static readonly string[] _aliases = new[] { "timer", "time" };
         private readonly Translation translation;
 
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
+        public string[] Usage { get; }
         private static Config Config => MainClass.Instance.pluginConfig;
     }
 }

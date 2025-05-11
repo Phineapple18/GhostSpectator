@@ -5,32 +5,38 @@ using System.Text;
 using System.Threading.Tasks;
 
 using CommandSystem;
+using GhostSpectator.Features;
 using GhostSpectator.Features.Extensions;
 using Log = LabApi.Features.Console.Logger;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
-using PlayerRoles;
 
 namespace GhostSpectator.Commands.ClientConsole
 {
     [CommandHandler(typeof(ClientCommandHandler))]
-    public class GhostMe : ICommand
+    public class GhostSettings : ICommand
     {
-        public GhostMe()
+        public GhostSettings()
         {
             translation = Translation.AccessTranslation();
-            Command = translation.GhostmeCommand ?? _command;
-            Description = translation.GhostmeDescription;
-            Aliases = translation.GhostmeAliases;
+            Command = translation.GhostsettingsCommand ?? _command;
+            Description = translation.GhostsettingsDescription;
+            Aliases = translation.GhostsettingsAliases;
             Log.Debug($"Registered {this.Command} command.", translation.Debug);
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (MainClass.Instance == null)
+            if (MainClass.Instance== null)
             {
                 response = translation.PluginNotEnabled;
                 Log.Debug("Plugin GhostSpectator is not enabled.", translation.Debug);
+                return false;
+            }
+            if (SSGhostSpectator.Singleton == null)
+            {
+                response = translation.SssNotEnabled;
+                Log.Debug("Server-specific settings for GhostSpectator plugin are not enabled.", translation.Debug);
                 return false;
             }
             if (sender == null)
@@ -39,7 +45,7 @@ namespace GhostSpectator.Commands.ClientConsole
                 Log.Debug("Command sender doesn't exist.", Config.Debug);
                 return false;
             }
-            if (!sender.HasPermissions("gs.spawn.self"))
+            if (!sender.HasPermissions("gs.settings"))
             {
                 response = translation.NoPermission;
                 Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug);
@@ -52,34 +58,28 @@ namespace GhostSpectator.Commands.ClientConsole
                 return false;
             }
             Player commandsender = Player.Get(sender);
-            if (commandsender.IsGhost())
+            if (!commandsender.IsGhost())
             {
-                Ghost.Despawn(commandsender);
-                response = translation.GhostmeSpecSuccess;
-                Log.Debug($"Player {commandsender.Nickname} turned themselves into Spectator.", Config.Debug);
-                return true;
+                response = translation.NotGhostNorSpectator;
+                Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
+                return false;
             }
-            if (commandsender.Role == RoleTypeId.Spectator)
+            if (SSGhostSpectator.Singleton.lastSentPages.ContainsKey(commandsender.ReferenceHub))
             {
-                if (Warhead.IsDetonated && Config.DespawnOnDetonation && !commandsender.HasPermissions("gs.warhead"))
-                {
-                    response = translation.WarheadDetonated;
-                    Log.Debug($"Player {commandsender.Nickname} doesn't have permission to spawn as Ghost after warhead detonation.", Config.Debug);
-                    return false;
-                }
-                Ghost.Spawn(commandsender);
-                response = translation.GhostmeGhostSuccess;
-                Log.Debug($"Player {commandsender.Nickname} turned themselves into Ghost.", Config.Debug);
-                return true;
+                SSGhostSpectator.Singleton.DeactivateForHub(commandsender.ReferenceHub);
+                response = translation.GhostsettingsDeactivated;
             }
-            response = translation.GhostmeFail;
-            Log.Debug($"Player {commandsender.Nickname} is neither a Ghost nor Spectator.", Config.Debug);
-            return false;
+            else
+            {
+                SSGhostSpectator.Singleton.ActivateForHub(commandsender.ReferenceHub);
+                response = translation.GhostsettingsActivated;
+            }
+            return true;
         }
 
-        internal const string _command = "ghostme";
-        internal const string _description = "Spawn yourself as a Ghost or change back to Spectator.";
-        internal static readonly string[] _aliases = new[] { "gme", "me" };
+        internal const string _command = "ghostsettings";
+        internal const string _description = "Activate or deactivate GhostSpectator Server-specific Settings.";
+        internal static readonly string[] _aliases = new[] { "gset" };
         private readonly Translation translation;
 
         public string Command { get; }
