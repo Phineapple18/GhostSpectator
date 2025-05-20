@@ -53,7 +53,7 @@
     </Reference>
     <Reference Include="Mirror-Publicized, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SecretLabSteam)\LabAPI-Beta\dependencies\7777\Mirror-Publicized.dll</HintPath>
+      <HintPath>$(SecretLabSteam)\LabAPI\dependencies\7777\Mirror-Publicized.dll</HintPath>
     </Reference>
     <Reference Include="NorthwoodLib">
       <HintPath>$(SecretLabSteam)\NorthwoodLib.dll</HintPath>
@@ -124,6 +124,6 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetDir)$(TargetFileName)" "$(SecretLabFiles)\LabAPI-Beta\plugins\7777\$(TargetFileName)"</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetDir)$(TargetFileName)" "$(SecretLabFiles)\LabAPI\plugins\7777\$(TargetFileName)"</PostBuildEvent>
   </PropertyGroup>
 </Project>
