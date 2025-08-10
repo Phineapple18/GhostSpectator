@@ -1,4 +1,4 @@
-# GhostSpectator (3.0.1)
+# GhostSpectator (3.1.0)
 Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into Ghosts: Tutorials undetectable to alive players and not affecting the round. Depending on the config, Ghosts can perform various activities f.e teleport to alive players or random rooms, spawn a toy or challenge another Ghost to a duel.
 
 ## Features
@@ -53,10 +53,16 @@ The translation file is in the same folder as the config file and allows you to 
 
 ## Remote Admin Commands
 ### ghostspectator
-Parent command for managing Ghosts. Subcommands:
+Parent command for Ghosts managing. Subcommands:
 - despawn - Despawn chosen Ghost(s) to Spectator. Separate entries with space. Usage: PlayerID/all
 - list - Print a list of all Ghosts.
 - spawn - Spawn chosen player(s) as Ghost. Separate entries with space. Usage: PlayerID/all
+
+### ghostsettings
+Parent command for managing server-specific settings for GhostSpectator. Subcommands:
+- disable - Disable server-specific settings for GhostSpectator.
+- enable - Enable server-specific settings for GhostSpectator.
+- reload - Reload server-specific settings for GhostSpectator.
 
 ## Client Console Commands
 ### duel
@@ -64,12 +70,16 @@ Parent command for Ghost duelling. Subcommands:
 - accept - Accept a duel offer from other Ghost. Usage: PlayerNickname (whole or part, case-insensitive)
 - cancel - Cancel your duel, pending duel or duel request.
 - challenge - Challenge another Ghost to a duel. Usage: PlayerNickname (whole or part, case-insensitive)
-- list (duel) - Print a list of all players who you challenged and who challenged you to a duel.
+- list - Print a list of all players who you challenged and who challenged you to a duel.
 - reject - Reject a duel offer from other Ghost. Usage: PlayerNickname (whole or part, case-insensitive)
 
+### toy
+Parent command for toy managing. Subcommands:
+- create - Create a toy. Usage: Capybara/TargetDBoy/TargetSport/TargetBinary
+- destroy - Destroy your toy. Usage: NetId/list
+- list - Print a list of all the toys you created.
+
 ### Miscellanous commands
-- createtoy - Create a toy. Usage: Capybara/TargetDBoy/TargetSport/TargetBinary
-- destroytoy - Destroy your toy or print a list of your toys. Usage: NetId/list
 - disablevoicechat - Disable listening to chosen voicechat(s). Usage: ghost/scp/spectator/all
 - enablevoicechat - Enable listening to chosen voicechat(s). Usage: ghost/scp/spectator/all
 - ghostme - Spawn yourself as a Ghost or change back to Spectator.
@@ -87,7 +97,8 @@ Parent command for Ghost duelling. Subcommands:
 - gs.listen.spectator - allows a player to listen Spectators (via command)
 - gs.autolisten.spectator - allows the above automatically, when spawned as a Ghost
 - gs.noclip - allows a player to have noclip permitted
-- gs.settings - allows a player to activate and deactivate server-specific settings for this plugin
+- gs.settings.activate - allows a player to activate and deactivate server-specific settings for this plugin
+- gs.settings.reload - allows a player to enable, disable and reload server-specific settings for this plugin
 - gs.spawn.other - allows a player to use *spawn* and *despawn* commands
 - gs.spawn.self - allows a player to use *ghostme* command
 - gs.toy - allows a player to use *createtoy* command
