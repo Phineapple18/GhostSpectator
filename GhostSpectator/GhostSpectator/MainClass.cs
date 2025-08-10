@@ -71,8 +71,9 @@ namespace GhostSpectator
         public override string Description { get; } = null;
         public override string Name { get; } = "GhostSpectator";
         public override Version RequiredApiVersion { get; } = new(LabApiProperties.CompiledVersion);
-        public override Version Version { get; } = new(3, 2, 0);
+        public override Version Version { get; } = new(3, 1, 0);
         public override bool IsTransparent { get; } = true;
     }
 }
+
 
