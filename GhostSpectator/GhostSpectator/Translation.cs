@@ -7,14 +7,16 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using System.IO;
 
-using GhostSpectator.Features;
 using GhostSpectator.Commands.ClientConsole;
 using GhostSpectator.Commands.ClientConsole.Duelling;
 using GhostSpectator.Commands.ClientConsole.Toys;
 using GhostSpectator.Commands.ClientConsole.Voicechat;
-using GhostSpectator.Commands.RemoteAdmin;
+using GhostSpectator.Commands.RemoteAdmin.GhostSettings;
+using GhostSpectator.Commands.RemoteAdmin.GhostSpectator;
+using GhostSpectator.Features;
 using LabApi.Loader.Features.Paths;
 using Serialization;
+
 
 namespace GhostSpectator
 {
@@ -25,7 +27,18 @@ namespace GhostSpectator
         public string GhostNickname { get; set; } = "GHOST";
 
         [Description("Broadcast sent to a Ghost upon spawn.")]
-        public string SpawnMessage { get; set; } = "<size=50><color=%colour%>You are a Ghost!</color>\n<size=30>Drop the Lantern to teleport to a random alive player (lit) or a random room (unlit).</size>";
+        public string SpawnMessage { get; set; } = "<size=50><color=%colour%>You are a Ghost!</color>" +
+                                                   "\n<size=30>- Drop the Lantern to teleport to a random alive player (lit) or a random room (unlit)." +
+                                                   "\n- Open your client console to learn about other features.</size>";
+
+        [Description("Console message sent to a Ghost upon spawn.")]
+        public string SpawnConsoleMessage { get; set; } = "GhostSpectator features:" +
+                                                          "\n- Use command <color=red>\"%ghostset%\"</color> to enable or disable server-specific settings for this plugin." +
+                                                          "\n- Use command <color=red>\"%wavetimer%\"</color> to check respawn times." +
+                                                          "\n- Use commands <color=red>\"%createtoy%\"</color> or <color=red>\"%destroytoy%\"</color> to learn create or destroy a toy." +
+                                                          "\n- Use commands <color=red>\"%enablevc%\"</color> or <color=red>\"disablevc\"</color> to enable or disable specific voicechat." +
+                                                          "\n- Use command <color=red>\"%duel%\"</color> to learn about duelling." +
+                                                          "\n- Use command <color=red>\"%givegun%\"</color> to give yourself a firearm.";
 
         [Description("Hints shown to a Ghost, when dropping the teleport item.")]
         public string TeleportPlayerSuccess { get; set; } = "You have been teleported to <color=green>%playernick%</color>.";
@@ -71,8 +84,34 @@ namespace GhostSpectator
         public string SpawnCommand { get; set; } = Spawn._command;
         public string SpawnDescription { get; set; } = Spawn._description;
         public string[] SpawnAliases { get; set; } = Spawn._aliases;
-        public string SpawnSuccess { get; set; } = "Succesfully spawned %count% Ghosts.";
+        public string SpawnSuccess { get; set; } = "Succesfully spawned %count% Ghost(s).";
         public string SpawnFail { get; set; } = "Command failed for %count% existing player(s) (already a Ghost)";
+
+        [Description("Translation of GhostSettings parent command and its subcommands. Make sure not to duplicate commands or aliases." +
+                     "\n# GhostSettings parent command.")]
+        public string GhostsettingsParentCommand { get; set; } = GhostSettingsParent._command;
+        public string GhostsettingsParentDescription { get; set; } = GhostSettingsParent._description;
+        public string[] GhostsettingsParentAliases { get; set; } = GhostSettingsParent._aliases;
+
+        [Description("Disable command.")]
+        public string DisableCommand { get; set; } = Disable._command;
+        public string DisableDescription { get; set; } = Disable._description;
+        public string[] DisableAliases { get; set; } = Disable._aliases;
+        public string DisableSuccess { get; set; } = "Succesfully disabled server-specific settings for GhostSpectator.";
+        public string DisableFail { get; set; } = "Server-specific settings are already disabled for GhostSpectator.";
+
+        [Description("Enable command.")]
+        public string EnableCommand { get; set; } = Enable._command;
+        public string EnableDescription { get; set; } = Enable._description;
+        public string[] EnableAliases { get; set; } = Enable._aliases;
+        public string EnableSuccess { get; set; } = "Succesfully enabled server-specific settings for GhostSpectator.";
+        public string EnableFail { get; set; } = "Server-specific settings are already enabled for GhostSpectator.";
+
+        [Description("Reload command.")]
+        public string ReloadCommand { get; set; } = Reload._command;
+        public string ReloadDescription { get; set; } = Reload._description;
+        public string[] ReloadAliases { get; set; } = Reload._aliases;
+        public string ReloadSuccess { get; set; } = "Succesfully reloaded server-specific settings for GhostSpectator.";
 
         [Description("Translation of Duel parent command and its subcommands. Make sure not to duplicate commands or aliases." +
                      "\n# Duel parent command.")]
@@ -112,22 +151,33 @@ namespace GhostSpectator
         public string[] RejectAliases { get; set; } = Reject._aliases;
         public string RejectSuccessPlayer { get; set; } = "You have rejected duel request from %playernick%.";
 
+        [Description("Translation of Toy parent command and its subcommands. Make sure not to duplicate commands or aliases." +
+                     "\n# Toy parent command.")]
+        public string ToyParentCommand { get; set; } = ToyParent._command;
+        public string ToyParentDescription { get; set; } = ToyParent._description;
+        public string[] ToyParentAliases { get; set; } = ToyParent._aliases;
+
+        [Description("Create command.")]
+        public string CreateCommand { get; set; } = Create._command;
+        public string CreateDescription { get; set; } = Create._description;
+        public string[] CreateAliases { get; set; } = Create._aliases;
+        public string CreateSuccess { get; set; } = "You have created a <color=green>(%toyname%)</color> with ID <color=green>%toyid%</color>.";
+
+        [Description("Destroy command.")]
+        public string DestroyCommand { get; set; } = Destroy._command;
+        public string DestroyDescription { get; set; } = Destroy._description;
+        public string[] DestroyAliases { get; set; } = Destroy._aliases;
+        public string DestroySuccess { get; set; } = "You have destroyed your toy (%toyname%) with ID %toyid%.";
+        public string DestroyFail { get; set; } = "You don't have any toy created with ID %toyid%.";
+
+        [Description("List command.")]
+        public string ListtoyCommand { get; set; } = ListToy._command;
+        public string ListtoyDescription { get; set; } = ListToy._description;
+        public string[] ListtoyAliases { get; set; } = ListToy._aliases;
+        public string ListtoySuccess { get; set; } = "List of spawned toys (%count%)";
+
         [Description("Translation of other client commands. Make sure not to duplicate commands or aliases." +
-                     "\n# CreateToy command.")]
-        public string CreatetoyCommand { get; set; } = CreateToy._command;
-        public string CreatetoyDescription { get; set; } = CreateToy._description;
-        public string[] CreatetoyAliases { get; set; } = CreateToy._aliases;
-        public string CreatetoySuccess { get; set; } = "You have created a <color=green>(%toyname%)</color> with ID <color=green>%toyid%</color>.";
-
-        [Description("DestroyToy command.")]
-        public string DestroyToyCommand { get; set; } = DestroyToy._command;
-        public string DestroyToyDescription { get; set; } = DestroyToy._description;
-        public string[] DestroyToyAliases { get; set; } = DestroyToy._aliases;
-        public string DestroyToyList { get; set; } = "List of spawned toys (%count%)";
-        public string DestroyToySuccess { get; set; } = "You have destroyed your toy (%toyname%) with ID %toyid%.";
-        public string DestroyToyFail { get; set; } = "You don't have any toy created with ID %toyid%.";
-
-        [Description("DisableVoicechat command.")]
+                     "\n# DisableVoicechat command.")]
         public string DisablevoicechatCommand { get; set; } = DisableVoicechat._command;
         public string DisablevoicechatDescription { get; set; } = DisableVoicechat._description;
         public string[] DisablevoicechatAliases { get; set; } = DisableVoicechat._aliases;
@@ -139,7 +189,7 @@ namespace GhostSpectator
         public string EnablevoicechatCommand { get; set; } = EnableVoicechat._command;
         public string EnablevoicechatDescription { get; set; } = EnableVoicechat._description;
         public string[] EnablevoicechatAliases { get; set; } = EnableVoicechat._aliases;
-        public string EnableVoicechatSuccess { get; set; } = "Successfully enabled listening to the following groups";
+        public string EnableVoicechatSuccess { get; set; } = "Successfully enabled listening to the following group(s)";
         public string EnablevoicechatFail { get; set; } = "You have already enabled listening to the following group(s)";
         public string EnablevoicechatPermFail { get; set; } = "You don't have permission to listen to the following group(s)";
 
@@ -178,10 +228,10 @@ namespace GhostSpectator
         public string Usage { get; set; } = "Usage";
 
         [Description("Translation of other command responses.")]
-
         public string ActiveDuelOther { get; set; } = "Player %playernick% already has an active duel.";
         public string ActiveDuelSelf { get; set; } = "You already have an active duel with %playernick%.";
-        public string ActivePendingDuel { get; set; } = "You already have a pending duel with %playernick%.";
+        public string ActivePendingDuelOther { get; set; } = "Player %playernick% already has a pending duel.";
+        public string ActivePendingDuelSelf { get; set; } = "You already have a pending duel with %playernick%.";
         public string FirearmOnly { get; set; } = "You can only give yourself a firearm.";
         public string MustBeNumber { get; set; } = "Argument must be a number.";
         public string MustBeNumberOrType { get; set; } = "Argument must be a number or item type.";
@@ -199,7 +249,7 @@ namespace GhostSpectator
         public string SenderNull { get; set; } = "Command sender is null.";
         public string SssNotEnabled { get; set; } = "Server-specific settings for GhostSpectator are not enabled.";
         public string WarheadDetonated { get; set; } = "You can't use this feature after warhead detonation.";
-        public string WrongArea { get; set; } = "You can create toys only in designated range(s).";
+        public string WrongArea { get; set; } = "You can create toys only in designated area(s).";
         public string WrongArgument { get; set; } = "Provided argument(s) doesn't exist.";
 
         [Description("SERVER-SPECIFIC SETTINGS\' TRANSLATION. Don't translate words put between two '%'." +

@@ -45,7 +45,7 @@ namespace GhostSpectator.Commands.ClientConsole
                 Log.Debug("Command sender doesn't exist.", Config.Debug);
                 return false;
             }
-            if (!sender.HasPermissions("gs.settings"))
+            if (!sender.HasPermissions("gs.settings.activate"))
             {
                 response = translation.NoPermission;
                 Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug);
@@ -68,11 +68,13 @@ namespace GhostSpectator.Commands.ClientConsole
             {
                 SSGhostSpectator.Singleton.DeactivateForHub(commandsender.ReferenceHub);
                 response = translation.GhostsettingsDeactivated;
+                Log.Debug($"Player {commandsender.Nickname} deactivated their ghost settings.", Config.Debug);
             }
             else
             {
                 SSGhostSpectator.Singleton.ActivateForHub(commandsender.ReferenceHub);
                 response = translation.GhostsettingsActivated;
+                Log.Debug($"Player {commandsender.Nickname} activated their ghost settings.", Config.Debug);
             }
             return true;
         }

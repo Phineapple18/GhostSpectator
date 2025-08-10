@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -45,7 +44,7 @@ namespace GhostSpectator
             harmony.UnpatchAll();
             harmony = null;
             Toy.SpawnAreas = null;
-            SSGhostSpectator.Singleton.Disable();
+            SSGhostSpectator.Singleton?.Disable();
             CustomHandlersManager.UnregisterEventsHandler(Events);
             Events = null;
             pluginConfig = null;
@@ -68,10 +67,11 @@ namespace GhostSpectator
         public EventHandler Events { get; private set; }
         public static MainClass Instance { get; private set; }
 
-        public override string Author { get; } = "Phineapple18";
+        public override string Author { get; } = "Catiatto";
         public override string Description { get; } = null;
         public override string Name { get; } = "GhostSpectator";
         public override Version RequiredApiVersion { get; } = new(LabApiProperties.CompiledVersion);
-        public override Version Version { get; } = new(3, 0, 1);
+        public override Version Version { get; } = new(3, 1, 0);
+        public override bool IsTransparent { get; } = true;
     }
 }

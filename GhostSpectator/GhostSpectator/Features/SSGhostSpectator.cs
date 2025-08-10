@@ -11,13 +11,12 @@ using GhostSpectator.Commands.ClientConsole.Toys;
 using GhostSpectator.Commands.ClientConsole.Voicechat;
 using GhostSpectator.Features.Extensions;
 using Hints;
-using InventorySystem;
-using InventorySystem.Items.Firearms;
 using Log = LabApi.Features.Console.Logger;
 using RemoteAdmin;
-using TMPro;
+using static TMPro.TMP_InputField;
 using UserSettings.ServerSpecific;
 using UserSettings.ServerSpecific.Examples;
+using static UserSettings.ServerSpecific.SSDropdownSetting;
 using Utils.NonAllocLINQ;
 
 namespace GhostSpectator.Features
@@ -36,49 +35,51 @@ namespace GhostSpectator.Features
 
         public void Enable()
         {
-            pinnedSection = new[] { pageSelector = new(null, currentPage, Headers, 0, SSDropdownSetting.DropdownEntryType.HybridLoop) };
+            pinnedSection = new[] { pageSelector = new(null, currentPage, Headers, 0, DropdownEntryType.HybridLoop) };
             lastSentPages = new();
+            lastVoicechatSettings = new();
             pages = new SSPagesExample.SettingsPage[]
             {
                 new(Headers[0], new[]
                 {
-                    waveSettings[0] = new SSButton(null, translation.WaveInfo, translation.Press, null),
+                    waveSettings[0] = new SSButton(null, translation.WaveInfo, translation.Press),
                     waveSettings[1] = new SSTextArea(null, string.Empty)
                 }),
                 new(Headers[1], new[]
                 {
                     voicechatSettings[0] = new SSTwoButtonsSetting(null, translation.Ghosts, translation.Enabled, translation.Disabled, true, translation.PermissionNeeded),
-                    voicechatSettings[1] = new SSTwoButtonsSetting(null, translation.Scps, translation.Enabled, translation.Enabled, true, translation.PermissionNeeded),
+                    voicechatSettings[1] = new SSTwoButtonsSetting(null, translation.Scps, translation.Enabled, translation.Disabled, true, translation.PermissionNeeded),
                     voicechatSettings[2] = new SSTwoButtonsSetting(null, translation.Spectators, translation.Enabled, translation.Disabled, true, translation.PermissionNeeded),
                 }),
                 new(Headers[2], new[]
                 {
                     toySettings[0] = new SSDropdownSetting(null, toySelect, Toy.names.ToArray()),
-                    toySettings[1] = new SSButton(null, translation.ToyCreate, translation.Press, null),
+                    toySettings[1] = new SSButton(null, translation.ToyCreate, translation.Press),
                     toySettings[2] = new SSGroupHeader (translation.ToyManage),
-                    toySettings[3] = new SSButton(null, translation.ToyList, translation.Press, null),
+                    toySettings[3] = new SSButton(null, translation.ToyList, translation.Press),
                     toySettings[4] = new SSTextArea(null, string.Empty),
-                    toySettings[5] = new SSPlaintextSetting(null, translation.ToyNetid, "...", 3),
+                    toySettings[5] = new SSPlaintextSetting(null, translation.ToyNetid, "...", 3, ContentType.Standard, null, 255, true),
                     toySettings[6] = new SSButton(null, translation.ToyDestroy, translation.Hold, 1f)
                 }),
                 new(Headers[3], new[]
                 {
-                    duelSettings[0] = new SSPlaintextSetting(null, translation.GhostName, "...", 15, TMP_InputField.ContentType.Standard, translation.FullPartNickname),
+                    duelSettings[0] = new SSPlaintextSetting(null, translation.GhostName, "...", 15, ContentType.Standard, translation.FullPartNickname, 255, true),
                     duelSettings[1] = new SSDropdownSetting(null, actionSelect, DuelActionOptions),
                     duelSettings[2] = new SSButton(null, translation.ActionExecute, translation.Hold, 0.5f),
                     duelSettings[3] = new SSTextArea(null, string.Empty),
                     firearmSettings[0] = new SSGroupHeader(translation.Firearms),
-                    firearmSettings[1] = new SSDropdownSetting(null, firearmSelect, (from g in InventoryItemLoader.AvailableItems where g.Value is Firearm select g.Key.ToString()).ToArray()),
-                    firearmSettings[2] = new SSButton(null, translation.FirearmGive, translation.Press, null)
+                    firearmSettings[1] = new SSDropdownSetting(null, firearmSelect, Other.firearmList.Select(f => f.ToString()).ToArray()),
+                    firearmSettings[2] = new SSButton(null, translation.FirearmGive, translation.Press)
                 }),
             };
             pages.ForEach(page => page.GenerateCombinedEntries(pinnedSection));
             List<ServerSpecificSettingBase> allSettings = new(pinnedSection);
             pages.ForEach(page => allSettings.AddRange(page.OwnEntries));
-            ServerSpecificSettingsSync.DefinedSettings = allSettings.ToArray();
-            ServerSpecificSettingsSync.SendOnJoinFilter = (ReferenceHub _) => false;
+            ghostspectatorSettings = allSettings.ToArray();
+            ServerSpecificSettingsSync.DefinedSettings = ghostspectatorSettings;
+            ServerSpecificSettingsSync.SendOnJoinFilter = _ => false;
             ServerSpecificSettingsSync.ServerOnSettingValueReceived += this.ProcessUserInput;
-            Log.Debug("Initialized server-specific settings for GhostSpectator plugin.", config.Debug);
+            Log.Debug("Enabled server-specific settings for GhostSpectator plugin.", config.Debug);
         }
 
         public void Disable()
@@ -86,19 +87,21 @@ namespace GhostSpectator.Features
             Singleton = null;
             ServerSpecificSettingsSync.SendOnJoinFilter = null;
             ServerSpecificSettingsSync.ServerOnSettingValueReceived -= this.ProcessUserInput;
+            Log.Debug("Disabled server-specific settings for GhostSpectator plugin.", config.Debug);
         }
 
-        public void ActivateForHub(ReferenceHub referenceHub)
+        internal void ActivateForHub(ReferenceHub referenceHub)
         {
             lastSentPages.Add(referenceHub, 0);
             ServerSpecificSettingsSync.SendToPlayer(referenceHub, pages[0].CombinedEntries, null);
             Log.Debug($"Activated server-specific settings for player {referenceHub.nicknameSync.MyNick}.", config.Debug);
         }
 
-        public void DeactivateForHub(ReferenceHub referenceHub)
+        internal void DeactivateForHub(ReferenceHub referenceHub)
         {
             if (lastSentPages.Remove(referenceHub))
             {
+                lastVoicechatSettings.Remove(referenceHub);
                 ServerSpecificSettingsSync.SendToPlayer(referenceHub, null, null);
                 Log.Debug($"Deactivated server-specific settings for player {referenceHub.nicknameSync.MyNick}.", config.Debug);
             }
@@ -106,6 +109,11 @@ namespace GhostSpectator.Features
 
         private void ProcessUserInput(ReferenceHub referenceHub, ServerSpecificSettingBase setting)
         {
+            if (ServerSpecificSettingsSync.DefinedSettings != ghostspectatorSettings)
+            {
+                Log.Debug("Current DefinedSettings doesn't belong to GhostSpectator, skipped.", config.Debug);
+                return;
+            }
             try
             {
                 if (setting is SSDropdownSetting ssdropdownSetting && ssdropdownSetting.SettingId == pageSelector.SettingId)
@@ -117,18 +125,25 @@ namespace GhostSpectator.Features
                 string argument;
                 if (setting is SSTwoButtonsSetting ssTwoButton)
                 {
-                    if (ServerSpecificSettingsSync.GetSettingOfUser<SSTwoButtonsSetting>(referenceHub, ssTwoButton.SettingId).SyncIsA)
+                    argument = Other.voiceChats.ElementAt(Array.FindIndex(voicechatSettings, v => v.SettingId == ssTwoButton.SettingId));
+                    if (lastVoicechatSettings.Any(s => s.Key == referenceHub && s.Value.ContainsKey(argument) && s.Value[argument] == ssTwoButton.DebugValue))
                     {
-                        command = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is EnableVoicechat);
+                        Log.Debug($"Player {referenceHub.nicknameSync.MyNick} has already set this option, skipped.", config.Debug);
+                        return;
+                    }
+                    command = QueryProcessor.DotCommandHandler.AllCommands.First(c => ssTwoButton.SyncIsA ? c is EnableVoicechat : c is DisableVoicechat);
+                    if (lastVoicechatSettings.ContainsKey(referenceHub))
+                    {
+                        lastVoicechatSettings[referenceHub][argument] = ssTwoButton.DebugValue;
                     }
                     else
                     {
-                        command = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is DisableVoicechat);
+                        lastVoicechatSettings.Add(referenceHub, new Dictionary<string, string> { { argument, ssTwoButton.DebugValue } });
                     }
-                    argument = Other.voiceChats.ElementAt(Array.FindIndex(voicechatSettings, v => v.SettingId == ssTwoButton.SettingId));
                     this.HandleCommand(command, referenceHub, new string[] { argument }, null, true);
                     return;
                 }
+                ParentCommand parentCommand;
                 if (setting is SSButton ssButton)
                 {
                     switch (ssButton.SettingId)
@@ -138,21 +153,24 @@ namespace GhostSpectator.Features
                             this.HandleCommand(command, referenceHub, new string[0], (SSTextArea)waveSettings[1]);
                             return;
                         case int i when i == toySettings[1].SettingId:
-                            command = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is CreateToy);
+                            parentCommand = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is ToyParent) as ParentCommand;
+                            command = parentCommand.AllCommands.First(c => c is Create);
                             argument = ServerSpecificSettingsSync.GetSettingOfUser<SSDropdownSetting>(referenceHub, toySettings[0].SettingId).SyncSelectionText;
                             this.HandleCommand(command, referenceHub, new string[] { argument }, null, true);
                             return;
                         case int i when i == toySettings[3].SettingId:
-                            command = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is DestroyToy);
-                            this.HandleCommand(command, referenceHub, new string[] { "list" }, (SSTextArea)toySettings[4], false);
+                            parentCommand = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is ToyParent) as ParentCommand;
+                            command = parentCommand.AllCommands.First(c => c is ListToy);
+                            this.HandleCommand(command, referenceHub, new string[0], (SSTextArea)toySettings[4], false);
                             return;
                         case int i when i == toySettings[6].SettingId:
-                            command = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is DestroyToy);
+                            parentCommand = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is ToyParent) as ParentCommand;
+                            command = parentCommand.AllCommands.First(c => c is Destroy);
                             argument = ServerSpecificSettingsSync.GetSettingOfUser<SSPlaintextSetting>(referenceHub, toySettings[5].SettingId).SyncInputText;
                             this.HandleCommand(command, referenceHub, new string[] { argument }, null, true);
                             return;
                         case int i when i == duelSettings[2].SettingId:
-                            ParentCommand parentCommand = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is DuelParent) as ParentCommand;
+                            parentCommand = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is DuelParent) as ParentCommand;
                             int action = ServerSpecificSettingsSync.GetSettingOfUser<SSDropdownSetting>(referenceHub, duelSettings[1].SettingId).SyncSelectionIndexRaw;
                             command = parentCommand.AllCommands.ElementAt(action);
                             argument = ServerSpecificSettingsSync.GetSettingOfUser<SSPlaintextSetting>(referenceHub, duelSettings[0].SettingId).SyncInputText;
@@ -171,19 +189,20 @@ namespace GhostSpectator.Features
             }
             catch (Exception exception)
             {
-                Log.Error($"Skipped processing input for GhostSpectator due to an error: {exception}.");
+                Log.Debug($"Skipped processing input for GhostSpectator due to an error: {exception}.", config.Debug);
             }
         }
 
         private void HandleCommand(ICommand command, ReferenceHub referenceHub, string[] arguments, SSTextArea textToUpdate = null, bool receiveHint = false)
         {
             bool success = command.Execute(new(arguments), new PlayerCommandSender(referenceHub), out string response);
-            textToUpdate?.SendTextUpdate(response, true, (ReferenceHub h) => h == referenceHub);
+            textToUpdate?.SendTextUpdate(response, true, h => h == referenceHub);
             referenceHub.gameConsoleTransmission.SendToClient(response, success ? "green" : "magenta");
             if (receiveHint && (command is not Accept and not ListDuel || !success))
             {
                 referenceHub.hints.Show(new TextHint(response, new HintParameter[] { new StringHintParameter(response) }));
             }
+            Log.Debug($"Player {referenceHub.nicknameSync.MyNick} used setting {command.Command}.", config.Debug);
         }
 
         private void ChangePage(ReferenceHub referenceHub, int settingIndex)
@@ -206,6 +225,9 @@ namespace GhostSpectator.Features
         private static string toySelect;
 
         internal Dictionary<ReferenceHub, int> lastSentPages;
+        private Dictionary<ReferenceHub, Dictionary<string, string>> lastVoicechatSettings;
+
+        private ServerSpecificSettingBase[] ghostspectatorSettings;
         private SSPagesExample.SettingsPage[] pages;
         private SSDropdownSetting pageSelector;
         private ServerSpecificSettingBase[] pinnedSection;

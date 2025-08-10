@@ -9,11 +9,11 @@ using GhostSpectator.Features;
 using GhostSpectator.Features.Extensions;
 using InventorySystem.Items.Firearms.Modules;
 using LabApi.Events.Arguments.PlayerEvents;
-using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Events.Arguments.Scp049Events;
 using LabApi.Events.Arguments.Scp096Events;
 using LabApi.Events.Arguments.Scp173Events;
 using LabApi.Events.Arguments.Scp914Events;
+using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Events.Arguments.WarheadEvents;
 using LabApi.Events.CustomHandlers;
 using Log = LabApi.Features.Console.Logger;
@@ -140,6 +140,11 @@ namespace GhostSpectator
             }
             if (!ev.Player.HasPermissions("gs.item"))
             {
+                if (ev.Throw)
+                {
+                    ev.IsAllowed = false;
+                    return;
+                }
                 ev.Player.RemoveItem(ev.Item);
                 Log.Debug($"Removed item {ev.Item.Type} from inventory of player {ev.Player.Nickname}.", config.Debug);
             }
@@ -150,6 +155,14 @@ namespace GhostSpectator
             if (ev.Attacker.IsGhost() && ev.Player.IsGhost())
             {
                 Duel.Finish(ev.Attacker, ev.Player);
+                ev.IsAllowed = false;
+            }
+        }
+
+        public override void OnPlayerUpdatingEffect(PlayerEffectUpdatingEventArgs ev)
+        {
+            if (ev.Player.IsGhost() && (ev.Effect is PitDeath || ev.Effect is Ghostly && ev.Intensity == 0))
+            {
                 ev.IsAllowed = false;
             }
         }
@@ -268,14 +281,6 @@ namespace GhostSpectator
             if (ev.Player.IsGhost() && ev.FirearmItem.Base.Modules.ToList().TryGetFirst(m => m is IPrimaryAmmoContainerModule, out ModuleBase module))
             {
                 ev.Player.AddAmmo((module as IPrimaryAmmoContainerModule).AmmoType, 1);
-            }
-        }
-
-        public override void OnPlayerThrowingItem(PlayerThrowingItemEventArgs ev)
-        {
-            if (ev.Player.IsGhost() && (!ev.Player.HasPermissions("gs.item") || Other.IsGhostItem(ev.Pickup)))
-            {
-                ev.IsAllowed = false;
             }
         }
 

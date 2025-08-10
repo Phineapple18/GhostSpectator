@@ -20,11 +20,7 @@ namespace GhostSpectator.Patches
     {
         internal static bool Prefix(PlayerRoleBase shooterRole)
         {
-            if (shooterRole.TryGetOwner(out ReferenceHub hub) && hub.IsGhost())
-            {
-                return false;
-            }
-            return true;
+            return !(shooterRole.TryGetOwner(out ReferenceHub hub) && hub.IsGhost());
         }
     }
 

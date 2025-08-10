@@ -5,15 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 
 using CommandSystem;
+using GhostSpectator.Features;
 using GhostSpectator.Features.Extensions;
 using Log = LabApi.Features.Console.Logger;
 using LabApi.Features.Wrappers;
 
-namespace GhostSpectator.Commands.ClientConsole.Duelling
+namespace GhostSpectator.Commands.ClientConsole.Toys
 {
-    public class ListDuel : ICommand
+    public class ListToy : ICommand
     {
-        public ListDuel(string command, string description, string[] aliases)
+        public ListToy(string command, string description, string[] aliases)
         {
             translation = Translation.AccessTranslation();
             Command = command ?? _command;
@@ -43,13 +44,13 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
                 return false;
             }
-            string opponentName = Duel.Requests.TryGetValue(commandsender, out Tuple<Player, int> opponent) ? opponent.Item1.Nickname : string.Empty;
-            response = translation.ListduelSuccess.Replace("%playernick%", opponentName).Replace("%players%", $"{string.Join("\n- ", from entry in Duel.Requests where entry.Value.Item1 == commandsender select entry.Key.Nickname)}");
+            GhostComponent component = commandsender.GetGhostComponent();
+            response = $"{translation.ListtoySuccess}:\n- {string.Join("\n- ", component.Toys.Select(t => $"{t.CommandName} ({t.netId})"))}";
             return true;
         }
 
         internal const string _command = "list";
-        internal const string _description = "Print a list of all players who you challenged and who challenged you to a duel.";
+        internal const string _description = "Print a list of all the toys you created.";
         internal static readonly string[] _aliases = new[] { "l" };
         private static Translation translation;
 

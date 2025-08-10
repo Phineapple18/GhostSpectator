@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 using CommandSystem;
 using GhostSpectator.Features.Extensions;
 using Log = LabApi.Features.Console.Logger;
-using LabApi.Features.Wrappers;
+using LabApi.Features.Permissions;
 
-namespace GhostSpectator.Commands.ClientConsole.Duelling
+namespace GhostSpectator.Commands.RemoteAdmin.GhostSpectator
 {
-    public class ListDuel : ICommand
+    public class List : ICommand
     {
-        public ListDuel(string command, string description, string[] aliases)
+        public List(string command, string description, string[] aliases)
         {
             translation = Translation.AccessTranslation();
             Command = command ?? _command;
@@ -36,27 +36,24 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
                 Log.Debug("Command sender doesn't exist.", Config.Debug);
                 return false;
             }
-            Player commandsender = Player.Get(sender);
-            if (!commandsender.IsGhost())
+            if (!sender.HasPermissions("gs.list"))
             {
-                response = translation.NotGhost;
-                Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
+                response = translation.NoPermission;
+                Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug);
                 return false;
             }
-            string opponentName = Duel.Requests.TryGetValue(commandsender, out Tuple<Player, int> opponent) ? opponent.Item1.Nickname : string.Empty;
-            response = translation.ListduelSuccess.Replace("%playernick%", opponentName).Replace("%players%", $"{string.Join("\n- ", from entry in Duel.Requests where entry.Value.Item1 == commandsender select entry.Key.Nickname)}");
+            response = $"{translation.ListghostSuccess.Replace("%count%", Ghost.List.Count().ToString())}:\n- {string.Join("\n- ", Ghost.List.Select(p => p.Nickname))}";
             return true;
         }
 
         internal const string _command = "list";
-        internal const string _description = "Print a list of all players who you challenged and who challenged you to a duel.";
+        internal const string _description = "Print a list of all Ghosts.";
         internal static readonly string[] _aliases = new[] { "l" };
-        private static Translation translation;
+        private readonly Translation translation;
 
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
-        public string[] Usage { get; }
         private static Config Config => MainClass.Instance.pluginConfig;
     }
 }

@@ -57,10 +57,10 @@ namespace GhostSpectator.Commands.ClientConsole
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
                 return false;
             }
-            string mtfTimer = RespawnWaves.PrimaryMtfWave.TimeLeft.ToString();
-            string mtfTokens = RespawnWaves.PrimaryMtfWave.RespawnTokens.ToString();
-            string ciTimer = RespawnWaves.PrimaryChaosWave.TimeLeft.ToString();
-            string ciTokens = RespawnWaves.PrimaryChaosWave.RespawnTokens.ToString();
+            string mtfTimer = ((int)RespawnWaves.PrimaryMtfWave.TimeLeft).ToString();
+            string mtfTokens = ((int)RespawnWaves.PrimaryMtfWave.RespawnTokens).ToString();
+            string ciTimer = ((int)RespawnWaves.PrimaryChaosWave.TimeLeft).ToString();
+            string ciTokens = ((int)RespawnWaves.PrimaryChaosWave.RespawnTokens).ToString();
             response = translation.CheckwaveinfoSuccess.Replace("%timermtf%", mtfTimer).Replace("%tokensmtf%", mtfTokens).Replace("%timerci%", ciTimer).Replace("%tokensci%", ciTokens);
             return true;
         }

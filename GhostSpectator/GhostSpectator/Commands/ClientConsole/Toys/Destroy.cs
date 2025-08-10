@@ -4,23 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using AdminToys;
 using CommandSystem;
+using GhostSpectator.Features;
 using GhostSpectator.Features.Extensions;
 using Log = LabApi.Features.Console.Logger;
 using LabApi.Features.Wrappers;
 using Utils.NonAllocLINQ;
 
-namespace GhostSpectator.Commands.ClientConsole.Duelling
+namespace GhostSpectator.Commands.ClientConsole.Toys
 {
-    public class Reject : ICommand, IUsageProvider
+    public class Destroy : ICommand, IUsageProvider
     {
-        public Reject(string command, string description, string[] aliases)
+        public Destroy(string command, string description, string[] aliases)
         {
             translation = Translation.AccessTranslation();
             Command = command ?? _command;
             Description = description;
             Aliases = aliases;
-            Usage = new[] { "PlayerNickname (whole or part, case-insensitive)" };
+            Usage = new[] { "NetID" };
             Log.Debug($"Registered {this.Command} subcommand.", translation.Debug);
         }
 
@@ -29,7 +31,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
             if (MainClass.Instance == null)
             {
                 response = translation.PluginNotEnabled;
-                Log.Debug("Plugin GhostSpectator is not enabled.", translation.Debug);
+                Log.Debug($"Plugin GhostSpectator is not enabled.", translation.Debug);
                 return false;
             }
             if (sender == null)
@@ -45,42 +47,40 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
                 return false;
             }
-            if (!Duel.Requests.Values.Any(p => p.Item1 == commandsender))
+            GhostComponent component = commandsender.GetGhostComponent();
+            if (component.Toys.Count == 0)
             {
-                response = translation.NoDuelRequests;
-                Log.Debug($"Player {commandsender.Nickname} has no duel requests.", Config.Debug);
+                response = translation.NoToys;
+                Log.Debug($"Player {commandsender.Nickname} doesn't have any toys.", Config.Debug);
                 return false;
             }
             if (arguments.IsEmpty() || arguments.At(0) == string.Empty)
             {
                 response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
-                Log.Debug($"Player {commandsender.Nickname} didn't provide arguments.", Config.Debug);
+                Log.Debug($"Player {commandsender.Nickname} didn't provide any argument.", Config.Debug);
                 return false;
             }
-            List<Player> allRequesters = (from p in Duel.Requests where p.Value.Item1 == commandsender select p.Key).ToList();
-            if (allRequesters.IsEmpty())
+            if (!uint.TryParse(arguments.At(0), out uint toyId))
             {
-                response = translation.NoDuelRequests;
-                Log.Debug($"Player {commandsender.Nickname} has no duel requests.", Config.Debug);
+                response = translation.MustBeNumber;
+                Log.Debug($"Player {commandsender.Nickname} didn't provide any toy ID.", Config.Debug);
                 return false;
             }
-            Player requester = requester = allRequesters.FirstOrDefault(p => string.Equals(p.Nickname, string.Join(" ", arguments), StringComparison.OrdinalIgnoreCase), null);
-            requester ??= allRequesters.FirstOrDefault(p => p.Nickname.IndexOf(string.Join(" ", arguments), StringComparison.OrdinalIgnoreCase) >= 0, null);
-            if (requester == null)
+            if (!component.Toys.TryGetFirst(t => t.netId == toyId, out AdminToyBase toy))
             {
-                response = translation.NoPlayers;
-                Log.Debug($"Player {commandsender.Nickname} provided nonexistent player.", Config.Debug);
+                response = translation.DestroyFail.Replace("%toyid%", toyId.ToString());
+                Log.Debug($"Player {commandsender.Nickname} doesn't have any toy with ID {arguments.ElementAt(0)}.", Config.Debug);
                 return false;
             }
-            commandsender.Reject(requester);
-            response = translation.RejectSuccessPlayer.Replace("%playernick%", requester.Nickname);
-            Log.Debug($"Player {commandsender.Nickname} has rejected a duel request from {requester.Nickname}.", Config.Debug);
+            Toy.Destroy(commandsender, toy);
+            response = translation.DestroySuccess.Replace("%toyname%", toy.CommandName).Replace("%toyid%", toy.netId.ToString());
+            Log.Debug($"Player {commandsender.Nickname} destroyed their toy ({toy}) with ID {toyId}.", Config.Debug);
             return true;
         }
 
-        internal const string _command = "reject";
-        internal const string _description = "Reject a duel offer from other Ghost.";
-        internal static readonly string[] _aliases = new[] { "r" };
+        internal const string _command = "destroy";
+        internal const string _description = "Destroy your toy.";
+        internal static readonly string[] _aliases = new[] { "d" };
         private readonly Translation translation;
 
         public string Command { get; }

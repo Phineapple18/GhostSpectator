@@ -69,8 +69,7 @@ namespace GhostSpectator.Commands.ClientConsole
             }
             if (arguments.At(0).ToLower() == "list")
             {
-                IEnumerable<ItemType> firearms = from g in InventoryItemLoader.AvailableItems where g.Value is Firearm select g.Key;
-                response = $"{translation.GivefirearmList}:\n- " + string.Join("\n- ", firearms.Select(f => $"{f} ({(int)f})"));
+                response = $"{translation.GivefirearmList}:\n- " + string.Join("\n- ", Other.firearmList.Select(f => $"{f} ({(int)f})"));
                 return true;
             }
             ItemType itemType = ItemType.None;

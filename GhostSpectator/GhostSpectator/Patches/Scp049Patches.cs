@@ -10,7 +10,6 @@ using System.Reflection.Emit;
 using GhostSpectator.Features.Extensions;
 using HarmonyLib;
 using NorthwoodLib.Pools;
-using PlayerRoles;
 using PlayerRoles.PlayableScps.Scp049;
 
 namespace GhostSpectator.Patches
@@ -43,7 +42,7 @@ namespace GhostSpectator.Patches
             newInstructions.InsertRange(index2 + offset2, new List<CodeInstruction>
             {
                 new(OpCodes.Ldloc_0),
-                new(OpCodes.Call, AccessTools.Method(typeof(BeginConditionsPatch), nameof(IsDead), new[] { typeof(ReferenceHub) })),
+                new(OpCodes.Call, AccessTools.Method(typeof(Other), nameof(Other.IsDead), new[] { typeof(ReferenceHub) })),
                 new(OpCodes.Brtrue_S, nextCondition2)
             });
 
@@ -53,11 +52,6 @@ namespace GhostSpectator.Patches
             }
 
             ListPool<CodeInstruction>.Shared.Return(newInstructions);
-        }
-
-        private static bool IsDead(ReferenceHub hub)
-        {
-            return !hub.IsAlive() || hub.IsGhost() || hub.IsGhostDespawning() || hub.IsGhostSpawning();
         }
     }
 
@@ -77,7 +71,7 @@ namespace GhostSpectator.Patches
             {
                 new(OpCodes.Brtrue_S, nextCondition),
                 new(OpCodes.Ldloc_0),
-                new(OpCodes.Call, AccessTools.Method(typeof(ValidateAnyPatch), nameof(IsDead), new[] { typeof(ReferenceHub) }))
+                new(OpCodes.Call, AccessTools.Method(typeof(Other), nameof(Other.IsDead), new[] { typeof(ReferenceHub) }))
             });
 
             for (int i = 0; i < newInstructions.Count; i++)
@@ -86,11 +80,6 @@ namespace GhostSpectator.Patches
             }
 
             ListPool<CodeInstruction>.Shared.Return(newInstructions);
-        }
-
-        private static bool IsDead(ReferenceHub hub)
-        {
-            return !hub.IsAlive() || hub.IsGhost() || hub.IsGhostDespawning() || hub.IsGhostSpawning();
         }
     }
 }

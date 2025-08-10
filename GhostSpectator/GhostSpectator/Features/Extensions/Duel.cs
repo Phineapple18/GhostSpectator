@@ -16,9 +16,9 @@ namespace GhostSpectator.Features.Extensions
         internal static void Abandon(this Player player, Player opponent)
         {
             player.GetGhostComponent().DuelPartner = null;
-            opponent.GetGhostComponent().DuelPartner = null;
+			opponent.GetGhostComponent().DuelPartner = null;
             player.Health = Config.GhostHealth;
-            opponent.Health = Config.GhostHealth;
+			opponent.Health = Config.GhostHealth;
             opponent.SendHint(Translation.DuelAbandoned.Replace("%playernick%", player.Nickname), 5);
             Log.Debug($"Player {player.Nickname} has abandoned duel with player {opponent.Nickname}.", Config.Debug);
         }
@@ -28,7 +28,7 @@ namespace GhostSpectator.Features.Extensions
             if (opponent != null)
             {
                 player.GetGhostComponent().DuelPartner = null;
-                opponent.GetGhostComponent().DuelPartner = null;
+				opponent.GetGhostComponent().DuelPartner = null;
                 player.SendHint(Translation.DuelAborted.Replace("%playernick%", opponent.Nickname), 5);
                 opponent.SendHint(Translation.DuelAborted.Replace("%playernick%", player.Nickname), 5);
                 Log.Debug($"Duel between players {player.Nickname} and {opponent.Nickname} has been aborted.", Config.Debug);
@@ -49,8 +49,8 @@ namespace GhostSpectator.Features.Extensions
         {
             winner.GetGhostComponent().DuelPartner = null;
             loser.GetGhostComponent().DuelPartner = null;
-            winner.Heal(Config.GhostHealth);
-            loser.Heal(Config.GhostHealth);
+            winner.Health = Config.GhostHealth;
+            loser.Health = Config.GhostHealth;
             winner.SendHint(Translation.DuelWon.Replace("%playernick%", loser.Nickname), 5);
             loser.SendHint(Translation.DuelLost.Replace("%playernick%", winner.Nickname), 5);
             Log.Debug($"Player {winner.Nickname} won a duel against player {loser.Nickname}.", Config.Debug);
@@ -102,7 +102,7 @@ namespace GhostSpectator.Features.Extensions
             }
             Timing.CallDelayed(Config.DuelRequestTime, delegate()
             {
-                if (Requests.Any(kvp => kvp.Key == sender && kvp.Value.Item1 == receiver && kvp.Value.Item2 == randInt) && !sender.HasPendingDuel())
+                if (Requests.Any(entry => entry.Key == sender && entry.Value.Item1 == receiver && entry.Value.Item2 == randInt) && !sender.HasPendingDuel())
                 {
                     Requests.Remove(sender);
                     sender.SendHint(Translation.DuelRequestExpired.Replace("%playernick%", receiver.Nickname), 5);
@@ -144,7 +144,7 @@ namespace GhostSpectator.Features.Extensions
             }
             if (!onlySentRequest && Requests.Values.Any(p => p.Item1 == player))
             {
-                List<Player> allSenders = (from kvp in Requests where kvp.Value.Item1 == player select kvp.Key).ToList();
+                List<Player> allSenders = (from entry in Requests where entry.Value.Item1 == player select entry.Key).ToList();
                 allSenders.ForEach<Player>(sender =>
                 {
                     Requests.Remove(sender);

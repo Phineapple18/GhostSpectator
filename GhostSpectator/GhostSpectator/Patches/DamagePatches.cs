@@ -75,7 +75,7 @@ namespace GhostSpectator.Patches
 
         private static bool RecastRay(Collider collider, ReferenceHub shooter)
         {
-            if (shooter.IsGhost() || !collider.TryGetComponent<IDestructible>(out IDestructible destructible) || destructible is not HitboxIdentity identity || !identity.TargetHub.IsGhost())
+            if (shooter.IsGhost() || !collider.TryGetComponent(out HitboxIdentity identity) || !identity.TargetHub.IsGhost())
             {
                 return false;
             }

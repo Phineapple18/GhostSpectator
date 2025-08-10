@@ -68,14 +68,14 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
             }
             if (commandsender.HasPendingDuel())
             {
-                response = translation.ActivePendingDuel;
+                response = translation.ActivePendingDuelSelf;
                 Log.Debug($"Player {commandsender.Nickname} has already a pending duel with {component.DuelPartner.Nickname}.", Config.Debug);
                 return false;
             }
             if (arguments.IsEmpty() || arguments.At(0) == string.Empty)
             {
                 response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
-                Log.Debug($"Player {sender.LogName} didn't provide arguments.", Config.Debug);
+                Log.Debug($"Player {commandsender.Nickname} didn't provide arguments.", Config.Debug);
                 return false;
             }
             string opponentName = string.Join(" ", arguments);
@@ -98,6 +98,12 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
                 Log.Debug($"Player {commandsender.Nickname} can't challenge {opponent.Nickname} to a duel as they already have an active duel.", Config.Debug);
                 return false;
             }
+            if (opponent.HasPendingDuel())
+            {
+                response = translation.ActivePendingDuelOther.Replace("%playernick%", opponent.Nickname);
+                Log.Debug($"Player {commandsender.Nickname} can't challenge {opponent.Nickname} to a duel as they already have a pending duel.", Config.Debug);
+                return false;
+            }
             if (Duel.Requests.TryGetValue(commandsender, out Tuple<Player, int> previousOpponent) && previousOpponent.Item1 == opponent)
             {
                 response = translation.RequestAlreadySent;
@@ -105,6 +111,13 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
                 return false;
             }
             commandsender.Request(opponent, previousOpponent?.Item1);
+            if (opponent.IsDummy)
+            {
+                opponent.Accept(commandsender, new() { commandsender } );
+                response = $"Challenged dummy {opponent.Nickname} to a duel";
+                Log.Debug($"Command sent to a dummy {opponent.Nickname} ({opponent.PlayerId}).", Config.Debug);
+                return true;
+            }
             response = translation.ChallengeSuccess.Replace("%playernick%", opponent.Nickname);
             Log.Debug($"Player {commandsender.Nickname} has challenged {opponent.Nickname} to a duel.", Config.Debug);
             return true;

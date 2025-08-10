@@ -4,21 +4,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Random = System.Random;
-
 using AdminToys;
 using CustomPlayerEffects;
+using GhostSpectator.Commands.ClientConsole;
+using GhostSpectator.Commands.ClientConsole.Duelling;
+using GhostSpectator.Commands.ClientConsole.Toys;
+using GhostSpectator.Commands.ClientConsole.Voicechat;
 using GhostSpectator.Features.Extensions;
 using InventorySystem.Items;
 using Log = LabApi.Features.Console.Logger;
-using LabApi.Features.Wrappers;
 using LabApi.Features.Permissions;
+using LabApi.Features.Wrappers;
 using MEC;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PlayerRoles.PlayableScps.Scp049;
 using PlayerStatsSystem;
 using Respawning.Waves;
+using Random = System.Random;
 using UnityEngine;
 using Utils.NonAllocLINQ;
 
@@ -51,11 +54,16 @@ namespace GhostSpectator.Features
                 Scp049ResurrectAbility.RegisterPlayerResurrection(player.ReferenceHub, reviveNum);
                 Log.Debug($"Re-registered resurrection number ({reviveNum}) for player {player.Nickname}.", config.Debug);
             }
-            player.InfoArea &= ~PlayerInfoArea.Role & ~PlayerInfoArea.Nickname;
-            player.MaxHealth = config.GhostHealth;
-            player.Heal(config.GhostHealth);
+            player.InfoArea &= ~PlayerInfoArea.Role;
+            player.CustomInfo = $"<color={config.GhostColor}>{translation.GhostNickname ?? "GHOST"}</color>";
+            player.Health = player.MaxHealth = config.GhostHealth;
             player.Position = new(0f, 500f, 0f);
-            Timing.CallDelayed(0.1f, () => player.Position = config.SpawnPositions.ElementAt(random.Next(config.SpawnPositions.Count)));
+            Vector3 position = config.SpawnPositions != null ? config.SpawnPositions.ElementAt(random.Next(config.SpawnPositions.Count)) : new(9f, 302f, 1f);
+            Timing.CallDelayed(0.1f, delegate ()
+            {
+                player.Position = position;
+                player.EnableEffect<Ghostly>();
+            });
             player.ReferenceHub.interCoordinator.AddBlocker(this);
             ghostItem = player.AddItem(GhostItemType);
             Other.GhostItemList.Add(ghostItem);
@@ -72,7 +80,7 @@ namespace GhostSpectator.Features
                     Log.Debug($"Enabled autolistening to {permission} for {player.Nickname}.", config.Debug);
                 }
             }
-            if (config.SsSettingsEnabled && config.SendSettingsOnSpawn)
+            if (SSGhostSpectator.Singleton != null && config.SendSettingsOnSpawn)
             {
                 SSGhostSpectator.Singleton.ActivateForHub(player.ReferenceHub);
             }
@@ -80,7 +88,7 @@ namespace GhostSpectator.Features
             {
                 ply.GetGhostComponent().Toys.ForEach(toy =>
                 {
-                    toy.netIdentity.AddObserver(player.ReferenceHub.networkIdentity.connectionToClient);
+                    toy.netIdentity.AddObserver(player.ConnectionToClient);
                 });
             }
             if (!string.IsNullOrWhiteSpace(translation.SpawnMessage))
@@ -88,22 +96,30 @@ namespace GhostSpectator.Features
                 string message = translation.SpawnMessage.Replace("%colour%", config.GhostColor);
                 player.SendBroadcast(message, config.SpawnmessageDuration, Broadcast.BroadcastFlags.Normal, true);
             }
+            if (!string.IsNullOrWhiteSpace(translation.SpawnConsoleMessage))
+            {
+                player.SendConsoleMessage(translation.SpawnConsoleMessage.Replace("%ghostset%", translation.GhostsettingsCommand ?? GhostSettings._command)
+                                                                         .Replace("%wavetimer%", translation.CheckwaveinfoCommand ?? CheckWaveInfo._command)
+                                                                         .Replace("%createtoy%", translation.CreateCommand ?? Create._command)
+                                                                         .Replace("%destroytoy%", translation.DestroyCommand ?? Commands.ClientConsole.Toys.Destroy._command)
+                                                                         .Replace("%enablevc%", translation.EnablevoicechatCommand ?? EnableVoicechat._command)
+                                                                         .Replace("%disablevc%", translation.DisablevoicechatCommand ?? DisableVoicechat._command)
+                                                                         .Replace("%duel%", translation.DuelParentCommand ?? DuelParent._command)
+                                                                         .Replace("%givegun%", translation.GivefirearmCommand ?? GiveFirearm._command), "gray");
+            }
             State = GhostState.Spawned;
             Log.Debug($"Enabled {this.GetType().Name} for player {player.Nickname}.", config.Debug);
         }
 
         public void Update()
         {
-            player.CustomInfo = $"<color={config.GhostColor}>{player.DisplayName.Replace("#855439", "#944710")}\n{translation.GhostNickname}</color>";
             player.StaminaRemaining = player.ReferenceHub.playerStats.GetModule<StaminaStat>().MaxValue;
-            player.EnableEffect<Ghostly>();
-            player.DisableEffect<PitDeath>();
         }
 
         public void OnDisable()
         {
             State = GhostState.Despawning;
-            player.InfoArea |= PlayerInfoArea.Role | PlayerInfoArea.Nickname;
+            player.InfoArea |= PlayerInfoArea.Role;
             player.CustomInfo = string.Empty;
             player.DisableAllEffects();
             player.ClearInventory();
@@ -124,8 +140,8 @@ namespace GhostSpectator.Features
             {
                 ply.GetGhostComponent().Toys.ForEach(toy =>
                 {
-                    toy.netIdentity.observers.Remove(player.ReferenceHub.networkIdentity.connectionToClient.connectionId);
-                    player.ReferenceHub.networkIdentity.connectionToClient.RemoveFromObserving(toy.netIdentity, false);
+                    toy.netIdentity.RemoveObserver(ply.ConnectionToClient);
+                    player.ConnectionToClient.RemoveFromObserving(toy.netIdentity, false);
                 });
             }
             Duel.Abort(player, DuelPartner);

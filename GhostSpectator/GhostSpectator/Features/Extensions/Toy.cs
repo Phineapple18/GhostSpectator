@@ -20,8 +20,8 @@ namespace GhostSpectator.Features.Extensions
             toy.OnSpawned(player.ReferenceHub, arguments);
             foreach (Player ply in Player.List.Except(Ghost.List))
             {
-                toy.netIdentity.observers.Remove(ply.ReferenceHub.networkIdentity.connectionToClient.connectionId);
-                ply.ReferenceHub.networkIdentity.connectionToClient.RemoveFromObserving(toy.netIdentity, false);
+                toy.netIdentity.RemoveObserver(ply.ConnectionToClient);
+                ply.ConnectionToClient.RemoveFromObserving(toy.netIdentity, false);
             }
             player.GetGhostComponent().Toys.Add(toy);
             return toy;

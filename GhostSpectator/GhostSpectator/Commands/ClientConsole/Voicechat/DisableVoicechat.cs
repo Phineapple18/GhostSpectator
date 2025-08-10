@@ -83,7 +83,7 @@ namespace GhostSpectator.Commands.ClientConsole.Voicechat
             StringBuilder result = num[0] > 0 ? success : num[1] == 0 ? failurePerm : num[2] == 0 ? failure : failure.Append(failurePerm);
             result.Replace(',', '.', result.Length - 1, 1);
             response = StringBuilderPool.Shared.ToStringReturn(result).TrimEnd(Array.Empty<char>());
-            Log.Debug($"Player {sender.LogName} disabled successfully ({num[0]}) and unsuccessfully ({num[1] + num[2]}) voicechats.", Config.Debug);
+            Log.Debug($"Player {commandsender.Nickname} disabled successfully ({num[0]}) and unsuccessfully ({num[1] + num[2]}) voicechats.", Config.Debug);
             return num[1] > 0;
         }
 

@@ -61,7 +61,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
             if (arguments.IsEmpty() || arguments.At(0) == string.Empty)
             {
                 response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
-                Log.Debug($"Player {sender.LogName} didn't provide arguments.", Config.Debug);
+                Log.Debug($"Player {commandsender.Nickname} didn't provide arguments.", Config.Debug);
                 return false;
             }
             List<Player> allRequesters = (from p in Duel.Requests where p.Value.Item1 == commandsender select p.Key).ToList();

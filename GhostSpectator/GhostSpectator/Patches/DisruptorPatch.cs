@@ -15,11 +15,7 @@ namespace GhostSpectator.Patches
     {
         internal static bool Prefix(DisruptorHitregModule __instance)
         {
-            if (__instance.Firearm.Owner.IsGhost())
-            {
-                return false;
-            }
-            return true;
+            return !__instance.Firearm.Owner.IsGhost();
         }
     }
 }
