@@ -11,7 +11,7 @@ using LabApi.Features.Permissions;
 
 namespace GhostSpectator.Commands.RemoteAdmin.GhostSettings
 {
-    public class Reload : ICommand, IUsageProvider
+    public class Reload : ICommand
     {
         public Reload(string command, string description, string[] aliases)
         {
@@ -19,7 +19,6 @@ namespace GhostSpectator.Commands.RemoteAdmin.GhostSettings
             Command = command ?? _command;
             Description = description;
             Aliases = aliases;
-            Usage = new[] { "PlayerID/all" };
             Log.Debug($"Registered {this.Command} subcommand.", translation.Debug);
         }
 
@@ -58,7 +57,6 @@ namespace GhostSpectator.Commands.RemoteAdmin.GhostSettings
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
-        public string[] Usage { get; }
         private static Config Config => MainClass.Instance.pluginConfig;
     }
 }
