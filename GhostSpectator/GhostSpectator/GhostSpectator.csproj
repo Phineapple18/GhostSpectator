@@ -53,7 +53,7 @@
     </Reference>
     <Reference Include="Mirror-Publicized, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Users\milcz\AppData\Roaming\SCP Secret Laboratory\LabAPI\dependencies\7777\Mirror-Publicized.dll</HintPath>
+      <HintPath>$(SecretLabFiles)\LabAPI-Beta\dependencies\Mirror-Publicized.dll</HintPath>
     </Reference>
     <Reference Include="NorthwoodLib">
       <HintPath>$(SecretLabSteam)\NorthwoodLib.dll</HintPath>
