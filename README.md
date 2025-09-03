@@ -1,4 +1,4 @@
-# GhostSpectator (3.1.0)
+# GhostSpectator (3.2.0)
 Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into Ghosts: Tutorials undetectable to alive players and not affecting the round. Depending on the config, Ghosts can perform various activities f.e teleport to alive players or random rooms, spawn a toy or challenge another Ghost to a duel.
 
 ## Features
@@ -15,6 +15,8 @@ Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into G
   * listen to SCP and Spectators chats (via command or automatically)
   * listen to other Ghosts via RoundSummary chat, if they are not within certain distance (via command or automatically)
   * challenge other Ghosts to a duel
+  * be spawned at the place of their death
+  * be autospawned after player's death
 
 ## Required plugins and dependencies:
 - [Harmony 2.2.2.0 (net48)](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - dependency
@@ -32,6 +34,8 @@ Place *Harmony* dll (net48) in "...\AppData\Roaming\SCP Secret Laboratory\LabAPI
 |ghost_health|float|150f|Ghost health.|
 |spawnmessage_duration|ushort|5|Spawn message duration.|
 |spawn_positions|List\<Vector3>|- x: 9, y: 1002, z: 1|Ghost spawn positions.|
+|spawn_at_death_pos|bool|false|Should be Ghosts spawned at the death location?|
+|auto_ghost_spawn|bool|false|Should players be automatically spawned as Ghosts upon death?|
 |role_teleport_blacklist|List\<RoleTypeId\>|- Tutorial|Roles, that Ghosts cannot teleport to. SCP-079 is already included.|
 |despawn_on_detonation|bool|true|Should Ghosts, that don't have permission, be despawned and not allowed to spawn after warhead detonation?|
 |always_see_ghosts|bool|false|Should Spectators be able to see Ghosts, if the spectated player is not a Ghost?|
