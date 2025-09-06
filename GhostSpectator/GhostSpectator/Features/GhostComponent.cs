@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Log = LabApi.Features.Console.Logger;
+
 using AdminToys;
 using CustomPlayerEffects;
 using GhostSpectator.Commands.ClientConsole;
@@ -12,7 +14,6 @@ using GhostSpectator.Commands.ClientConsole.Toys;
 using GhostSpectator.Commands.ClientConsole.Voicechat;
 using GhostSpectator.Features.Extensions;
 using InventorySystem.Items;
-using Log = LabApi.Features.Console.Logger;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
 using MEC;
@@ -21,7 +22,6 @@ using PlayerRoles.FirstPersonControl;
 using PlayerRoles.PlayableScps.Scp049;
 using PlayerStatsSystem;
 using Respawning.Waves;
-using Random = System.Random;
 using UnityEngine;
 using Utils.NonAllocLINQ;
 
@@ -48,6 +48,7 @@ namespace GhostSpectator.Features
             {
                 PreviousTeam = player.ReferenceHub.GetFaction().GetSpawnableTeam();
             }
+            player.Position = new(0f, 500f, 0f);
             player.SetRole(RoleType, RoleChangeReason.RemoteAdmin, RoleSpawnFlags.AssignInventory);
             if (reviveNum > 0)
             {
@@ -56,14 +57,8 @@ namespace GhostSpectator.Features
             }
             player.InfoArea &= ~PlayerInfoArea.Role;
             player.CustomInfo = $"<color={config.GhostColor}>{translation.GhostNickname ?? "GHOST"}</color>";
-            player.Health = player.MaxHealth = config.GhostHealth;
-            player.Position = new(0f, 500f, 0f);
-            Vector3 position = config.SpawnPositions != null ? config.SpawnPositions.ElementAt(random.Next(config.SpawnPositions.Count)) : new(9f, 302f, 1f);
-            Timing.CallDelayed(0.1f, delegate ()
-            {
-                player.Position = position;
-                player.EnableEffect<Ghostly>();
-            });
+            player.Health = player.MaxHealth = config.GhostHealth;          
+            Timing.CallDelayed(0.1f, () => player.EnableEffect<Ghostly>());
             player.ReferenceHub.interCoordinator.AddBlocker(this);
             ghostItem = player.AddItem(GhostItemType);
             Other.GhostItemList.Add(ghostItem);
@@ -122,7 +117,6 @@ namespace GhostSpectator.Features
             player.InfoArea |= PlayerInfoArea.Role;
             player.CustomInfo = string.Empty;
             player.DisableAllEffects();
-            player.ClearInventory();
             Other.GhostItemList.Remove(ghostItem);
             ghostItem = null;
             if (player.HasPermissions("gs.noclip"))
@@ -155,8 +149,7 @@ namespace GhostSpectator.Features
         private Item ghostItem;
 
         private readonly Config config = MainClass.Instance.pluginConfig;
-        private readonly Translation translation = MainClass.Instance.pluginTranslation;
-        private readonly Random random = new();
+        private readonly Translation translation = MainClass.Instance.pluginTranslation;        
 
         public BlockedInteraction BlockedInteractions => BlockedInteraction.GeneralInteractions | BlockedInteraction.BeDisarmed | BlockedInteraction.GrabItems;
         public bool CanBeCleared => !base.enabled;

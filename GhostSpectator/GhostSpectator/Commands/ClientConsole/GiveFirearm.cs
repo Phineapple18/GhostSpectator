@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Log = LabApi.Features.Console.Logger;
+
 using CommandSystem;
 using GhostSpectator.Features.Extensions;
 using InventorySystem;
 using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
-using Log = LabApi.Features.Console.Logger;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
 

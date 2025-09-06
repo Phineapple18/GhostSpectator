@@ -49,8 +49,8 @@ namespace GhostSpectator.Patches
             List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
 
             Label goBack = generator.DefineLabel();
-            newInstructions.FindAll((CodeInstruction i) => i.opcode == OpCodes.Ldarg_1).ElementAt(0).labels.Add(goBack);
-            int index = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Call && (MethodInfo)i.operand == AccessTools.PropertyGetter(typeof(RaycastHit), "collider"));
+            newInstructions.FindAll(i => i.opcode == OpCodes.Ldarg_1).ElementAt(0).labels.Add(goBack);
+            int index = newInstructions.FindIndex(i => i.opcode == OpCodes.Call && (MethodInfo)i.operand == AccessTools.PropertyGetter(typeof(RaycastHit), "collider"));
             int offset = -1;
 
             List<CodeInstruction> codeInstructions = new()

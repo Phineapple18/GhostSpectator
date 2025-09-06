@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Log = LabApi.Features.Console.Logger;
+
 using CommandSystem;
 using GhostSpectator.Features.Extensions;
-using Log = LabApi.Features.Console.Logger;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
 using PlayerRoles;
@@ -14,7 +15,7 @@ using PlayerRoles;
 namespace GhostSpectator.Commands.ClientConsole
 {
     [CommandHandler(typeof(ClientCommandHandler))]
-    public class GhostMe : ICommand
+    public class GhostMe : ICommand, IUsageProvider
     {
         public GhostMe()
         {
@@ -22,6 +23,7 @@ namespace GhostSpectator.Commands.ClientConsole
             Command = translation.GhostmeCommand ?? _command;
             Description = translation.GhostmeDescription;
             Aliases = translation.GhostmeAliases;
+            Usage = new[] { "dpl (optional)" };
             Log.Debug($"Registered {this.Command} command.", translation.Debug);
         }
 
@@ -51,6 +53,7 @@ namespace GhostSpectator.Commands.ClientConsole
                 Log.Debug($"Player {sender.LogName} tried to use this command before round start.", Config.Debug);
                 return false;
             }
+            bool deathPosition = !arguments.IsEmpty() && arguments.Contains("dpl");
             Player commandsender = Player.Get(sender);
             if (commandsender.IsGhost())
             {
@@ -67,7 +70,12 @@ namespace GhostSpectator.Commands.ClientConsole
                     Log.Debug($"Player {commandsender.Nickname} doesn't have permission to spawn as Ghost after warhead detonation.", Config.Debug);
                     return false;
                 }
-                Ghost.Spawn(commandsender);
+                if (deathPosition && !Config.SpawnAtDeathPos)
+                {
+                    response = translation.DeathPositionDisabled;
+                    return false;
+                }
+                Ghost.Spawn(commandsender, deathPosition);
                 response = translation.GhostmeGhostSuccess;
                 Log.Debug($"Player {commandsender.Nickname} turned themselves into Ghost.", Config.Debug);
                 return true;
@@ -78,13 +86,14 @@ namespace GhostSpectator.Commands.ClientConsole
         }
 
         internal const string _command = "ghostme";
-        internal const string _description = "Spawn yourself as a Ghost or change back to Spectator.";
+        internal const string _description = "Spawn yourself as a Ghost or change back to Spectator. Use \"dpl\" to spawn at your death's position.";
         internal static readonly string[] _aliases = new[] { "gme", "me" };
         private readonly Translation translation;
 
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
+        public string[] Usage { get; }
         private static Config Config => MainClass.Instance.pluginConfig;
     }
 }

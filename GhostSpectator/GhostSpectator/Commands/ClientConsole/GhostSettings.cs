@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Log = LabApi.Features.Console.Logger;
+
 using CommandSystem;
 using GhostSpectator.Features;
 using GhostSpectator.Features.Extensions;
-using Log = LabApi.Features.Console.Logger;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
 

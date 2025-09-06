@@ -232,6 +232,7 @@ namespace GhostSpectator
         public string ActiveDuelSelf { get; set; } = "You already have an active duel with %playernick%.";
         public string ActivePendingDuelOther { get; set; } = "Player %playernick% already has a pending duel.";
         public string ActivePendingDuelSelf { get; set; } = "You already have a pending duel with %playernick%.";
+        public string DeathPositionDisabled { get; set; } = "Spawning at death position is currently disabled.";
         public string FirearmOnly { get; set; } = "You can only give yourself a firearm.";
         public string MustBeNumber { get; set; } = "Argument must be a number.";
         public string MustBeNumberOrType { get; set; } = "Argument must be a number or item type.";

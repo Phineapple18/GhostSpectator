@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Log = LabApi.Features.Console.Logger;
+
 using CommandSystem;
 using GhostSpectator.Features.Extensions;
-using Log = LabApi.Features.Console.Logger;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
 using NorthwoodLib.Pools;
@@ -22,7 +23,7 @@ namespace GhostSpectator.Commands.RemoteAdmin.GhostSpectator
             Command = command ?? _command;
             Description = description;
             Aliases = aliases;
-            Usage = new[] { "PlayerID/all" };
+            Usage = new[] { "dpl (optional)", "PlayerID/all" };
             Log.Debug($"Registered {this.Command} subcommand.", translation.Debug);
         }
 
@@ -76,11 +77,17 @@ namespace GhostSpectator.Commands.RemoteAdmin.GhostSpectator
             success.AppendLine(translation.SpawnSuccess);
             failure.AppendLine($"{translation.SpawnFail}:");
             int[] num = new int[2] { 0, 0 };
+            bool deathPosition = arguments.ToList().Contains("dpl", StringComparison.OrdinalIgnoreCase);
+            if (deathPosition && !Config.SpawnAtDeathPos)
+            {
+                response = translation.DeathPositionDisabled;
+                return false;
+            }
             validPlayers.ForEach<Player>(player =>
             {
                 if (!player.IsGhost())
                 {
-                    Ghost.Spawn(player);
+                    Ghost.Spawn(player, deathPosition);
                     num[1]++;
                     return;
                 }
@@ -97,7 +104,7 @@ namespace GhostSpectator.Commands.RemoteAdmin.GhostSpectator
         }
 
         internal const string _command = "spawn";
-        internal const string _description = "Spawn chosen player(s) as Ghost. Separate entries with space.";
+        internal const string _description = "Spawn chosen player(s) as Ghost. Use \"dpl\" to spawn Ghost(s) at their death's position. Separate entries with space.";
         internal static readonly string[] _aliases = new[] { "s" };
         private readonly Translation translation;
 

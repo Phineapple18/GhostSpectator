@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Log = LabApi.Features.Console.Logger;
+
 using CommandSystem;
 using GhostSpectator.Commands.ClientConsole;
 using GhostSpectator.Commands.ClientConsole.Duelling;
@@ -11,7 +13,6 @@ using GhostSpectator.Commands.ClientConsole.Toys;
 using GhostSpectator.Commands.ClientConsole.Voicechat;
 using GhostSpectator.Features.Extensions;
 using Hints;
-using Log = LabApi.Features.Console.Logger;
 using RemoteAdmin;
 using static TMPro.TMP_InputField;
 using UserSettings.ServerSpecific;

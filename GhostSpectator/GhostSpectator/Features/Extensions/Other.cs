@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using ThrowableItem = InventorySystem.Items.ThrowableProjectiles.ThrowableItem;
+
 using InventorySystem;
 using InventorySystem.Items.Firearms;
-using ThrowableItem = InventorySystem.Items.ThrowableProjectiles.ThrowableItem;
 using LabApi.Features.Wrappers;
 using PlayerRoles;
 using Utils.NonAllocLINQ;

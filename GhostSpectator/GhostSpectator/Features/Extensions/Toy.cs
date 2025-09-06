@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using AdminToys;
 using Log = LabApi.Features.Console.Logger;
+
+using AdminToys;
 using LabApi.Features.Wrappers;
 using Mirror;
 using UnityEngine;

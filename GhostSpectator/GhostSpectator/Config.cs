@@ -28,6 +28,12 @@ namespace GhostSpectator
         [Description("Ghost spawn positions.")]
         public List<Vector3> SpawnPositions { get; set; } = new List<Vector3>{ new(9f, 302f, 1f) };
 
+        [Description("Should Ghosts be spawned at the death location?")]
+        public bool SpawnAtDeathPos { get; set; } = false;
+
+        [Description("Should players be automatically spawned as Ghosts upon death?")]
+        public bool AutoGhostSpawn { get; set; } = false;
+
         [Description("Roles, that Ghosts cannot teleport to. SCP-079 is already included.")]
         public List<RoleTypeId> RoleTeleportBlacklist { get; set; } = new List<RoleTypeId> { RoleTypeId.Tutorial };
 

@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Log = LabApi.Features.Console.Logger;
+using Object = UnityEngine.Object;
+
 using CustomPlayerEffects;
 using GhostSpectator.Features;
 using GhostSpectator.Features.Extensions;
@@ -16,7 +19,6 @@ using LabApi.Events.Arguments.Scp914Events;
 using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Events.Arguments.WarheadEvents;
 using LabApi.Events.CustomHandlers;
-using Log = LabApi.Features.Console.Logger;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
 using MapGeneration;
@@ -25,7 +27,6 @@ using PlayerRoles;
 using PlayerRoles.Spectating;
 using Respawning.Waves;
 using UnityEngine;
-using Object = UnityEngine.Object;
 using Utils.NonAllocLINQ;
 using VoiceChat;
 
@@ -35,17 +36,18 @@ namespace GhostSpectator
     {
         public override void OnPlayerChangedRole(PlayerChangedRoleEventArgs ev)
         {
-            if (ev.Player.Role == RoleTypeId.Scp0492 && (ev.NewRole.RoleTypeId == RoleTypeId.Spectator || ev.Player.IsGhostSpawning()) && deadZombies.Add(ev.Player.ReferenceHub))
+            if (ev.OldRole == RoleTypeId.Scp0492 && (ev.NewRole.RoleTypeId == RoleTypeId.Spectator || ev.Player.IsGhostSpawning()) && deadZombies.Add(ev.Player.ReferenceHub))
             {
                 Log.Debug($"Added player {ev.Player.Nickname} to dead zombies list.", config.Debug);
                 return;
             }
-            if (!(ev.Player.Role == RoleTypeId.Spectator && ev.Player.IsGhostSpawning() || (ev.Player.IsGhostDespawning() || ev.Player.IsGhost()) && ev.NewRole.RoleTypeId == RoleTypeId.Spectator))
+            if (!(ev.OldRole == RoleTypeId.Spectator && ev.Player.IsGhostSpawning() || (ev.Player.IsGhostDespawning() || ev.Player.IsGhost()) && ev.NewRole.RoleTypeId == RoleTypeId.Spectator))
             {
                 if (deadZombies.Remove(ev.Player.ReferenceHub))
                 {
                     Log.Debug($"Removed player {ev.Player.Nickname} from dead zombies list.", config.Debug);
                 }
+                deathPositions.Remove(ev.Player);
                 if (ev.Player.TryGetGhostComponent(out GhostComponent component) && component.DeadTime != 0f)
                 {
                     component.DeadTime = 0f;
@@ -81,6 +83,15 @@ namespace GhostSpectator
             if (ev.Player.IsGhost())
             {
                 ev.IsAllowed = false;
+            }
+        }
+
+        public override void OnPlayerDeath(PlayerDeathEventArgs ev)
+        {
+            deathPositions[ev.Player] = ev.OldPosition;
+            if (config.AutoGhostSpawn)
+            {
+                Timing.CallDelayed(1f, () => Ghost.Spawn(ev.Player, config.SpawnAtDeathPos));
             }
         }
 
@@ -217,7 +228,7 @@ namespace GhostSpectator
         {
             if (ev.Player.IsGhost())
             {
-                ev.Player.Position = config.SpawnPositions.ElementAt(random.Next(config.SpawnPositions.Count));
+                ev.Player.Position = config.SpawnPositions != null ? config.SpawnPositions.ElementAt(random.Next(config.SpawnPositions.Count)) : Ghost.DeafultSpawn;
                 Log.Debug($"Player {ev.Player.Nickname} exited safely Pocket Dimension as a Ghost.", config.Debug);
                 ev.IsAllowed = false;
             }
@@ -234,6 +245,7 @@ namespace GhostSpectator
             {
                 Log.Debug($"Removed player {ev.Player.Nickname} from dead zombies list.", config.Debug);
             }
+            deathPositions.Remove(ev.Player);
         }
 
         public override void OnPlayerPlacingBlood(PlayerPlacingBloodEventArgs ev)
@@ -436,6 +448,7 @@ namespace GhostSpectator
         }
 
         internal static HashSet<ReferenceHub> deadZombies = new();
+        internal static Dictionary<Player, Vector3> deathPositions = new();
         private readonly System.Random random = new();
 
         private readonly Config config = MainClass.Instance.pluginConfig;

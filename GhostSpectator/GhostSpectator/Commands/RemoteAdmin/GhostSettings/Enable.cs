@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Log = LabApi.Features.Console.Logger;
+
 using CommandSystem;
 using GhostSpectator.Features;
-using Log = LabApi.Features.Console.Logger;
 using LabApi.Features.Permissions;
 
 namespace GhostSpectator.Commands.RemoteAdmin.GhostSettings

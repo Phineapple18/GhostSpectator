@@ -22,8 +22,8 @@ namespace GhostSpectator.Patches
             List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
 
             Label nextCondition1 = generator.DefineLabel();
-            newInstructions.FindAll((CodeInstruction i) => i.opcode == OpCodes.Ldarg_1).ElementAt(2).labels.Add(nextCondition1);
-            int index1 = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Ldsfld && (FieldInfo)i.operand == AccessTools.Field(typeof(Scp049ResurrectAbility), "DeadZombies"));
+            newInstructions.FindAll(i => i.opcode == OpCodes.Ldarg_1).ElementAt(2).labels.Add(nextCondition1);
+            int index1 = newInstructions.FindIndex(i => i.opcode == OpCodes.Ldsfld && (FieldInfo)i.operand == AccessTools.Field(typeof(Scp049ResurrectAbility), "DeadZombies"));
             int offset1 = 5;
 
             newInstructions.InsertRange(index1 + offset1, new List<CodeInstruction>
@@ -35,8 +35,8 @@ namespace GhostSpectator.Patches
             });
 
             Label nextCondition2 = generator.DefineLabel();
-            newInstructions.FindAll((CodeInstruction i) => i.opcode == OpCodes.Ldarg_0).ElementAt(2).labels.Add(nextCondition2);
-            int index2 = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Call && (MethodInfo)i.operand == AccessTools.Method(typeof(Scp049ResurrectAbility), "IsSpawnableSpectator"));
+            newInstructions.FindAll(i => i.opcode == OpCodes.Ldarg_0).ElementAt(2).labels.Add(nextCondition2);
+            int index2 = newInstructions.FindIndex(i => i.opcode == OpCodes.Call && (MethodInfo)i.operand == AccessTools.Method(typeof(Scp049ResurrectAbility), "IsSpawnableSpectator"));
             int offset2 = 2;
 
             newInstructions.InsertRange(index2 + offset2, new List<CodeInstruction>
@@ -63,8 +63,8 @@ namespace GhostSpectator.Patches
             List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
 
             Label nextCondition = generator.DefineLabel();
-            newInstructions.FindAll((CodeInstruction i) => i.opcode == OpCodes.Ldarg_0).ElementAt(3).labels.Add(nextCondition);
-            int index = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Call && (MethodInfo)i.operand == AccessTools.Method(typeof(Scp049ResurrectAbility), "IsSpawnableSpectator"));
+            newInstructions.FindAll(i => i.opcode == OpCodes.Ldarg_0).ElementAt(3).labels.Add(nextCondition);
+            int index = newInstructions.FindIndex(i => i.opcode == OpCodes.Call && (MethodInfo)i.operand == AccessTools.Method(typeof(Scp049ResurrectAbility), "IsSpawnableSpectator"));
             int offset = 1;
 
             newInstructions.InsertRange(index + offset, new List<CodeInstruction>

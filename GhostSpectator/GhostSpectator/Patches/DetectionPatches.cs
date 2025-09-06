@@ -35,8 +35,8 @@ namespace GhostSpectator.Patches
             List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
 
             Label moveNext = generator.DefineLabel();
-            newInstructions.FindAll((CodeInstruction i) => i.opcode == OpCodes.Ldloca_S).ElementAt(1).labels.Add(moveNext);
-            int index = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Call && (MethodInfo)i.operand == AccessTools.PropertyGetter(typeof(HashSet<ReferenceHub>.Enumerator), "Current"));
+            newInstructions.FindAll(i => i.opcode == OpCodes.Ldloca_S).ElementAt(1).labels.Add(moveNext);
+            int index = newInstructions.FindIndex(i => i.opcode == OpCodes.Call && (MethodInfo)i.operand == AccessTools.PropertyGetter(typeof(HashSet<ReferenceHub>.Enumerator), "Current"));
             int offset = 2;
 
             newInstructions.InsertRange(index + offset, new List<CodeInstruction>

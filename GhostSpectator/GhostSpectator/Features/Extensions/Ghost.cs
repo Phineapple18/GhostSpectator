@@ -5,15 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Log = LabApi.Features.Console.Logger;
+
 using LabApi.Features.Wrappers;
+using MEC;
 using PlayerRoles;
 using Respawning.Waves;
+using UnityEngine;
 
 namespace GhostSpectator.Features.Extensions
 {
     public static class Ghost
     {
-        public static void Spawn(Player player)
+        public static void Spawn(Player player, bool deathPosition)
         {
             try
             {
@@ -23,6 +26,16 @@ namespace GhostSpectator.Features.Extensions
             {
                 player.GameObject.AddComponent<GhostComponent>();
             }
+            if (deathPosition && EventHandler.deathPositions.TryGetValue(player, out Vector3 position))
+            {
+                position += Vector3.up;
+                Log.Debug($"Found death position of player {player.Nickname}.", Config.Debug);
+            }
+            else
+            {
+                position = Config.SpawnPositions != null ? Config.SpawnPositions.ElementAt(random.Next(Config.SpawnPositions.Count)) : DeafultSpawn;
+            }
+            Timing.CallDelayed(0.1f, () => player.Position = position);
             Log.Debug($"Player {player.Nickname} has been turned into Ghost.", Config.Debug);
         }
 
@@ -108,6 +121,9 @@ namespace GhostSpectator.Features.Extensions
         }
 
         public static IEnumerable<Player> List => Player.List.Where(p => p.IsGhost());
+        internal static Vector3 DeafultSpawn { get; } = new(9f, 302f, 1f);
+
         private static Config Config => MainClass.Instance.pluginConfig;
+        private static readonly System.Random random = new();
     }
 }
