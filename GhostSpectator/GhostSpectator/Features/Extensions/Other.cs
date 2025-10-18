@@ -14,7 +14,7 @@ namespace GhostSpectator.Features.Extensions
     {
         internal static bool IsGhostItem(this Item item)
         {
-            return /*item != null &&*/ GhostItemList.Contains(item);
+            return GhostItemList.Contains(item);
         }
 
         internal static readonly List<string> voiceChats = new(){ "ghost", "scp", "spectator" };
