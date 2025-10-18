@@ -53,10 +53,10 @@ namespace GhostSpectator
 
         private void CreateToySpawnRanges()
         {
-            foreach (KeyValuePair<Vector3, Vector3> coord in pluginConfig.ToySpawnAreas)
+            foreach (ToyArea area in pluginConfig.ToySpawnAreas.ToList())
             {
-                Bounds bounds = new((coord.Key + coord.Value) / 2, (coord.Key - coord.Value).Abs());
-                Toy.SpawnAreas.Add(bounds);
+                area.Bounds = new((area.Corner1 + area.Corner2) / 2, (area.Corner1 - area.Corner2).Abs());
+                Toy.SpawnAreas.Add(area);
             }
         }
 
@@ -71,6 +71,6 @@ namespace GhostSpectator
         public override string Description { get; } = null;
         public override string Name { get; } = "GhostSpectator";
         public override Version RequiredApiVersion { get; } = new(LabApiProperties.CompiledVersion);
-        public override Version Version { get; } = new(3, 2, 0);
+        public override Version Version { get; } = new(3, 3, 0);
     }
 }

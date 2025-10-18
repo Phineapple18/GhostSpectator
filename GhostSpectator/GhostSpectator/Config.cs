@@ -49,12 +49,7 @@ namespace GhostSpectator
         [Description("How many toys can one Ghost have at once?")]
         public int ToyLimit { get; set; } = 1;
 
-        [Description("Areas where Ghosts can create toys. The area exists between a pair of coordinates on each axis.")]
-        /*public Dictionary<Vector3, Vector3> ToySpawnAreas { get; set; } = new Dictionary<Vector3, Vector3>()
-        {
-            { new(10f, 294f, -12f), new(-10f, 296f, -3f) },
-            { new(68f, 282f, -36f), new(142f, 285f, -12f) }
-        };*/
+        [Description("Areas where Ghosts can create toys. The area exists between a pair of coordinates (corners) on each axis.")]
         public List<ToyArea> ToySpawnAreas { get; set; } = new()
         {
             new ToyArea
