@@ -42,6 +42,10 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>$(SecretLabSteam)\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
+    <Reference Include="Assembly-CSharp-Publicized, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SecretLabFiles)\LabAPI\dependencies\7777\Assembly-CSharp-Publicized.dll</HintPath>
+    </Reference>
     <Reference Include="CommandSystem.Core">
       <HintPath>$(SecretLabSteam)\CommandSystem.Core.dll</HintPath>
     </Reference>
@@ -53,7 +57,7 @@
     </Reference>
     <Reference Include="Mirror-Publicized, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SecretLabFiles)\LabAPI-Beta\dependencies\Mirror-Publicized.dll</HintPath>
+      <HintPath>$(SecretLabFiles)\LabAPI\dependencies\Mirror-Publicized.dll</HintPath>
     </Reference>
     <Reference Include="NorthwoodLib">
       <HintPath>$(SecretLabSteam)\NorthwoodLib.dll</HintPath>
@@ -108,6 +112,7 @@
     <Compile Include="Commands\RemoteAdmin\GhostSpectator\GhostSpectatorParent.cs" />
     <Compile Include="Commands\RemoteAdmin\GhostSpectator\List.cs" />
     <Compile Include="Commands\RemoteAdmin\GhostSpectator\Spawn.cs" />
+    <Compile Include="Commands\ClientConsole\ToyAreaTeleport.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="EventHandler.cs" />
     <Compile Include="Features\Extensions\Duel.cs" />

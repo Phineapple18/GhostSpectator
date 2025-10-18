@@ -26,7 +26,7 @@ namespace GhostSpectator
         public ushort SpawnmessageDuration { get; set; } = 5;
 
         [Description("Ghost spawn positions.")]
-        public List<Vector3> SpawnPositions { get; set; } = new List<Vector3>{ new(9f, 302f, 1f) };
+        public List<Vector3> SpawnPositions { get; set; } = new() { new(9f, 302f, 1f) };
 
         [Description("Should Ghosts be spawned at the death location?")]
         public bool SpawnAtDeathPos { get; set; } = false;
@@ -35,7 +35,7 @@ namespace GhostSpectator
         public bool AutoGhostSpawn { get; set; } = false;
 
         [Description("Roles, that Ghosts cannot teleport to. SCP-079 is already included.")]
-        public List<RoleTypeId> RoleTeleportBlacklist { get; set; } = new List<RoleTypeId> { RoleTypeId.Tutorial };
+        public List<RoleTypeId> RoleTeleportBlacklist { get; set; } = new() { RoleTypeId.Tutorial };
 
         [Description("Should Ghosts, that don't have permission, be despawned and not allowed to spawn after warhead detonation?")]
         public bool DespawnOnDetonation { get; set; } = true;
@@ -50,10 +50,20 @@ namespace GhostSpectator
         public int ToyLimit { get; set; } = 1;
 
         [Description("Areas where Ghosts can create toys. The area exists between a pair of coordinates on each axis.")]
-        public Dictionary<Vector3, Vector3> ToySpawnAreas { get; set; } = new Dictionary<Vector3, Vector3>()
+        /*public Dictionary<Vector3, Vector3> ToySpawnAreas { get; set; } = new Dictionary<Vector3, Vector3>()
         {
             { new(10f, 294f, -12f), new(-10f, 296f, -3f) },
             { new(68f, 282f, -36f), new(142f, 285f, -12f) }
+        };*/
+        public List<ToyArea> ToySpawnAreas { get; set; } = new()
+        {
+            new ToyArea
+            {
+                Name = "Area1",
+                Corner1 = new(10f, 294f, -12f),
+                Corner2 = new(-10f, 296f, -3f),
+                TeleportPosition = new(0f, 295f, -8f)
+            }
         };
 
         [Description("Minimum distance between the Ghosts, that will make them hear eachother via RoundSummary channel.")]
@@ -67,5 +77,14 @@ namespace GhostSpectator
 
         [Description("Should server-specific settings be automatically activated for Ghosts upon spawn?")]
         public bool SendSettingsOnSpawn { get; set; } = false;
+    }
+
+    public class ToyArea
+    {
+        public string Name { get; set; }
+        public Vector3 Corner1 { get; set; }
+        public Vector3 Corner2 { get; set; }
+        public Vector3 TeleportPosition { get; set; }
+        public Bounds Bounds;
     }
 }

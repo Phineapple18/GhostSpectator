@@ -221,6 +221,13 @@ namespace GhostSpectator
         public string GivefirearmList { get; set; } = "List of firearms";
         public string GivefirearmSuccess { get; set; } = "You have given yourself a <color=green>%itemtype%</color>. Drop it to get rid of it.";
 
+        [Description("ToyAreaTeleport command.")]
+        public string ToyareateleportCommand { get; set; } = ToyAreaTeleport._command;
+        public string ToyareateleportDescription { get; set; } = ToyAreaTeleport._description;
+        public string[] ToyareateleportAliases { get; set; } = ToyAreaTeleport._aliases;
+        public string ToyareateleportList { get; set; } = "List of areas, where you can create toys";
+        public string ToyareateleportSuccess { get; set; } = "You have been teleported to <color=green>%areaname%</color>.";
+
         [Description("Translation of the command interface.")]
         public string Aliases { get; set; } = "Aliases";
         public string Description { get; set; } = "Description";
@@ -236,6 +243,7 @@ namespace GhostSpectator
         public string FirearmOnly { get; set; } = "You can only give yourself a firearm.";
         public string MustBeNumber { get; set; } = "Argument must be a number.";
         public string MustBeNumberOrType { get; set; } = "Argument must be a number or item type.";
+        public string NoArea { get; set; } = "Provided area %areaname% doesn't exists.";
         public string NoDuelRequests { get; set; } = "You don't have any pending duel requests.";
         public string NoPermission { get; set; } = "You don't have permission to use this feature.";
         public string NoPlayers { get; set; } = "Provided player(s) doesn't exist.";
@@ -265,6 +273,7 @@ namespace GhostSpectator
         public string Firearms { get; set; } = "Firearms";
         public string[] PageHeaders { get; set; } = SSGhostSpectator._headers;
         public string ToyManage { get; set; } = "Managing toys";
+        public string ToyAreas { get; set; } = "Toy areas";
 
         [Description("Translation of hints.")]
         public string FullPartNickname { get; set; } = "<size=25><color=yellow>You can provide full or part of the player's nickname.</color></size>";
@@ -273,6 +282,8 @@ namespace GhostSpectator
         [Description("Translation of labels.")]
         public string ActionExecute { get; set; } = "Execute selected action";
         public string ActionSelect { get; set; } = "Select an action";
+        public string AreaSelect { get; set; } = "Select toy area";
+        public string AreaTeleport { get; set; } = "Teleport to the selected area";
         public string FirearmGive { get; set; } = "Give yourself a firearm of selected type";
         public string FirearmSelect { get; set; } = "Select firearm";
         public string GhostName { get; set; } = "Type name of the Ghost";

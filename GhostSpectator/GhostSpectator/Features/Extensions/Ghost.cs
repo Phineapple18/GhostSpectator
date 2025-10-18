@@ -72,12 +72,8 @@ namespace GhostSpectator.Features.Extensions
 
         public static bool TryGetGhostComponent(this Player player, out GhostComponent component)
         {
-            if (player != null && player.ReferenceHub.TryGetComponent(out component))
-            {
-                return true;
-            }
             component = null;
-            return false;
+            return player?.ReferenceHub.TryGetGhostComponent(out component) ?? false;
         }
 
         public static bool TryGetGhostComponent(this ReferenceHub hub, out GhostComponent component)

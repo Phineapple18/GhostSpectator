@@ -43,7 +43,8 @@ namespace GhostSpectator.Features.Extensions
             "TargetBinary"
         };
 
-        internal static List<Bounds> SpawnAreas { get; set; } = new();
+        //internal static Dictionary<Bounds, Vector3> SpawnAreas { get; set; } = new();
+        internal static List<ToyArea> SpawnAreas { get; set; } = new();
         private static Config Config => MainClass.Instance.pluginConfig;
     }
 }

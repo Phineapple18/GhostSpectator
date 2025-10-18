@@ -44,7 +44,7 @@ namespace GhostSpectator.Commands.ClientConsole.Toys
                 Log.Debug("Command sender doesn't exist.", Config.Debug);
                 return false;
             }
-            if (!sender.HasPermissions("gs.toy"))
+            if (!sender.HasPermissions("gs.toy.create"))
             {
                 response = translation.NoPermission;
                 Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug);
@@ -63,7 +63,7 @@ namespace GhostSpectator.Commands.ClientConsole.Toys
                 Log.Debug("Spawning toys is not allowed.", Config.Debug);
                 return false;
             }
-            if (!Toy.SpawnAreas.Any(a => a.Contains(commandsender.Position)))
+            if (!Toy.SpawnAreas.Any(a => a.Bounds.Contains(commandsender.Position)))
             {
                 response = translation.WrongArea;
                 Log.Debug($"Player {commandsender.Nickname} tried to create a toy outside the spawn range(s).", Config.Debug);

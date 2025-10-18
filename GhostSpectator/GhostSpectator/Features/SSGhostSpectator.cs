@@ -32,6 +32,7 @@ namespace GhostSpectator.Features
             actionSelect = translation.ActionSelect ?? "Select an action";
             firearmSelect = translation.FirearmSelect ?? "Select firearm";
             toySelect = translation.ToySelect ?? "Select toy type";
+            toyAreaSelect = translation.AreaSelect ?? "Select toy area";
         }
 
         public void Enable()
@@ -60,7 +61,10 @@ namespace GhostSpectator.Features
                     toySettings[3] = new SSButton(null, translation.ToyList, translation.Press),
                     toySettings[4] = new SSTextArea(null, string.Empty),
                     toySettings[5] = new SSPlaintextSetting(null, translation.ToyNetid, "...", 3, ContentType.Standard, null, 255, true),
-                    toySettings[6] = new SSButton(null, translation.ToyDestroy, translation.Hold, 1f)
+                    toySettings[6] = new SSButton(null, translation.ToyDestroy, translation.Hold, 1f),
+                    toySettings[7] = new SSGroupHeader (translation.ToyAreas),
+                    toySettings[8] = new SSDropdownSetting (null, toyAreaSelect, Toy.SpawnAreas.Select(a => a.Name).ToArray()),
+                    toySettings[9] = new SSButton(null, translation.AreaTeleport, translation.Hold, 0.5f),
                 }),
                 new(Headers[3], new[]
                 {
@@ -170,6 +174,11 @@ namespace GhostSpectator.Features
                             argument = ServerSpecificSettingsSync.GetSettingOfUser<SSPlaintextSetting>(referenceHub, toySettings[5].SettingId).SyncInputText;
                             this.HandleCommand(command, referenceHub, new string[] { argument }, null, true);
                             return;
+                        case int i when i == toySettings[9].SettingId:
+                            command = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is ToyAreaTeleport);
+                            argument = ServerSpecificSettingsSync.GetSettingOfUser<SSDropdownSetting>(referenceHub, toySettings[8].SettingId).SyncSelectionText;
+                            this.HandleCommand(command, referenceHub, new string[] { argument }, null, true);
+                            return;
                         case int i when i == duelSettings[2].SettingId:
                             parentCommand = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is DuelParent) as ParentCommand;
                             int action = ServerSpecificSettingsSync.GetSettingOfUser<SSDropdownSetting>(referenceHub, duelSettings[1].SettingId).SyncSelectionIndexRaw;
@@ -224,6 +233,7 @@ namespace GhostSpectator.Features
         private static string currentPage;
         private static string firearmSelect;
         private static string toySelect;
+        private static string toyAreaSelect;
 
         internal Dictionary<ReferenceHub, int> lastSentPages;
         private Dictionary<ReferenceHub, Dictionary<string, string>> lastVoicechatSettings;
@@ -235,7 +245,7 @@ namespace GhostSpectator.Features
 
         private readonly ServerSpecificSettingBase[] duelSettings = new ServerSpecificSettingBase[4];
         private readonly ServerSpecificSettingBase[] firearmSettings = new ServerSpecificSettingBase[3];
-        private readonly ServerSpecificSettingBase[] toySettings = new ServerSpecificSettingBase[7];
+        private readonly ServerSpecificSettingBase[] toySettings = new ServerSpecificSettingBase[10];
         private readonly SSTwoButtonsSetting[] voicechatSettings = new SSTwoButtonsSetting[3];
         private readonly ServerSpecificSettingBase[] waveSettings = new ServerSpecificSettingBase[2];
 
