@@ -42,7 +42,7 @@ Place *Harmony* dll (net48) in "...\AppData\Roaming\SCP Secret Laboratory\LabAPI
 |always_see_ghosts|bool|false|Should Spectators be able to see Ghosts, if the spectated player is not a Ghost?|
 |filmmaker_see_ghosts|bool|false|Should Filmmakers be able to see Ghosts?|
 |target_limit|int|1|How many toys can one Ghost have at once?|
-|shooting_ranges|Dictionary\<Vector3, Vector3>|- name: Area1<br/>corner1:</br>x: 10</br>y: 294</br>z: -12<br/>corner2:</br>x: -10</br>y: 296</br>z: -3<br/>teleport_position:</br>x: 0</br>y: 295</br>z: -8|Areas where Ghosts can create toys. The area exists between a pair of coordinates on each axis.|
+|shooting_ranges|Dictionary\<Vector3, Vector3>|- name: Area1<br/>&nbsp;&nbsp;&nbsp;corner1:</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x: 10</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;y: 294</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;z: -12<br/>&nbsp;&nbsp;&nbsp;corner2:</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x: -10</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;y: 296</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;z: -3<br/>&nbsp;&nbsp;&nbsp;teleport_position:</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x: 0</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;y: 295</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;z: -8|Areas where Ghosts can create toys. The area exists between a pair of coordinates on each axis.|
 |hear_distance|float|10f|Minimum distance between the Ghosts, that will make them hear eachother via RoundSummary channel.|
 |duel_request_time|float|10f|Time after which the duel request will expire.|
 |ss_settings_enabled|bool|false|Should server-specific settings for this plugin be enabled?|
