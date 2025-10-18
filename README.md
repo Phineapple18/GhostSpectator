@@ -1,4 +1,4 @@
-# GhostSpectator (3.2.0)
+# GhostSpectator (3.3.0)
 Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into Ghosts: Tutorials undetectable to alive players and not affecting the round. Depending on the config, Ghosts can perform various activities f.e teleport to alive players or random rooms, spawn a toy or challenge another Ghost to a duel.
 
 ## Features
@@ -10,6 +10,7 @@ Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into G
 - Depending on the assigned permissions, Ghosts can:
   * noclip
   * drop or throw items or throwables (except their ghost item)
+  * teleport to a toy spawn area
   * create toys (capybara and shooting targets), that are visible only to Ghosts
   * give themselves a firearm (when emptied, player will receive ammo)
   * listen to SCP and Spectators chats (via command or automatically)
@@ -41,7 +42,7 @@ Place *Harmony* dll (net48) in "...\AppData\Roaming\SCP Secret Laboratory\LabAPI
 |always_see_ghosts|bool|false|Should Spectators be able to see Ghosts, if the spectated player is not a Ghost?|
 |filmmaker_see_ghosts|bool|false|Should Filmmakers be able to see Ghosts?|
 |target_limit|int|1|How many toys can one Ghost have at once?|
-|shooting_ranges|Dictionary\<Vector3, Vector3>|? x: 10, y: 294, z: -12<br/>: x: 10, y: 296, z: -4<br/> ? x: 68, y: 282, z: -36<br/>: x: 142, y: 285, z: -12|Areas where Ghosts can create toys. The area exists between a pair of coordinates on each axis.|
+|shooting_ranges|Dictionary\<Vector3, Vector3>|- name: Area1<br/>corner1:</br>x: 10</br>y: 294</br>z: -12<br/>corner2:</br>x: -10</br>y: 296</br>z: -3<br/>teleport_position:</br>x: 0</br>y: 295</br>z: -8|Areas where Ghosts can create toys. The area exists between a pair of coordinates on each axis.|
 |hear_distance|float|10f|Minimum distance between the Ghosts, that will make them hear eachother via RoundSummary channel.|
 |duel_request_time|float|10f|Time after which the duel request will expire.|
 |ss_settings_enabled|bool|false|Should server-specific settings for this plugin be enabled?|
@@ -88,6 +89,7 @@ Parent command for toy managing. Subcommands:
 - enablevoicechat - Enable listening to chosen voicechat(s). Usage: ghost/scp/spectator/all
 - ghostme - Spawn yourself as a Ghost or change back to Spectator.
 - givefirearm - Give yourself a firearm or print a list of available firearms. Usage: Item ID/Itemtype/list
+- toyareateleport - Teleport to an area, where you can spawn toys. Usage: AreaName/list
 
 ## Permissions
 - gs.duel - allows a player to use *player* and *accept* commands
@@ -105,7 +107,8 @@ Parent command for toy managing. Subcommands:
 - gs.settings.reload - allows a player to enable, disable and reload server-specific settings for this plugin
 - gs.spawn.other - allows a player to use *spawn* and *despawn* commands
 - gs.spawn.self - allows a player to use *ghostme* command
-- gs.toy - allows a player to use *createtoy* command
+- gs.toy.area - allows a player to teleport to a toy spawn area
+- gs.toy.create - allows a player to use *createtoy* command
 - gs.teleport.player - allows a player to teleport to an alive player
 - gs.teleport.room - allows a player to teleport to a random room
 - gs.warhead - allows a player to remain Ghost and use *ghostme* and *spawn* commands after warhead detonation
