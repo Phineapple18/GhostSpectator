@@ -73,6 +73,12 @@ namespace GhostSpectator.Commands.ClientConsole
                 response = $"{translation.GivefirearmList}:\n- " + string.Join("\n- ", Other.firearmList.Select(f => $"{f} ({(int)f})"));
                 return true;
             }
+            int gunLimit = Server.CategoryLimits[ItemCategory.Firearm];
+            if (commandsender.Items.Count(i => i is FirearmItem) >= gunLimit)
+            {
+                response = $"{translation.GivefirearmFailure.Replace("%categorylimit%", gunLimit.ToString())}";
+                return false;
+            }
             ItemType itemType = ItemType.None;
             if (!(int.TryParse(arguments.At(0), out int id) || Enum.TryParse(arguments.At(0), out itemType)))
             {

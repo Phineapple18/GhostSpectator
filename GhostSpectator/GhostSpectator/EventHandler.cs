@@ -172,7 +172,7 @@ namespace GhostSpectator
 
         public override void OnPlayerUpdatingEffect(PlayerEffectUpdatingEventArgs ev)
         {
-            if (ev.Player.IsGhost() && (ev.Effect is PitDeath || ev.Effect is Ghostly && ev.Intensity == 0))
+            if (ev.Player.IsGhost() && (ev.Effect is PitDeath || (ev.Effect is Ghostly or NightVision) && ev.Intensity == 0))
             {
                 ev.IsAllowed = false;
             }
@@ -270,13 +270,13 @@ namespace GhostSpectator
             {
                 if (ev.Sender.IsSCP && component.VoiceChats.Contains("scp"))
                 {
-                    ev.Message.Channel = VoiceChatChannel.PreGameLobby;
+                    ev.Message.Channel = VoiceChatChannel.RoundSummary;
                     ev.IsAllowed = true;
                     return;
                 }
                 if (ev.Sender.Role == RoleTypeId.Spectator && component.VoiceChats.Contains("spectator"))
                 {
-                    ev.Message.Channel = VoiceChatChannel.Spectator;
+                    ev.Message.Channel = VoiceChatChannel.RoundSummary;
                     ev.IsAllowed = true;
                     return;
                 }

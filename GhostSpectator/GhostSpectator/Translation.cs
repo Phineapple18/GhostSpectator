@@ -220,6 +220,7 @@ namespace GhostSpectator
         public string[] GivefirearmAliases { get; set; } = GiveFirearm._aliases;
         public string GivefirearmList { get; set; } = "List of firearms";
         public string GivefirearmSuccess { get; set; } = "You have given yourself a <color=green>%itemtype%</color>. Drop it to get rid of it.";
+        public string GivefirearmFailure { get; set; } = "You have already reached firearm's limit (%categorylimit%) in your inventory.";
 
         [Description("ToyAreaTeleport command.")]
         public string ToyareateleportCommand { get; set; } = ToyAreaTeleport._command;

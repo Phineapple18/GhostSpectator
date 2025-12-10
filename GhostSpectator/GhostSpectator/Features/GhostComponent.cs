@@ -57,8 +57,12 @@ namespace GhostSpectator.Features
             }
             player.InfoArea &= ~PlayerInfoArea.Role;
             player.CustomInfo = $"<color={config.GhostColor}>{translation.GhostNickname ?? "GHOST"}</color>";
-            player.Health = player.MaxHealth = config.GhostHealth;          
-            Timing.CallDelayed(0.1f, () => player.EnableEffect<Ghostly>());
+            player.Health = player.MaxHealth = config.GhostHealth;
+            Timing.CallDelayed(0.1f, delegate ()
+            {
+                player.EnableEffect<Ghostly>();
+                player.EnableEffect<NightVision>();
+            });
             player.ReferenceHub.interCoordinator.AddBlocker(this);
             ghostItem = player.AddItem(GhostItemType);
             Other.GhostItemList.Add(ghostItem);
@@ -108,7 +112,7 @@ namespace GhostSpectator.Features
 
         public void Update()
         {
-            player.StaminaRemaining = player.ReferenceHub.playerStats.GetModule<StaminaStat>().MaxValue;
+            player.GetStatModule<StaminaStat>().AddAmount(1f);
         }
 
         public void OnDisable()
