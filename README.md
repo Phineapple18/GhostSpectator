@@ -3,6 +3,7 @@ Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into G
 
 ## Features
 - Ghosts can pass through most doors.
+- Ghosts can see in dark.
 - Ghosts can teleport to a random alive player or room by dropping a ghost item (Lantern). Dropping lit lantern teleports to a player, while unlit to a room. There is an option to exclude teleportation to certain roles.
 - Ghosts are always visible to each other, Spectators spactating a Ghost and Overwatchers. Depending on the config, Ghosts can be visible to Spectators spectating a non-Ghost player and Filmmakers.
 - Ghosts can't pick up or use items.
