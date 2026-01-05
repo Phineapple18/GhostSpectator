@@ -106,7 +106,7 @@ Parent command for toy managing. Subcommands:
 - gs.noclip - allows a player to have noclip permitted
 - gs.settings.activate - allows a player to activate and deactivate server-specific settings for this plugin
 - gs.settings.reload - allows a player to enable, disable and reload server-specific settings for this plugin
-- gs.spawn.other - allows a player to use *spawn* and *despawn* commands
+- gs.spawn.all - allows a player to use *spawn* and *despawn* commands
 - gs.spawn.self - allows a player to use *ghostme* command
 - gs.toy.area - allows a player to teleport to a toy spawn area
 - gs.toy.create - allows a player to use *createtoy* command
