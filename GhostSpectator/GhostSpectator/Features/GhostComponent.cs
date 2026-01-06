@@ -33,7 +33,7 @@ namespace GhostSpectator.Features
         public void Awake()
         {
             player = Player.Get(base.transform.root.gameObject);
-            Log.Debug($"Created a {this.GetType().Name} for player {player.Nickname}.", config.Debug);
+            Log.Debug($"Created a {this.GetType().Name} for player {player.Nickname}.", Config.Debug);
         }
 
         public void OnEnable()
@@ -53,11 +53,11 @@ namespace GhostSpectator.Features
             if (reviveNum > 0)
             {
                 Scp049ResurrectAbility.RegisterPlayerResurrection(player.ReferenceHub, reviveNum);
-                Log.Debug($"Re-registered resurrection number ({reviveNum}) for player {player.Nickname}.", config.Debug);
+                Log.Debug($"Re-registered resurrection number ({reviveNum}) for player {player.Nickname}.", Config.Debug);
             }
             player.InfoArea &= ~PlayerInfoArea.Role;
-            player.CustomInfo = $"<color={config.GhostColor}>{translation.GhostNickname ?? "GHOST"}</color>";
-            player.Health = player.MaxHealth = config.GhostHealth;
+            player.CustomInfo = $"<color={Config.GhostColor}>{Translation.GhostNickname ?? "GHOST"}</color>";
+            player.Health = player.MaxHealth = Config.GhostHealth;
             Timing.CallDelayed(0.1f, delegate ()
             {
                 player.EnableEffect<Ghostly>();
@@ -69,17 +69,17 @@ namespace GhostSpectator.Features
             if (player.HasPermissions("gs.noclip"))
             {
                 FpcNoclip.PermitPlayer(player.ReferenceHub);
-                Log.Debug($"Granted noclip permit to player {player.Nickname}.", config.Debug);
+                Log.Debug($"Granted noclip permit to player {player.Nickname}.", Config.Debug);
             }
             foreach (string permission in Other.voiceChats)
             {
                 if (player.HasPermissions($"gs.autolisten.{permission}"))
                 {
                     VoiceChats.Add(permission);
-                    Log.Debug($"Enabled autolistening to {permission} for {player.Nickname}.", config.Debug);
+                    Log.Debug($"Enabled autolistening to {permission} for {player.Nickname}.", Config.Debug);
                 }
             }
-            if (SSGhostSpectator.Singleton != null && config.SendSettingsOnSpawn)
+            if (SSGhostSpectator.Singleton != null && Config.SendSettingsOnSpawn)
             {
                 SSGhostSpectator.Singleton.ActivateForHub(player.ReferenceHub);
             }
@@ -90,24 +90,24 @@ namespace GhostSpectator.Features
                     toy.netIdentity.AddObserver(player.ConnectionToClient);
                 });
             }
-            if (!string.IsNullOrWhiteSpace(translation.SpawnMessage))
+            if (!string.IsNullOrWhiteSpace(Translation.SpawnMessage))
             {
-                string message = translation.SpawnMessage.Replace("%colour%", config.GhostColor);
-                player.SendBroadcast(message, config.SpawnmessageDuration, Broadcast.BroadcastFlags.Normal, true);
+                string message = Translation.SpawnMessage.Replace("%colour%", Config.GhostColor);
+                player.SendBroadcast(message, Config.SpawnmessageDuration, Broadcast.BroadcastFlags.Normal, true);
             }
-            if (!string.IsNullOrWhiteSpace(translation.SpawnConsoleMessage))
+            if (!string.IsNullOrWhiteSpace(Translation.SpawnConsoleMessage))
             {
-                player.SendConsoleMessage(translation.SpawnConsoleMessage.Replace("%ghostset%", translation.GhostsettingsCommand ?? GhostSettings._command)
-                                                                         .Replace("%wavetimer%", translation.CheckwaveinfoCommand ?? CheckWaveInfo._command)
-                                                                         .Replace("%createtoy%", translation.CreateCommand ?? Create._command)
-                                                                         .Replace("%destroytoy%", translation.DestroyCommand ?? Commands.ClientConsole.Toys.Destroy._command)
-                                                                         .Replace("%enablevc%", translation.EnablevoicechatCommand ?? EnableVoicechat._command)
-                                                                         .Replace("%disablevc%", translation.DisablevoicechatCommand ?? DisableVoicechat._command)
-                                                                         .Replace("%duel%", translation.DuelParentCommand ?? DuelParent._command)
-                                                                         .Replace("%givegun%", translation.GivefirearmCommand ?? GiveFirearm._command), "gray");
+                player.SendConsoleMessage(Translation.SpawnConsoleMessage.Replace("%ghostset%", Translation.GhostsettingsCommand ?? GhostSettings._command)
+                                                                         .Replace("%wavetimer%", Translation.CheckwaveinfoCommand ?? CheckWaveInfo._command)
+                                                                         .Replace("%createtoy%", Translation.CreateCommand ?? Create._command)
+                                                                         .Replace("%destroytoy%", Translation.DestroyCommand ?? Commands.ClientConsole.Toys.Destroy._command)
+                                                                         .Replace("%enablevc%", Translation.EnablevoicechatCommand ?? EnableVoicechat._command)
+                                                                         .Replace("%disablevc%", Translation.DisablevoicechatCommand ?? DisableVoicechat._command)
+                                                                         .Replace("%duel%", Translation.DuelParentCommand ?? DuelParent._command)
+                                                                         .Replace("%givegun%", Translation.GivefirearmCommand ?? GiveFirearm._command), "gray");
             }
             State = GhostState.Spawned;
-            Log.Debug($"Enabled {this.GetType().Name} for player {player.Nickname}.", config.Debug);
+            Log.Debug($"Enabled {this.GetType().Name} for player {player.Nickname}.", Config.Debug);
         }
 
         public void Update()
@@ -126,12 +126,12 @@ namespace GhostSpectator.Features
             if (player.HasPermissions("gs.noclip"))
             {
                 FpcNoclip.UnpermitPlayer(player.ReferenceHub);
-                Log.Debug($"Revoked noclip permit of player {player.Nickname}.", config.Debug);
+                Log.Debug($"Revoked noclip permit of player {player.Nickname}.", Config.Debug);
             }
             foreach (string permission in Other.voiceChats)
             {
                 VoiceChats.Remove(permission);
-                Log.Debug($"Disabled listening to {permission} for player {player.Nickname}.", config.Debug);
+                Log.Debug($"Disabled listening to {permission} for player {player.Nickname}.", Config.Debug);
             }
             Toys.ForEach(toy => Toy.Destroy(player, toy));
             foreach (Player ply in Ghost.List)
@@ -146,14 +146,11 @@ namespace GhostSpectator.Features
             Duel.TryAbortPrepare(player, out _);
             Duel.TryRemoveRequest(player, out _, false);
             SSGhostSpectator.Singleton?.DeactivateForHub(player.ReferenceHub);
-            Log.Debug($"Disabled {this.GetType().Name} for player {player.Nickname}.", config.Debug);
+            Log.Debug($"Disabled {this.GetType().Name} for player {player.Nickname}.", Config.Debug);
         }
 
         private Player player;
         private Item ghostItem;
-
-        private readonly Config config = MainClass.Instance.pluginConfig;
-        private readonly Translation translation = MainClass.Instance.pluginTranslation;        
 
         public BlockedInteraction BlockedInteractions => BlockedInteraction.GeneralInteractions | BlockedInteraction.BeDisarmed | BlockedInteraction.GrabItems;
         public bool CanBeCleared => !base.enabled;
@@ -165,6 +162,8 @@ namespace GhostSpectator.Features
         private RoleTypeId RoleType { get; } = RoleTypeId.Tutorial;
         public HashSet<AdminToyBase> Toys { get; } = new();
         internal HashSet<string> VoiceChats { get; } = new();
+        private Config Config => MainClass.Instance.pluginConfig;
+        private Translation Translation => MainClass.Instance.pluginTranslation;
     }
 
     internal enum GhostState

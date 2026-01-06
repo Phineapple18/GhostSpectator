@@ -165,7 +165,6 @@ namespace GhostSpectator.Features.Extensions
 
         public static Dictionary<CoroutineHandle, Tuple<Player, Player>> AllPending { get; } = new();
         public static Dictionary<Player, Tuple<Player, int>> Requests { get; } = new();
-
         private static Config Config => MainClass.Instance.pluginConfig;
         private static Translation Translation => MainClass.Instance.pluginTranslation;
     }

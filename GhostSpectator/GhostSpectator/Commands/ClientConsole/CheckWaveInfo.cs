@@ -18,7 +18,7 @@ namespace GhostSpectator.Commands.ClientConsole
     {
         public CheckWaveInfo()
         {
-            translation = Translation.AccessTranslation();
+            Translation translation = Translation.AccessTranslation();
             Command = translation.CheckwaveinfoCommand ?? _command;
             Description = translation.CheckwaveinfoDescription;
             Aliases = translation.CheckwaveinfoAliases;
@@ -29,32 +29,32 @@ namespace GhostSpectator.Commands.ClientConsole
         {
             if (MainClass.Instance == null)
             {
-                response = translation.PluginNotEnabled;
-                Log.Debug("Plugin GhostSpectator is not enabled.", translation.Debug);
+                response = Translation.PluginNotEnabled;
+                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
                 return false;
             }
             if (sender == null)
             {
-                response = translation.SenderNull;
+                response = Translation.SenderNull;
                 Log.Debug("Command sender doesn't exist.", Config.Debug);
                 return false;
             }
             if (!sender.HasPermissions("gs.waveinfo"))
             {
-                response = translation.NoPermission;
+                response = Translation.NoPermission;
                 Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug);
                 return false;
             }
             if (!Round.IsRoundStarted)
             {
-                response = translation.RoundNotStarted;
+                response = Translation.RoundNotStarted;
                 Log.Debug($"Player {sender.LogName} tried to use this command before round start.", Config.Debug);
                 return false;
             }
             Player commandsender = Player.Get(sender);
             if (!commandsender.IsGhost())
             {
-                response = translation.NotGhost;
+                response = Translation.NotGhost;
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
                 return false;
             }
@@ -62,19 +62,19 @@ namespace GhostSpectator.Commands.ClientConsole
             string mtfTokens = ((int)RespawnWaves.PrimaryMtfWave.RespawnTokens).ToString();
             string ciTimer = ((int)RespawnWaves.PrimaryChaosWave.TimeLeft).ToString();
             string ciTokens = ((int)RespawnWaves.PrimaryChaosWave.RespawnTokens).ToString();
-            response = translation.CheckwaveinfoSuccess.Replace("%timermtf%", mtfTimer).Replace("%tokensmtf%", mtfTokens).Replace("%timerci%", ciTimer).Replace("%tokensci%", ciTokens);
+            response = Translation.CheckwaveinfoSuccess.Replace("%timermtf%", mtfTimer).Replace("%tokensmtf%", mtfTokens).Replace("%timerci%", ciTimer).Replace("%tokensci%", ciTokens);
             return true;
         }
 
         internal const string _command = "checkwaveinfo";
         internal const string _description = "Check timers and tokens.";
         internal static readonly string[] _aliases = new[] { "timer", "time" };
-        private readonly Translation translation;
 
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
         public string[] Usage { get; }
-        private static Config Config => MainClass.Instance.pluginConfig;
+        private Config Config => MainClass.Instance.pluginConfig;
+        private Translation Translation => MainClass.Instance.pluginTranslation;
     }
 }

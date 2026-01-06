@@ -19,7 +19,7 @@ namespace GhostSpectator.Commands.ClientConsole.Voicechat
     {
         public EnableVoicechat()
         {
-            translation = Translation.AccessTranslation();
+            Translation translation = Translation.AccessTranslation();
             Command = translation.EnablevoicechatCommand ?? _command;
             Description = translation.EnablevoicechatDescription;
             Aliases = translation.EnablevoicechatAliases;
@@ -31,26 +31,26 @@ namespace GhostSpectator.Commands.ClientConsole.Voicechat
         {
             if (MainClass.Instance == null)
             {
-                response = translation.PluginNotEnabled;
-                Log.Debug("Plugin GhostSpectator is not enabled.", translation.Debug);
+                response = Translation.PluginNotEnabled;
+                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
                 return false;
             }
             if (sender == null)
             {
-                response = translation.SenderNull;
+                response = Translation.SenderNull;
                 Log.Debug("Command sender doesn't exist.", Config.Debug);
                 return false;
             }
             if (arguments.IsEmpty())
             {
-                response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
+                response = $"{Description} {Translation.Usage}: {this.DisplayCommandUsage()}";
                 Log.Debug($"Player {sender.LogName} didn't provide any argument.", Config.Debug);
                 return false;
             }
             IEnumerable<string> chats = arguments.Contains("all") ? Other.voiceChats : Other.voiceChats.Intersect(arguments);
             if (chats.IsEmpty())
             {
-                response = translation.WrongArgument;
+                response = Translation.WrongArgument;
                 Log.Debug($"Player {sender.LogName} provided non-existent argument(s).", Config.Debug);
                 return false;
             }
@@ -58,9 +58,9 @@ namespace GhostSpectator.Commands.ClientConsole.Voicechat
             StringBuilder success = StringBuilderPool.Shared.Rent();
             StringBuilder failure = StringBuilderPool.Shared.Rent();
             StringBuilder failurePerm = StringBuilderPool.Shared.Rent();
-            success.Append($"{translation.EnableVoicechatSuccess}:");
-            failure.Append($"{translation.EnablevoicechatFail}:");
-            failurePerm.Append($"{translation.EnablevoicechatPermFail}:");
+            success.Append($"{Translation.EnableVoicechatSuccess}:");
+            failure.Append($"{Translation.EnablevoicechatFail}:");
+            failurePerm.Append($"{Translation.EnablevoicechatPermFail}:");
             int[] num = new int[3] { 0, 0, 0 };
             foreach (string chat in chats)
             {
@@ -91,12 +91,12 @@ namespace GhostSpectator.Commands.ClientConsole.Voicechat
         internal const string _command = "enablevoicechat";
         internal const string _description = "Enable listening to chosen voicechat(s).";
         internal static readonly string[] _aliases = new[] { "evc" };
-        private readonly Translation translation;
 
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
         public string[] Usage { get; }
-        private static Config Config => MainClass.Instance.pluginConfig;
+        private Config Config => MainClass.Instance.pluginConfig;
+        private Translation Translation => MainClass.Instance.pluginTranslation;
     }
 }

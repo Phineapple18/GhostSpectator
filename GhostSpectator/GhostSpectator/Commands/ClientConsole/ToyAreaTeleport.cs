@@ -19,7 +19,7 @@ namespace GhostSpectator.Commands.ClientConsole
     {
         public ToyAreaTeleport()
         {
-            translation = Translation.AccessTranslation();
+            Translation translation = Translation.AccessTranslation();
             Command = translation.ToyareateleportCommand ?? _command;
             Description = translation.ToyareateleportDescription;
             Aliases = translation.ToyareateleportAliases;
@@ -31,61 +31,61 @@ namespace GhostSpectator.Commands.ClientConsole
         {
             if (MainClass.Instance == null)
             {
-                response = translation.PluginNotEnabled;
-                Log.Debug("Plugin GhostSpectator is not enabled.", translation.Debug);
+                response = Translation.PluginNotEnabled;
+                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
                 return false;
             }
             if (sender == null)
             {
-                response = translation.SenderNull;
+                response = Translation.SenderNull;
                 Log.Debug("Command sender doesn't exist.", Config.Debug);
                 return false;
             }
             if (!sender.HasPermissions("gs.toy.area"))
             {
-                response = translation.NoPermission;
+                response = Translation.NoPermission;
                 Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug);
                 return false;
             }
             Player commandsender = Player.Get(sender);
             if (!commandsender.IsGhost())
             {
-                response = translation.NotGhost;
+                response = Translation.NotGhost;
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
                 return false;
             }
             if (arguments.IsEmpty())
             {
-                response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
+                response = $"{Description} {Translation.Usage}: {this.DisplayCommandUsage()}";
                 Log.Debug($"Player {commandsender.Nickname} didn't provide any argument.", Config.Debug);
                 return false;
             }
             if (arguments.At(0).ToLower() == "list")
             {
-                response = $"{translation.ToyareateleportList}:\n- " + string.Join("\n- ", Toy.SpawnAreas.Select(a => a.Name));
+                response = $"{Translation.ToyareateleportList}:\n- " + string.Join("\n- ", Toy.SpawnAreas.Select(a => a.Name));
                 return true;
             }
             if (!Toy.SpawnAreas.TryGetFirst(a => a.Name == arguments.At(0), out ToyArea area))
             {
-                response = translation.NoArea.Replace("%areaname%", area.Name);
+                response = Translation.NoArea.Replace("%areaname%", area.Name);
                 Log.Debug($"Player {commandsender.Nickname} didn't provide valid area's name.", Config.Debug);
                 return false;
             }
             commandsender.Position = area.TeleportPosition;
             Log.Debug($"Player {commandsender.Nickname} was teleported to toy area: {area.Name}.", Config.Debug);
-            response = translation.ToyareateleportSuccess.Replace("%areaname%", area.Name);
+            response = Translation.ToyareateleportSuccess.Replace("%areaname%", area.Name);
             return true;
         }
 
         internal const string _command = "toyareateleport";
         internal const string _description = "Teleport to an area, where you can spawn toys.";
         internal static readonly string[] _aliases = new[] { "tat", "area" };
-        private readonly Translation translation;
 
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
         public string[] Usage { get; }
-        private static Config Config => MainClass.Instance.pluginConfig;
+        private Config Config => MainClass.Instance.pluginConfig;
+        private Translation Translation => MainClass.Instance.pluginTranslation;
     }
 }

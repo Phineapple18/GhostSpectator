@@ -16,31 +16,30 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
     {
         public Cancel(string command, string description, string[] aliases)
         {
-            translation = Translation.AccessTranslation();
             Command = command ?? _command;
             Description = description;
             Aliases = aliases;
-            Log.Debug($"Registered {this.Command} subcommand.", translation.Debug);
+            Log.Debug($"Registered {this.Command} subcommand.", Translation.AccessTranslation().Debug);
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             if (MainClass.Instance == null)
             {
-                response = translation.PluginNotEnabled;
-                Log.Debug("Plugin GhostSpectator is not enabled.", translation.Debug);
+                response = Translation.PluginNotEnabled;
+                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
                 return false;
             }
             if (sender == null)
             {
-                response = translation.SenderNull;
+                response = Translation.SenderNull;
                 Log.Debug("Command sender doesn't exist.", Config.Debug);
                 return false;
             }
             Player commandsender = Player.Get(sender);
             if (!commandsender.IsGhost())
             {
-                response = translation.NotGhost;
+                response = Translation.NotGhost;
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
                 return false;
             }
@@ -48,23 +47,23 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
             if (opponent != null)
             {
                 commandsender.Abandon(opponent);
-                response = translation.CancelDuelSuccess.Replace("%playernick%", opponent.Nickname);
+                response = Translation.CancelDuelSuccess.Replace("%playernick%", opponent.Nickname);
                 Log.Debug($"Player {commandsender.Nickname} has cancelled a duel with {opponent.Nickname}.", Config.Debug);
                 return true;
             }
             if (Duel.TryAbortPrepare(commandsender, out string opponentName))
             {
-                response = translation.CancelDuelSuccess.Replace("%playernick%", opponentName);
+                response = Translation.CancelDuelSuccess.Replace("%playernick%", opponentName);
                 Log.Debug($"Player {commandsender.Nickname} has cancelled a pending duel with {opponentName}.", Config.Debug);
                 return true;
             }
             if (Duel.TryRemoveRequest(commandsender, out opponentName))
             {
-                response = translation.CancelRequestSuccess.Replace("%playernick%", opponentName);
+                response = Translation.CancelRequestSuccess.Replace("%playernick%", opponentName);
                 Log.Debug($"Player {commandsender.Nickname} has cancelled a duel request with {opponentName}.", Config.Debug);
                 return true;
             }
-            response = translation.CancelFail;
+            response = Translation.CancelFail;
             Log.Debug($"Player {commandsender.Nickname} has no active or pending duels or duel requests.", Config.Debug);
             return false;
         }
@@ -72,11 +71,11 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
         internal const string _command = "cancel";
         internal const string _description = "Cancel your duel, pending duel or duel request.";
         internal static readonly string[] _aliases = new[] { "cnx", "c" };
-        private readonly Translation translation;
 
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
-        private static Config Config => MainClass.Instance.pluginConfig;
+        private Config Config => MainClass.Instance.pluginConfig;
+        private Translation Translation => MainClass.Instance.pluginTranslation;
     }
 }

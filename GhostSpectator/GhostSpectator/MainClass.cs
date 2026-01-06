@@ -11,7 +11,6 @@ using LabApi.Events.CustomHandlers;
 using LabApi.Features;
 using LabApi.Loader;
 using LabApi.Loader.Features.Plugins;
-using UnityEngine;
 
 namespace GhostSpectator
 {
@@ -21,12 +20,12 @@ namespace GhostSpectator
         {
             pluginTranslation = this.LoadConfig<Translation>("translation.yml");
             base.LoadConfigs();
+            pluginConfig = Config;
         }
 
         public override void Enable()
         {
             Instance = this;
-            pluginConfig = Config;
             Events = new();
             CustomHandlersManager.RegisterEventsHandler(Events);
             this.CreateToySpawnRanges();
@@ -71,6 +70,6 @@ namespace GhostSpectator
         public override string Description { get; } = null;
         public override string Name { get; } = "GhostSpectator";
         public override Version RequiredApiVersion { get; } = new(LabApiProperties.CompiledVersion);
-        public override Version Version { get; } = new(3, 3, 0);
+        public override Version Version { get; } = new(3, 3, 1);
     }
 }

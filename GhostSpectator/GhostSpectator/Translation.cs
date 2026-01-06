@@ -15,8 +15,8 @@ using GhostSpectator.Commands.RemoteAdmin.GhostSettings;
 using GhostSpectator.Commands.RemoteAdmin.GhostSpectator;
 using GhostSpectator.Features;
 using LabApi.Loader.Features.Paths;
+using LabApi.Features.Wrappers;
 using Serialization;
-
 
 namespace GhostSpectator
 {
@@ -308,6 +308,6 @@ namespace GhostSpectator
 
         private static Translation translation;
 
-        private static readonly string filePath = Path.Combine(PathManager.Configs.FullName, "GhostSpectator", "translation.yml");
+        private static readonly string filePath = Path.Combine(PathManager.Configs.FullName, Server.Port.ToString(), "GhostSpectator", "translation.yml");
     }
 }

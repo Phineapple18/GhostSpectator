@@ -19,7 +19,7 @@ namespace GhostSpectator.Commands.ClientConsole
     {
         public GhostSettings()
         {
-            translation = Translation.AccessTranslation();
+            Translation translation = Translation.AccessTranslation();
             Command = translation.GhostsettingsCommand ?? _command;
             Description = translation.GhostsettingsDescription;
             Aliases = translation.GhostsettingsAliases;
@@ -30,51 +30,51 @@ namespace GhostSpectator.Commands.ClientConsole
         {
             if (MainClass.Instance== null)
             {
-                response = translation.PluginNotEnabled;
-                Log.Debug("Plugin GhostSpectator is not enabled.", translation.Debug);
+                response = Translation.PluginNotEnabled;
+                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
                 return false;
             }
             if (SSGhostSpectator.Singleton == null)
             {
-                response = translation.SssNotEnabled;
-                Log.Debug("Server-specific settings for GhostSpectator plugin are not enabled.", translation.Debug);
+                response = Translation.SssNotEnabled;
+                Log.Debug($"Server-specific settings for {MainClass.Instance.Name} plugin are not enabled.", Translation.Debug);
                 return false;
             }
             if (sender == null)
             {
-                response = translation.SenderNull;
+                response = Translation.SenderNull;
                 Log.Debug("Command sender doesn't exist.", Config.Debug);
                 return false;
             }
             if (!sender.HasPermissions("gs.settings.activate"))
             {
-                response = translation.NoPermission;
+                response = Translation.NoPermission;
                 Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug);
                 return false;
             }
             if (!Round.IsRoundStarted)
             {
-                response = translation.RoundNotStarted;
+                response = Translation.RoundNotStarted;
                 Log.Debug($"Player {sender.LogName} tried to use this command before round start.", Config.Debug);
                 return false;
             }
             Player commandsender = Player.Get(sender);
             if (!commandsender.IsGhost())
             {
-                response = translation.NotGhostNorSpectator;
+                response = Translation.NotGhostNorSpectator;
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
                 return false;
             }
             if (SSGhostSpectator.Singleton.lastSentPages.ContainsKey(commandsender.ReferenceHub))
             {
                 SSGhostSpectator.Singleton.DeactivateForHub(commandsender.ReferenceHub);
-                response = translation.GhostsettingsDeactivated;
+                response = Translation.GhostsettingsDeactivated;
                 Log.Debug($"Player {commandsender.Nickname} deactivated their ghost settings.", Config.Debug);
             }
             else
             {
                 SSGhostSpectator.Singleton.ActivateForHub(commandsender.ReferenceHub);
-                response = translation.GhostsettingsActivated;
+                response = Translation.GhostsettingsActivated;
                 Log.Debug($"Player {commandsender.Nickname} activated their ghost settings.", Config.Debug);
             }
             return true;
@@ -83,11 +83,11 @@ namespace GhostSpectator.Commands.ClientConsole
         internal const string _command = "ghostsettings";
         internal const string _description = "Activate or deactivate GhostSpectator Server-specific Settings.";
         internal static readonly string[] _aliases = new[] { "gset" };
-        private readonly Translation translation;
 
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
-        private static Config Config => MainClass.Instance.pluginConfig;
+        private Config Config => MainClass.Instance.pluginConfig;
+        private Translation Translation => MainClass.Instance.pluginTranslation;
     }
 }

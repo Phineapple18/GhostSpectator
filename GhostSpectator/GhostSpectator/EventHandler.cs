@@ -38,21 +38,21 @@ namespace GhostSpectator
         {
             if (ev.OldRole == RoleTypeId.Scp0492 && (ev.NewRole.RoleTypeId == RoleTypeId.Spectator || ev.Player.IsGhostSpawning()) && deadZombies.Add(ev.Player.ReferenceHub))
             {
-                Log.Debug($"Added player {ev.Player.Nickname} to dead zombies list.", config.Debug);
+                Log.Debug($"Added player {ev.Player.Nickname} to dead zombies list.", Config.Debug);
                 return;
             }
             if (!(ev.OldRole == RoleTypeId.Spectator && ev.Player.IsGhostSpawning() || (ev.Player.IsGhostDespawning() || ev.Player.IsGhost()) && ev.NewRole.RoleTypeId == RoleTypeId.Spectator))
             {
                 if (deadZombies.Remove(ev.Player.ReferenceHub))
                 {
-                    Log.Debug($"Removed player {ev.Player.Nickname} from dead zombies list.", config.Debug);
+                    Log.Debug($"Removed player {ev.Player.Nickname} from dead zombies list.", Config.Debug);
                 }
                 deathPositions.Remove(ev.Player);
                 if (ev.Player.TryGetGhostComponent(out GhostComponent component) && component.DeadTime != 0f)
                 {
                     component.DeadTime = 0f;
                     component.PreviousTeam = ev.Player.ReferenceHub.GetFaction().GetSpawnableTeam();
-                    Log.Debug($"Reset dead time for player {ev.Player.Nickname}.", config.Debug);
+                    Log.Debug($"Reset dead time for player {ev.Player.Nickname}.", Config.Debug);
                 }
             }
             if (ev.Player.IsGhost())
@@ -89,9 +89,9 @@ namespace GhostSpectator
         public override void OnPlayerDeath(PlayerDeathEventArgs ev)
         {
             deathPositions[ev.Player] = ev.OldPosition;
-            if (config.AutoGhostSpawn)
+            if (Config.AutoGhostSpawn)
             {
-                Timing.CallDelayed(1f, () => Ghost.Spawn(ev.Player, config.SpawnAtDeathPos));
+                Timing.CallDelayed(1f, () => Ghost.Spawn(ev.Player, Config.SpawnAtDeathPos));
             }
         }
 
@@ -116,37 +116,37 @@ namespace GhostSpectator
                 {
                     if (!ev.Player.HasPermissions("gs.teleport.player"))
                     {
-                        ev.Player.SendHint(translation.NoPermission);
+                        ev.Player.SendHint(Translation.NoPermission);
                         return;
                     }
-                    IEnumerable<Player> validPlayers = Player.List.Where(p => p.IsAlive && !(p.IsGhost() || p.Role == RoleTypeId.Scp079 || config.RoleTeleportBlacklist.Contains(p.Role)));
+                    IEnumerable<Player> validPlayers = Player.List.Where(p => p.IsAlive && !(p.IsGhost() || p.Role == RoleTypeId.Scp079 || Config.RoleTeleportBlacklist.Contains(p.Role)));
                     if (validPlayers.IsEmpty())
                     {
-                        ev.Player.SendHint(translation.TeleportPlayerFail);
-                        Log.Debug($"Player {ev.Player.Nickname} failed to teleport due to missing valid players.", config.Debug);
+                        ev.Player.SendHint(Translation.TeleportPlayerFail);
+                        Log.Debug($"Player {ev.Player.Nickname} failed to teleport due to missing valid players.", Config.Debug);
                         return;
                     }
                     Player target = validPlayers.ElementAt(random.Next(validPlayers.Count()));
                     ev.Player.Position = target.Position + Vector3.up;
-                    ev.Player.SendHint(translation.TeleportPlayerSuccess.Replace("%playernick%", target.Nickname), 5f);
-                    Log.Debug($"Player {ev.Player.Nickname} was successfully teleported to player {target.Nickname}.", config.Debug);
+                    ev.Player.SendHint(Translation.TeleportPlayerSuccess.Replace("%playernick%", target.Nickname), 5f);
+                    Log.Debug($"Player {ev.Player.Nickname} was successfully teleported to player {target.Nickname}.", Config.Debug);
                     return;
                 }
                 if (!ev.Player.HasPermissions("gs.teleport.room"))
                 {
-                    ev.Player.SendHint(translation.NoPermission);
+                    ev.Player.SendHint(Translation.NoPermission);
                     return;
                 }
                 if (Warhead.IsDetonated)
                 {
-                    ev.Player.SendHint(translation.TeleportRoomFail);
-                    Log.Debug($"Player {ev.Player.Nickname} failed to teleport, because the warhead is already detonated.", config.Debug);
+                    ev.Player.SendHint(Translation.TeleportRoomFail);
+                    Log.Debug($"Player {ev.Player.Nickname} failed to teleport, because the warhead is already detonated.", Config.Debug);
                     return;
                 }
                 IEnumerable<Room> rooms = Room.List.Where(r => r.Name is RoomName.Unnamed or RoomName.Outside);
                 Room room = rooms.ElementAt(random.Next(rooms.Count()));
                 ev.Player.Position = room.Position + Vector3.up;
-                Log.Debug($"Player {ev.Player.Nickname} was successfully teleported to a random room.", config.Debug);
+                Log.Debug($"Player {ev.Player.Nickname} was successfully teleported to a random room.", Config.Debug);
                 return;
             }
             if (!ev.Player.HasPermissions("gs.item"))
@@ -157,7 +157,7 @@ namespace GhostSpectator
                     return;
                 }
                 ev.Player.RemoveItem(ev.Item);
-                Log.Debug($"Removed item {ev.Item.Type} from inventory of player {ev.Player.Nickname}.", config.Debug);
+                Log.Debug($"Removed item {ev.Item.Type} from inventory of player {ev.Player.Nickname}.", Config.Debug);
             }
         }
 
@@ -228,8 +228,8 @@ namespace GhostSpectator
         {
             if (ev.Player.IsGhost())
             {
-                ev.Player.Position = config.SpawnPositions != null ? config.SpawnPositions.ElementAt(random.Next(config.SpawnPositions.Count)) : Ghost.DeafultSpawn;
-                Log.Debug($"Player {ev.Player.Nickname} exited safely Pocket Dimension as a Ghost.", config.Debug);
+                ev.Player.Position = Config.SpawnPositions != null ? Config.SpawnPositions.ElementAt(random.Next(Config.SpawnPositions.Count)) : Ghost.DeafultSpawn;
+                Log.Debug($"Player {ev.Player.Nickname} exited safely Pocket Dimension as a Ghost.", Config.Debug);
                 ev.IsAllowed = false;
             }
         }
@@ -239,11 +239,11 @@ namespace GhostSpectator
             if (ev.Player.TryGetGhostComponent(out GhostComponent ghostComponent))
             {
                 Object.Destroy(ghostComponent);
-                Log.Debug($"Destroyed GhostComponent for player {ev.Player.Nickname}.", config.Debug);
+                Log.Debug($"Destroyed GhostComponent for player {ev.Player.Nickname}.", Config.Debug);
             }
             if (deadZombies.Remove(ev.Player.ReferenceHub))
             {
-                Log.Debug($"Removed player {ev.Player.Nickname} from dead zombies list.", config.Debug);
+                Log.Debug($"Removed player {ev.Player.Nickname} from dead zombies list.", Config.Debug);
             }
             deathPositions.Remove(ev.Player);
         }
@@ -280,7 +280,7 @@ namespace GhostSpectator
                     ev.IsAllowed = true;
                     return;
                 }
-                if (ev.Sender.IsGhost() && component.VoiceChats.Contains("ghost") && Vector3.Distance(ev.Sender.Position, ev.Player.Position) > config.HearDistance)
+                if (ev.Sender.IsGhost() && component.VoiceChats.Contains("ghost") && Vector3.Distance(ev.Sender.Position, ev.Player.Position) > Config.HearDistance)
                 {
                     ev.Message.Channel = VoiceChatChannel.RoundSummary;
                     ev.IsAllowed = true;
@@ -422,7 +422,7 @@ namespace GhostSpectator
             {
                 Ghost.Despawn(player, player.Role, false);
             }
-            Log.Debug("Despawned all Ghosts due to round end.", config.Debug);
+            Log.Debug("Despawned all Ghosts due to round end.", Config.Debug);
         }
 
         public override void OnServerWaitingForPlayers()
@@ -434,7 +434,7 @@ namespace GhostSpectator
 
         public override void OnWarheadDetonated(WarheadDetonatedEventArgs ev)
         {
-            if (config.DespawnOnDetonation)
+            if (Config.DespawnOnDetonation)
             {
                 foreach (Player player in Ghost.List)
                 {
@@ -443,7 +443,7 @@ namespace GhostSpectator
                         Ghost.Despawn(player);
                     }
                 }
-                Log.Debug("Despawned all Ghosts, who don't have permission, due to warhead detonation.", config.Debug);
+                Log.Debug("Despawned all Ghosts, who don't have permission, due to warhead detonation.", Config.Debug);
             }
         }
 
@@ -451,7 +451,7 @@ namespace GhostSpectator
         internal static Dictionary<Player, Vector3> deathPositions = new();
         private readonly System.Random random = new();
 
-        private readonly Config config = MainClass.Instance.pluginConfig;
-        private readonly Translation translation = MainClass.Instance.pluginTranslation;
+        private Config Config => MainClass.Instance.pluginConfig;
+        private Translation Translation => MainClass.Instance.pluginTranslation;
     }
 }

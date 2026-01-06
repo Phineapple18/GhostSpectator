@@ -26,13 +26,13 @@ namespace GhostSpectator.Features
     {
         public SSGhostSpectator()
         {
-            currentPage = translation.CurrentPage ?? "Current Page";
-            Headers = (translation.PageHeaders == null || translation.PageHeaders.Count() != 4 || translation.PageHeaders.Any(h => h == null)) ? _headers : translation.PageHeaders;
-            DuelActionOptions = (translation.DuelActions == null || translation.DuelActions.Count() != 4 || translation.DuelActions.Any(h => h == null)) ? _duelActionOptions : translation.DuelActions;
-            actionSelect = translation.ActionSelect ?? "Select an action";
-            firearmSelect = translation.FirearmSelect ?? "Select firearm";
-            toySelect = translation.ToySelect ?? "Select toy type";
-            toyAreaSelect = translation.AreaSelect ?? "Select toy area";
+            currentPage = Translation.CurrentPage ?? "Current Page";
+            Headers = (Translation.PageHeaders == null || Translation.PageHeaders.Count() != 4 || Translation.PageHeaders.Any(h => h == null)) ? _headers : Translation.PageHeaders;
+            DuelActionOptions = (Translation.DuelActions == null || Translation.DuelActions.Count() != 4 || Translation.DuelActions.Any(h => h == null)) ? _duelActionOptions : Translation.DuelActions;
+            actionSelect = Translation.ActionSelect ?? "Select an action";
+            firearmSelect = Translation.FirearmSelect ?? "Select firearm";
+            toySelect = Translation.ToySelect ?? "Select toy type";
+            toyAreaSelect = Translation.AreaSelect ?? "Select toy area";
         }
 
         public void Enable()
@@ -44,37 +44,37 @@ namespace GhostSpectator.Features
             {
                 new(Headers[0], new[]
                 {
-                    waveSettings[0] = new SSButton(null, translation.WaveInfo, translation.Press),
+                    waveSettings[0] = new SSButton(null, Translation.WaveInfo, Translation.Press),
                     waveSettings[1] = new SSTextArea(null, string.Empty)
                 }),
                 new(Headers[1], new[]
                 {
-                    voicechatSettings[0] = new SSTwoButtonsSetting(null, translation.Ghosts, translation.Enabled, translation.Disabled, true, translation.PermissionNeeded),
-                    voicechatSettings[1] = new SSTwoButtonsSetting(null, translation.Scps, translation.Enabled, translation.Disabled, true, translation.PermissionNeeded),
-                    voicechatSettings[2] = new SSTwoButtonsSetting(null, translation.Spectators, translation.Enabled, translation.Disabled, true, translation.PermissionNeeded),
+                    voicechatSettings[0] = new SSTwoButtonsSetting(null, Translation.Ghosts, Translation.Enabled, Translation.Disabled, true, Translation.PermissionNeeded),
+                    voicechatSettings[1] = new SSTwoButtonsSetting(null, Translation.Scps, Translation.Enabled, Translation.Disabled, true, Translation.PermissionNeeded),
+                    voicechatSettings[2] = new SSTwoButtonsSetting(null, Translation.Spectators, Translation.Enabled, Translation.Disabled, true, Translation.PermissionNeeded),
                 }),
                 new(Headers[2], new[]
                 {
                     toySettings[0] = new SSDropdownSetting(null, toySelect, Toy.names.ToArray()),
-                    toySettings[1] = new SSButton(null, translation.ToyCreate, translation.Press),
-                    toySettings[2] = new SSGroupHeader (translation.ToyManage),
-                    toySettings[3] = new SSButton(null, translation.ToyList, translation.Press),
+                    toySettings[1] = new SSButton(null, Translation.ToyCreate, Translation.Press),
+                    toySettings[2] = new SSGroupHeader (Translation.ToyManage),
+                    toySettings[3] = new SSButton(null, Translation.ToyList, Translation.Press),
                     toySettings[4] = new SSTextArea(null, string.Empty),
-                    toySettings[5] = new SSPlaintextSetting(null, translation.ToyNetid, "...", 3, ContentType.Standard, null, 255, true),
-                    toySettings[6] = new SSButton(null, translation.ToyDestroy, translation.Hold, 1f),
-                    toySettings[7] = new SSGroupHeader (translation.ToyAreas),
+                    toySettings[5] = new SSPlaintextSetting(null, Translation.ToyNetid, "...", 3, ContentType.Standard, null, 255, true),
+                    toySettings[6] = new SSButton(null, Translation.ToyDestroy, Translation.Hold, 1f),
+                    toySettings[7] = new SSGroupHeader (Translation.ToyAreas),
                     toySettings[8] = new SSDropdownSetting (null, toyAreaSelect, Toy.SpawnAreas.Select(a => a.Name).ToArray()),
-                    toySettings[9] = new SSButton(null, translation.AreaTeleport, translation.Hold, 0.5f),
+                    toySettings[9] = new SSButton(null, Translation.AreaTeleport, Translation.Hold, 0.5f),
                 }),
                 new(Headers[3], new[]
                 {
-                    duelSettings[0] = new SSPlaintextSetting(null, translation.GhostName, "...", 15, ContentType.Standard, translation.FullPartNickname, 255, true),
+                    duelSettings[0] = new SSPlaintextSetting(null, Translation.GhostName, "...", 15, ContentType.Standard, Translation.FullPartNickname, 255, true),
                     duelSettings[1] = new SSDropdownSetting(null, actionSelect, DuelActionOptions),
-                    duelSettings[2] = new SSButton(null, translation.ActionExecute, translation.Hold, 0.5f),
+                    duelSettings[2] = new SSButton(null, Translation.ActionExecute, Translation.Hold, 0.5f),
                     duelSettings[3] = new SSTextArea(null, string.Empty),
-                    firearmSettings[0] = new SSGroupHeader(translation.Firearms),
+                    firearmSettings[0] = new SSGroupHeader(Translation.Firearms),
                     firearmSettings[1] = new SSDropdownSetting(null, firearmSelect, Other.firearmList.Select(f => f.ToString()).ToArray()),
-                    firearmSettings[2] = new SSButton(null, translation.FirearmGive, translation.Press)
+                    firearmSettings[2] = new SSButton(null, Translation.FirearmGive, Translation.Press)
                 }),
             };
             pages.ForEach(page => page.GenerateCombinedEntries(pinnedSection));
@@ -84,7 +84,7 @@ namespace GhostSpectator.Features
             ServerSpecificSettingsSync.DefinedSettings = ghostspectatorSettings;
             ServerSpecificSettingsSync.SendOnJoinFilter = _ => false;
             ServerSpecificSettingsSync.ServerOnSettingValueReceived += this.ProcessUserInput;
-            Log.Debug("Enabled server-specific settings for GhostSpectator plugin.", config.Debug);
+            Log.Debug($"Enabled server-specific settings for {MainClass.Instance.Name} plugin.", Config.Debug);
         }
 
         public void Disable()
@@ -92,14 +92,14 @@ namespace GhostSpectator.Features
             Singleton = null;
             ServerSpecificSettingsSync.SendOnJoinFilter = null;
             ServerSpecificSettingsSync.ServerOnSettingValueReceived -= this.ProcessUserInput;
-            Log.Debug("Disabled server-specific settings for GhostSpectator plugin.", config.Debug);
+            Log.Debug($"Disabled server-specific settings for {MainClass.Instance.Name} plugin.", Config.Debug);
         }
 
         internal void ActivateForHub(ReferenceHub referenceHub)
         {
             lastSentPages.Add(referenceHub, 0);
             ServerSpecificSettingsSync.SendToPlayer(referenceHub, pages[0].CombinedEntries, null);
-            Log.Debug($"Activated server-specific settings for player {referenceHub.nicknameSync.MyNick}.", config.Debug);
+            Log.Debug($"Activated server-specific settings for player {referenceHub.nicknameSync.MyNick}.", Config.Debug);
         }
 
         internal void DeactivateForHub(ReferenceHub referenceHub)
@@ -108,7 +108,7 @@ namespace GhostSpectator.Features
             {
                 lastVoicechatSettings.Remove(referenceHub);
                 ServerSpecificSettingsSync.SendToPlayer(referenceHub, null, null);
-                Log.Debug($"Deactivated server-specific settings for player {referenceHub.nicknameSync.MyNick}.", config.Debug);
+                Log.Debug($"Deactivated server-specific settings for player {referenceHub.nicknameSync.MyNick}.", Config.Debug);
             }
         }
 
@@ -116,7 +116,7 @@ namespace GhostSpectator.Features
         {
             if (ServerSpecificSettingsSync.DefinedSettings != ghostspectatorSettings)
             {
-                Log.Debug("Current DefinedSettings doesn't belong to GhostSpectator, skipped.", config.Debug);
+                Log.Debug("Current DefinedSettings doesn't belong to GhostSpectator, skipped.", Config.Debug);
                 return;
             }
             try
@@ -133,7 +133,7 @@ namespace GhostSpectator.Features
                     argument = Other.voiceChats.ElementAt(Array.FindIndex(voicechatSettings, v => v.SettingId == ssTwoButton.SettingId));
                     if (lastVoicechatSettings.Any(s => s.Key == referenceHub && s.Value.ContainsKey(argument) && s.Value[argument] == ssTwoButton.DebugValue))
                     {
-                        Log.Debug($"Player {referenceHub.nicknameSync.MyNick} has already set this option, skipped.", config.Debug);
+                        Log.Debug($"Player {referenceHub.nicknameSync.MyNick} has already set this option, skipped.", Config.Debug);
                         return;
                     }
                     command = QueryProcessor.DotCommandHandler.AllCommands.First(c => ssTwoButton.SyncIsA ? c is EnableVoicechat : c is DisableVoicechat);
@@ -192,14 +192,14 @@ namespace GhostSpectator.Features
                             this.HandleCommand(command, referenceHub, new string[] { argument }, null, true);
                             return;
                         default:
-                            Log.Debug("Button not found.", config.Debug);
+                            Log.Debug("Button not found.", Config.Debug);
                             return;
                     }
                 }
             }
             catch (Exception exception)
             {
-                Log.Debug($"Skipped processing input for GhostSpectator due to an error: {exception}.", config.Debug);
+                Log.Debug($"Skipped processing input for {MainClass.Instance.Name} due to an error: {exception}.", Config.Debug);
             }
         }
 
@@ -212,7 +212,7 @@ namespace GhostSpectator.Features
             {
                 referenceHub.hints.Show(new TextHint(response, new HintParameter[] { new StringHintParameter(response) }));
             }
-            Log.Debug($"Player {referenceHub.nicknameSync.MyNick} used setting {command.Command}.", config.Debug);
+            Log.Debug($"Player {referenceHub.nicknameSync.MyNick} used setting {command.Command}.", Config.Debug);
         }
 
         private void ChangePage(ReferenceHub referenceHub, int settingIndex)
@@ -223,7 +223,7 @@ namespace GhostSpectator.Features
             }
             lastSentPages[referenceHub] = settingIndex;
             ServerSpecificSettingsSync.SendToPlayer(referenceHub, pages[settingIndex].CombinedEntries, null);
-            Log.Debug($"Player {referenceHub.nicknameSync.MyNick} changed server-specific settings page to {settingIndex}.", config.Debug);
+            Log.Debug($"Player {referenceHub.nicknameSync.MyNick} changed server-specific settings page to {settingIndex}.", Config.Debug);
         }
 
         internal static readonly string[] _duelActionOptions = new string[5] { "Accept a duel request", "Cancel a duel (request)", "Challenge to a duel", "Print a list", "Reject a duel" };
@@ -249,11 +249,10 @@ namespace GhostSpectator.Features
         private readonly SSTwoButtonsSetting[] voicechatSettings = new SSTwoButtonsSetting[3];
         private readonly ServerSpecificSettingBase[] waveSettings = new ServerSpecificSettingBase[2];
 
-        private readonly Config config = MainClass.Instance.pluginConfig;
-        private readonly Translation translation = MainClass.Instance.pluginTranslation;
-
         private string[] DuelActionOptions { get; }
         private string[] Headers { get; }
         public static SSGhostSpectator Singleton { get; internal set; }
+        private Config Config => MainClass.Instance.pluginConfig;
+        private Translation Translation => MainClass.Instance.pluginTranslation;
     }
 }

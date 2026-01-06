@@ -21,7 +21,7 @@ namespace GhostSpectator.Commands.ClientConsole
     {
         public GiveFirearm()
         {
-            translation = Translation.AccessTranslation();
+            Translation translation = Translation.AccessTranslation();
             Command = translation.GivefirearmCommand ?? _command;
             Description = translation.GivefirearmDescription;
             Aliases = translation.GivefirearmAliases;
@@ -33,67 +33,67 @@ namespace GhostSpectator.Commands.ClientConsole
         {
             if (MainClass.Instance == null)
             {
-                response = translation.PluginNotEnabled;
-                Log.Debug("Plugin GhostSpectator is not enabled.", translation.Debug);
+                response = Translation.PluginNotEnabled;
+                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
                 return false;
             }
             if (sender == null)
             {
-                response = translation.SenderNull;
+                response = Translation.SenderNull;
                 Log.Debug("Command sender doesn't exist.", Config.Debug);
                 return false;
             }
             if (!sender.HasPermissions("gs.firearm"))
             {
-                response = translation.NoPermission;
+                response = Translation.NoPermission;
                 Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug);
                 return false;
             }
             if (!Round.IsRoundStarted)
             {
-                response = translation.RoundNotStarted;
+                response = Translation.RoundNotStarted;
                 Log.Debug($"Player {sender.LogName} tried to use this command before round start.", Config.Debug);
                 return false;
             }
             Player commandsender = Player.Get(sender);
             if (!commandsender.IsGhost())
             {
-                response = translation.NotGhost;
+                response = Translation.NotGhost;
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
                 return false;
             }
             if (arguments.IsEmpty())
             {
-                response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
+                response = $"{Description} {Translation.Usage}: {this.DisplayCommandUsage()}";
                 Log.Debug($"Player {commandsender.Nickname} didn't provide any argument.", Config.Debug);
                 return false;
             }
             if (arguments.At(0).ToLower() == "list")
             {
-                response = $"{translation.GivefirearmList}:\n- " + string.Join("\n- ", Other.firearmList.Select(f => $"{f} ({(int)f})"));
+                response = $"{Translation.GivefirearmList}:\n- " + string.Join("\n- ", Other.firearmList.Select(f => $"{f} ({(int)f})"));
                 return true;
             }
             int gunLimit = Server.CategoryLimits[ItemCategory.Firearm];
             if (commandsender.Items.Count(i => i is FirearmItem) >= gunLimit)
             {
-                response = $"{translation.GivefirearmFailure.Replace("%categorylimit%", gunLimit.ToString())}";
+                response = $"{Translation.GivefirearmFailure.Replace("%categorylimit%", gunLimit.ToString())}";
                 return false;
             }
             ItemType itemType = ItemType.None;
             if (!(int.TryParse(arguments.At(0), out int id) || Enum.TryParse(arguments.At(0), out itemType)))
             {
-                response = translation.MustBeNumberOrType;
+                response = Translation.MustBeNumberOrType;
                 Log.Debug($"Player {commandsender.Nickname} didn't provide any item ID or type.", Config.Debug);
                 return false;
             }
             if (!(InventoryItemLoader.TryGetItem((ItemType)id, out Firearm firearm) || InventoryItemLoader.TryGetItem(itemType, out firearm)))
             {
-                response = translation.FirearmOnly;
+                response = Translation.FirearmOnly;
                 Log.Debug($"Player {commandsender.Nickname} didn't provide any firearm.", Config.Debug);
                 return false;
             }
             commandsender.AddItem(firearm.ItemTypeId, ItemAddReason.AdminCommand);
-            response = translation.GivefirearmSuccess.Replace("%itemtype%", firearm.ItemTypeId.ToString());
+            response = Translation.GivefirearmSuccess.Replace("%itemtype%", firearm.ItemTypeId.ToString());
             Log.Debug($"Player {commandsender.Nickname} has given themselves a {firearm.ItemTypeId}.", Config.Debug);
             return true;
         }
@@ -101,12 +101,12 @@ namespace GhostSpectator.Commands.ClientConsole
         internal const string _command = "givefirearm";
         internal const string _description = "Give yourself a firearm or print a list of available firearms.";
         internal static readonly string[] _aliases = new[] { "firearm", "givegun", "gun" };
-        private readonly Translation translation;
 
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
         public string[] Usage { get; }
-        private static Config Config => MainClass.Instance.pluginConfig;
+        private Config Config => MainClass.Instance.pluginConfig;
+        private Translation Translation => MainClass.Instance.pluginTranslation;
     }
 }

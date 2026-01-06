@@ -22,62 +22,61 @@ namespace GhostSpectator.Commands.ClientConsole.Toys
     {
         public Create(string command, string description, string[] aliases)
         {
-            translation = Translation.AccessTranslation();
             Command = command ?? _command;
             Description = description;
             Aliases = aliases;
             Usage = new[] { string.Join("/", Toy.names.ToArray()) };
-            Log.Debug($"Registered {this.Command} subcommand.", translation.Debug);
+            Log.Debug($"Registered {this.Command} subcommand.", Translation.AccessTranslation().Debug);
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             if (MainClass.Instance == null)
             {
-                response = translation.PluginNotEnabled;
-                Log.Debug("Plugin GhostSpectator is not enabled.", translation.Debug);
+                response = Translation.PluginNotEnabled;
+                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
                 return false;
             }
             if (sender == null)
             {
-                response = translation.SenderNull;
+                response = Translation.SenderNull;
                 Log.Debug("Command sender doesn't exist.", Config.Debug);
                 return false;
             }
             if (!sender.HasPermissions("gs.toy.create"))
             {
-                response = translation.NoPermission;
+                response = Translation.NoPermission;
                 Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug);
                 return false;
             }
             Player commandsender = Player.Get(sender);
             if (!commandsender.IsGhost())
             {
-                response = translation.NotGhost;
+                response = Translation.NotGhost;
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
                 return false;
             }
             if (Config.ToyLimit <= 0)
             {
-                response = translation.NoToysAllowed;
+                response = Translation.NoToysAllowed;
                 Log.Debug("Spawning toys is not allowed.", Config.Debug);
                 return false;
             }
             if (!Toy.SpawnAreas.Any(a => a.Bounds.Contains(commandsender.Position)))
             {
-                response = translation.WrongArea;
+                response = Translation.WrongArea;
                 Log.Debug($"Player {commandsender.Nickname} tried to create a toy outside the spawn range(s).", Config.Debug);
                 return false;
             }
             if (!(commandsender.RoleBase as IFpcRole).FpcModule.IsGrounded)
             {
-                response = translation.NotGrounded;
+                response = Translation.NotGrounded;
                 Log.Debug($"Player {commandsender.Nickname} must stand on the ground.", Config.Debug);
                 return false;
             }
             if (arguments.IsEmpty())
             {
-                response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
+                response = $"{Description} {Translation.Usage}: {this.DisplayCommandUsage()}";
                 Log.Debug($"Player {commandsender.Nickname} didn't provide any argument.", Config.Debug);
                 return false;
             }
@@ -88,7 +87,7 @@ namespace GhostSpectator.Commands.ClientConsole.Toys
             }
             catch (Exception)
             {
-                response = translation.WrongArgument;
+                response = Translation.WrongArgument;
                 Log.Debug($"Player {commandsender.Nickname} provided non-existent argument.", Config.Debug);
                 return false;
             }
@@ -99,7 +98,7 @@ namespace GhostSpectator.Commands.ClientConsole.Toys
                 Log.Debug($"Destroyed first toy due to toy limit ({Config.ToyLimit}).", Config.Debug);
             }
             AdminToyBase toy = Toy.Create(commandsender, toyBase, arguments);
-            response = translation.CreateSuccess.Replace("%toyname%", toy.CommandName).Replace("%toyid%", toy.netId.ToString());
+            response = Translation.CreateSuccess.Replace("%toyname%", toy.CommandName).Replace("%toyid%", toy.netId.ToString());
             Log.Debug($"Player {commandsender.Nickname} created a toy ({toy.CommandName}) with ID {toy.netId}.", Config.Debug);
             return true;
         }
@@ -107,12 +106,12 @@ namespace GhostSpectator.Commands.ClientConsole.Toys
         internal const string _command = "create";
         internal const string _description = "Create a toy.";
         internal static readonly string[] _aliases = new[] { "c" };
-        private readonly Translation translation;
 
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
         public string[] Usage { get; }
-        private static Config Config => MainClass.Instance.pluginConfig;
+        private Config Config => MainClass.Instance.pluginConfig;
+        private Translation Translation => MainClass.Instance.pluginTranslation;
     }
 }

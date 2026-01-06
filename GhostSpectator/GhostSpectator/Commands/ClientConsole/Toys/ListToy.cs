@@ -17,48 +17,47 @@ namespace GhostSpectator.Commands.ClientConsole.Toys
     {
         public ListToy(string command, string description, string[] aliases)
         {
-            translation = Translation.AccessTranslation();
             Command = command ?? _command;
             Description = description;
             Aliases = aliases;
-            Log.Debug($"Registered {this.Command} subcommand.", translation.Debug);
+            Log.Debug($"Registered {this.Command} subcommand.", Translation.AccessTranslation().Debug);
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             if (MainClass.Instance == null)
             {
-                response = translation.PluginNotEnabled;
-                Log.Debug("Plugin GhostSpectator is not enabled.", translation.Debug);
+                response = Translation.PluginNotEnabled;
+                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
                 return false;
             }
             if (sender == null)
             {
-                response = translation.SenderNull;
+                response = Translation.SenderNull;
                 Log.Debug("Command sender doesn't exist.", Config.Debug);
                 return false;
             }
             Player commandsender = Player.Get(sender);
             if (!commandsender.IsGhost())
             {
-                response = translation.NotGhost;
+                response = Translation.NotGhost;
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
                 return false;
             }
             GhostComponent component = commandsender.GetGhostComponent();
-            response = $"{translation.ListtoySuccess}:\n- {string.Join("\n- ", component.Toys.Select(t => $"{t.CommandName} ({t.netId})"))}";
+            response = $"{Translation.ListtoySuccess}:\n- {string.Join("\n- ", component.Toys.Select(t => $"{t.CommandName} ({t.netId})"))}";
             return true;
         }
 
         internal const string _command = "list";
         internal const string _description = "Print a list of all the toys you created.";
         internal static readonly string[] _aliases = new[] { "l" };
-        private static Translation translation;
 
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
         public string[] Usage { get; }
-        private static Config Config => MainClass.Instance.pluginConfig;
+        private Config Config => MainClass.Instance.pluginConfig;
+        private Translation Translation => MainClass.Instance.pluginTranslation;
     }
 }

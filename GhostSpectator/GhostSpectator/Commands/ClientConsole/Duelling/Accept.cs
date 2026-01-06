@@ -18,57 +18,56 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
     {
         public Accept(string command, string description, string[] aliases)
         {
-            translation = Translation.AccessTranslation();
             Command = command ?? _command;
             Description = description;
             Aliases = aliases;
             Usage = new[] { "PlayerNickname (whole or part, case-insensitive)" };
-            Log.Debug($"Registered {this.Command} subcommand.", translation.Debug);
+            Log.Debug($"Registered {this.Command} subcommand.", Translation.AccessTranslation().Debug);
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             if (MainClass.Instance == null)
             {
-                response = translation.PluginNotEnabled;
-                Log.Debug("Plugin GhostSpectator is not enabled.", translation.Debug);
+                response = Translation.PluginNotEnabled;
+                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
                 return false;
             }
             if (sender == null)
             {
-                response = translation.SenderNull;
+                response = Translation.SenderNull;
                 Log.Debug("Command sender doesn't exist.", Config.Debug);
                 return false;
             }
             if (!sender.HasPermissions("gs.duel"))
             {
-                response = translation.NoPermission;
+                response = Translation.NoPermission;
                 Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug);
                 return false;
             }
             if (Warhead.IsDetonated)
             {
-                response = translation.WarheadDetonated;
+                response = Translation.WarheadDetonated;
                 Log.Debug($"Player {sender.LogName} tried to use this command after warhead detonation.", Config.Debug);
                 return false;
             }
             Player commandsender = Player.Get(sender);
             if (!commandsender.IsGhost())
             {
-                response = translation.NotGhost;
+                response = Translation.NotGhost;
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
                 return false;
             }
             if (arguments.IsEmpty() || arguments.At(0) == string.Empty)
             {
-                response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
+                response = $"{Description} {Translation.Usage}: {this.DisplayCommandUsage()}";
                 Log.Debug($"Player {commandsender.Nickname} didn't provide arguments.", Config.Debug);
                 return false;
             }
             List<Player> allRequesters = (from p in Duel.Requests where p.Value.Item1 == commandsender select p.Key).ToList();
             if (allRequesters.IsEmpty())
             {
-                response = translation.NoDuelRequests;
+                response = Translation.NoDuelRequests;
                 Log.Debug($"Player {commandsender.Nickname} has no duel requests.", Config.Debug);
                 return false;
             }
@@ -76,12 +75,12 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
             requester ??= allRequesters.FirstOrDefault(p => p.Nickname.IndexOf(string.Join(" ", arguments), StringComparison.OrdinalIgnoreCase) >= 0, null);
             if (requester == null)
             {
-                response = translation.NoPlayers;
+                response = Translation.NoPlayers;
                 Log.Debug("Provided player(s) doesn't exist.", Config.Debug);
                 return false;
             }
             commandsender.Accept(requester, allRequesters);
-            response = translation.AcceptSuccess.Replace("%playernick%", requester.Nickname);
+            response = Translation.AcceptSuccess.Replace("%playernick%", requester.Nickname);
             Log.Debug($"Player {commandsender.Nickname} has accepted a duel request from {requester.Nickname}.", Config.Debug);
             return true;
         }
@@ -89,12 +88,12 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
         internal const string _command = "accept";
         internal const string _description = "Accept a duel offer from other Ghost.";
         internal static readonly string[] _aliases = new[] { "a" };
-        private readonly Translation translation;
 
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
         public string[] Usage { get; }
-        private static Config Config => MainClass.Instance.pluginConfig;
+        private Config Config => MainClass.Instance.pluginConfig;
+        private Translation Translation => MainClass.Instance.pluginTranslation;
     }
 }

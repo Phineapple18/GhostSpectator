@@ -37,8 +37,8 @@ namespace GhostSpectator.Commands.RemoteAdmin.GhostSpectator
         {
             if (MainClass.Instance == null)
             {
-                response = translation.PluginNotEnabled;
-                Log.Debug("Plugin GhostSpectator is not enabled.", translation.Debug);
+                response = MainClass.Instance.pluginTranslation.PluginNotEnabled;
+                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", MainClass.Instance.pluginTranslation.Debug);
                 return false;
             }
             StringBuilder stringBuilder = StringBuilderPool.Shared.Rent();

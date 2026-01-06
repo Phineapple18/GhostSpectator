@@ -19,7 +19,7 @@ namespace GhostSpectator.Commands.ClientConsole
     {
         public GhostMe()
         {
-            translation = Translation.AccessTranslation();
+            Translation translation = Translation.AccessTranslation();
             Command = translation.GhostmeCommand ?? _command;
             Description = translation.GhostmeDescription;
             Aliases = translation.GhostmeAliases;
@@ -31,25 +31,25 @@ namespace GhostSpectator.Commands.ClientConsole
         {
             if (MainClass.Instance == null)
             {
-                response = translation.PluginNotEnabled;
-                Log.Debug("Plugin GhostSpectator is not enabled.", translation.Debug);
+                response = Translation.PluginNotEnabled;
+                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
                 return false;
             }
             if (sender == null)
             {
-                response = translation.SenderNull;
+                response = Translation.SenderNull;
                 Log.Debug("Command sender doesn't exist.", Config.Debug);
                 return false;
             }
             if (!sender.HasPermissions("gs.spawn.self"))
             {
-                response = translation.NoPermission;
+                response = Translation.NoPermission;
                 Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug);
                 return false;
             }
             if (!Round.IsRoundStarted)
             {
-                response = translation.RoundNotStarted;
+                response = Translation.RoundNotStarted;
                 Log.Debug($"Player {sender.LogName} tried to use this command before round start.", Config.Debug);
                 return false;
             }
@@ -58,7 +58,7 @@ namespace GhostSpectator.Commands.ClientConsole
             if (commandsender.IsGhost())
             {
                 Ghost.Despawn(commandsender);
-                response = translation.GhostmeSpecSuccess;
+                response = Translation.GhostmeSpecSuccess;
                 Log.Debug($"Player {commandsender.Nickname} turned themselves into Spectator.", Config.Debug);
                 return true;
             }
@@ -66,21 +66,21 @@ namespace GhostSpectator.Commands.ClientConsole
             {
                 if (Warhead.IsDetonated && Config.DespawnOnDetonation && !commandsender.HasPermissions("gs.warhead"))
                 {
-                    response = translation.WarheadDetonated;
+                    response = Translation.WarheadDetonated;
                     Log.Debug($"Player {commandsender.Nickname} doesn't have permission to spawn as Ghost after warhead detonation.", Config.Debug);
                     return false;
                 }
                 if (deathPosition && !Config.SpawnAtDeathPos)
                 {
-                    response = translation.DeathPositionDisabled;
+                    response = Translation.DeathPositionDisabled;
                     return false;
                 }
                 Ghost.Spawn(commandsender, deathPosition);
-                response = translation.GhostmeGhostSuccess;
+                response = Translation.GhostmeGhostSuccess;
                 Log.Debug($"Player {commandsender.Nickname} turned themselves into Ghost.", Config.Debug);
                 return true;
             }
-            response = translation.GhostmeFail;
+            response = Translation.GhostmeFail;
             Log.Debug($"Player {commandsender.Nickname} is neither a Ghost nor Spectator.", Config.Debug);
             return false;
         }
@@ -88,12 +88,12 @@ namespace GhostSpectator.Commands.ClientConsole
         internal const string _command = "ghostme";
         internal const string _description = "Spawn yourself as a Ghost or change back to Spectator. Use \"dpl\" to spawn at your death's position.";
         internal static readonly string[] _aliases = new[] { "gme", "me" };
-        private readonly Translation translation;
 
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
         public string[] Usage { get; }
-        private static Config Config => MainClass.Instance.pluginConfig;
+        private Config Config => MainClass.Instance.pluginConfig;
+        private Translation Translation => MainClass.Instance.pluginTranslation;
     }
 }

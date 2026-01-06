@@ -118,8 +118,8 @@ namespace GhostSpectator.Features.Extensions
 
         public static IEnumerable<Player> List => Player.List.Where(p => p.IsGhost());
         internal static Vector3 DeafultSpawn { get; } = new(9f, 302f, 1f);
-
         private static Config Config => MainClass.Instance.pluginConfig;
-        private static readonly System.Random random = new();
+
+        private static readonly System.Random random = new(); 
     }
 }

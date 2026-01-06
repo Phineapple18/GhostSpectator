@@ -28,7 +28,7 @@ namespace GhostSpectator.Commands.RemoteAdmin.GhostSettings
             if (MainClass.Instance == null)
             {
                 response = translation.PluginNotEnabled;
-                Log.Debug("Plugin GhostSpectator is not enabled.", translation.Debug);
+                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", translation.Debug);
                 return false;
             }
             if (sender == null)
