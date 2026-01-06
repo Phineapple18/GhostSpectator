@@ -1,4 +1,4 @@
-# GhostSpectator (3.3.0)
+# GhostSpectator (3.3.1)
 Plugin for the "SCP: Secret Laboratory" game, that allows players to turn into Ghosts: Tutorials undetectable to alive players and not affecting the round. Depending on the config, Ghosts can perform various activities f.e teleport to alive players or random rooms, spawn a toy or challenge another Ghost to a duel.
 
 ## Features
