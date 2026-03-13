@@ -26,7 +26,7 @@ namespace GhostSpectator.Patches
     }
 
     [HarmonyPatch(typeof(Scp049ResurrectAbility), "CheckBeginConditions")]
-    internal class BeginConditionsPatchNEW
+    internal class BeginConditionsPatch
     {
         internal static void Postfix(Scp049ResurrectAbility __instance, BasicRagdoll ragdoll, ref ResurrectError __result)
         {
