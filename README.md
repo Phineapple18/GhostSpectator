@@ -59,21 +59,21 @@ The translation file is in the same folder as the config file and allows you to 
 *IMPORTANT:* If you translate command names and/or aliases (except subcommands), make sure not to duplicate them.
 
 ## Remote Admin Commands
-1. ghostspectator - allows managing the Ghosts. Subcommands: despawn, list, spawn
-2. ghostsettings - allows managing server-specific settings. Subcommands: disable, enable, reload
+1. *ghostspectator* - allows managing the Ghosts. Subcommands: despawn, list, spawn
+2. *ghostsettings* - allows managing server-specific settings. Subcommands: disable, enable, reload
 
 ## Client Console Commands
-1. duel - allows managing the duels. Subcommands: accept, cancel, challenge, list, reject
-2. toy - allows managing the toys. Subcommands: create, destroy, list
-3. voicechat - allows managing the voicechats. Subcommands: disable, enable, list
+1. *duel* - allows managing the duels. Subcommands: accept, cancel, challenge, list, reject
+2. *toy* - allows managing the toys. Subcommands: create, destroy, list
+3. *voicechat* - allows managing the voicechats. Subcommands: disable, enable, list
 
 ### Miscellanous commands
-- deathmatch - joining and leaving a deathmatch
-- ghostme - self ghost spawning and despawning
-- ghostsettings - activating and deactivating servr-specific settings for self
-- givefirearm - giving or printing list of firearms
-- toyareateleport - teleporting to area, where ghosts can spawn toys
-- waveinfo - checking wave timers and tokens
+1. *deathmatch* - joining and leaving a deathmatch
+2. *ghostme* - self ghost spawning and despawning
+3. *ghostsettings* - activating and deactivating servr-specific settings for self
+4. *givefirearm* - giving or printing list of firearms
+5. *toyareateleport* - teleporting to area, where ghosts can spawn toys
+5. *waveinfo* - checking wave timers and tokens
 
 ## Permissions
 - gs.deathmatch - allows a player to use *deathmatch* command
