@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Log = LabApi.Features.Console.Logger;
-
 using CommandSystem;
 using GhostSpectator.Commands.ClientConsole;
 using GhostSpectator.Commands.ClientConsole.Duelling;
@@ -14,11 +12,12 @@ using GhostSpectator.Commands.ClientConsole.Voicechat;
 using GhostSpectator.Features.Extensions;
 using Hints;
 using RemoteAdmin;
-using static TMPro.TMP_InputField;
 using UserSettings.ServerSpecific;
 using UserSettings.ServerSpecific.Examples;
-using static UserSettings.ServerSpecific.SSDropdownSetting;
 using Utils.NonAllocLINQ;
+using static TMPro.TMP_InputField;
+using static UserSettings.ServerSpecific.SSDropdownSetting;
+using Log = LabApi.Features.Console.Logger;
 
 namespace GhostSpectator.Features
 {
@@ -27,12 +26,9 @@ namespace GhostSpectator.Features
         public SSGhostSpectator()
         {
             currentPage = Translation.CurrentPage ?? "Current Page";
-            Headers = (Translation.PageHeaders == null || Translation.PageHeaders.Count() != 4 || Translation.PageHeaders.Any(h => h == null)) ? _headers : Translation.PageHeaders;
-            DuelActionOptions = (Translation.DuelActions == null || Translation.DuelActions.Count() != 4 || Translation.DuelActions.Any(h => h == null)) ? _duelActionOptions : Translation.DuelActions;
-            actionSelect = Translation.ActionSelect ?? "Select an action";
-            firearmSelect = Translation.FirearmSelect ?? "Select firearm";
-            toySelect = Translation.ToySelect ?? "Select toy type";
-            toyAreaSelect = Translation.AreaSelect ?? "Select toy area";
+            Headers = Translation.PageHeaders?.Count(h => h != null) == 4 ? Translation.PageHeaders : _headers;
+            DuelActions = Translation.DuelActions?.Count(h => h != null) == 5 ? Translation.DuelActions : _duelActions;
+            Selections = Translation.Selections?.Count(h => h != null) == 4 ? Translation.Selections : _selections;
         }
 
         public void Enable()
@@ -44,18 +40,20 @@ namespace GhostSpectator.Features
             {
                 new(Headers[0], new[]
                 {
-                    waveSettings[0] = new SSButton(null, Translation.WaveInfo, Translation.Press),
-                    waveSettings[1] = new SSTextArea(null, string.Empty)
+                    duelSettings[0] = new SSPlaintextSetting(null, Translation.GhostName, "...", 15, ContentType.Standard, Translation.FullPartNickname, 255, true),
+                    duelSettings[1] = new SSDropdownSetting(null, Selections[0], DuelActions),
+                    duelSettings[2] = new SSButton(null, Translation.ActionExecute, Translation.Hold, 0.5f),
+                    duelSettings[3] = new SSTextArea(null, string.Empty),
+                    firearmSettings[0] = new SSGroupHeader(Translation.Firearms),
+                    firearmSettings[1] = new SSDropdownSetting(null, Selections[1], GiveFirearm.firearmList.Select(f => f.ToString()).ToArray()),
+                    firearmSettings[2] = new SSButton(null, Translation.FirearmGive, Translation.Press),
+                    deathmatchSettings[0] = new SSGroupHeader(Translation.DeathMatch),
+                    deathmatchSettings[1] = new SSButton(null, Translation.DeathmatchJoin, Translation.Press),
+                    deathmatchSettings[2] = new SSButton(null, Translation.DeathmatchLeave, Translation.Press)
                 }),
                 new(Headers[1], new[]
                 {
-                    voicechatSettings[0] = new SSTwoButtonsSetting(null, Translation.Ghosts, Translation.Enabled, Translation.Disabled, true, Translation.PermissionNeeded),
-                    voicechatSettings[1] = new SSTwoButtonsSetting(null, Translation.Scps, Translation.Enabled, Translation.Disabled, true, Translation.PermissionNeeded),
-                    voicechatSettings[2] = new SSTwoButtonsSetting(null, Translation.Spectators, Translation.Enabled, Translation.Disabled, true, Translation.PermissionNeeded),
-                }),
-                new(Headers[2], new[]
-                {
-                    toySettings[0] = new SSDropdownSetting(null, toySelect, Toy.names.ToArray()),
+                    toySettings[0] = new SSDropdownSetting(null, Selections[2], ToyExtensions.toyNames.Values.ToArray()),
                     toySettings[1] = new SSButton(null, Translation.ToyCreate, Translation.Press),
                     toySettings[2] = new SSGroupHeader (Translation.ToyManage),
                     toySettings[3] = new SSButton(null, Translation.ToyList, Translation.Press),
@@ -63,18 +61,19 @@ namespace GhostSpectator.Features
                     toySettings[5] = new SSPlaintextSetting(null, Translation.ToyNetid, "...", 3, ContentType.Standard, null, 255, true),
                     toySettings[6] = new SSButton(null, Translation.ToyDestroy, Translation.Hold, 1f),
                     toySettings[7] = new SSGroupHeader (Translation.ToyAreas),
-                    toySettings[8] = new SSDropdownSetting (null, toyAreaSelect, Toy.SpawnAreas.Select(a => a.Name).ToArray()),
+                    toySettings[8] = new SSDropdownSetting (null, Selections[3], ToyExtensions.ToySpawnAreas.Select(a => a.Name).ToArray()),
                     toySettings[9] = new SSButton(null, Translation.AreaTeleport, Translation.Hold, 0.5f),
+                }),
+                new(Headers[2], new[]
+                {
+                    voicechatSettings[0] = new SSTwoButtonsSetting(null, Translation.Ghosts, Translation.Enabled, Translation.Disabled, true, Translation.PermissionNeeded),
+                    voicechatSettings[1] = new SSTwoButtonsSetting(null, Translation.Scps, Translation.Enabled, Translation.Disabled, true, Translation.PermissionNeeded),
+                    voicechatSettings[2] = new SSTwoButtonsSetting(null, Translation.Spectators, Translation.Enabled, Translation.Disabled, true, Translation.PermissionNeeded),
                 }),
                 new(Headers[3], new[]
                 {
-                    duelSettings[0] = new SSPlaintextSetting(null, Translation.GhostName, "...", 15, ContentType.Standard, Translation.FullPartNickname, 255, true),
-                    duelSettings[1] = new SSDropdownSetting(null, actionSelect, DuelActionOptions),
-                    duelSettings[2] = new SSButton(null, Translation.ActionExecute, Translation.Hold, 0.5f),
-                    duelSettings[3] = new SSTextArea(null, string.Empty),
-                    firearmSettings[0] = new SSGroupHeader(Translation.Firearms),
-                    firearmSettings[1] = new SSDropdownSetting(null, firearmSelect, Other.firearmList.Select(f => f.ToString()).ToArray()),
-                    firearmSettings[2] = new SSButton(null, Translation.FirearmGive, Translation.Press)
+                    waveSettings[0] = new SSButton(null, Translation.WaveInfo, Translation.Press),
+                    waveSettings[1] = new SSTextArea(null, string.Empty)
                 }),
             };
             pages.ForEach(page => page.GenerateCombinedEntries(pinnedSection));
@@ -130,7 +129,7 @@ namespace GhostSpectator.Features
                 string argument;
                 if (setting is SSTwoButtonsSetting ssTwoButton)
                 {
-                    argument = Other.voiceChats.ElementAt(Array.FindIndex(voicechatSettings, v => v.SettingId == ssTwoButton.SettingId));
+                    argument = VoicechatParent.voiceChats.ElementAt(Array.FindIndex(voicechatSettings, v => v.SettingId == ssTwoButton.SettingId));
                     if (lastVoicechatSettings.Any(s => s.Key == referenceHub && s.Value.ContainsKey(argument) && s.Value[argument] == ssTwoButton.DebugValue))
                     {
                         Log.Debug($"Player {referenceHub.nicknameSync.MyNick} has already set this option, skipped.", Config.Debug);
@@ -153,9 +152,25 @@ namespace GhostSpectator.Features
                 {
                     switch (ssButton.SettingId)
                     {
-                        case int i when i == waveSettings[0].SettingId:
-                            command = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is CheckWaveInfo);
-                            this.HandleCommand(command, referenceHub, new string[0], (SSTextArea)waveSettings[1]);
+                        case int i when i == duelSettings[2].SettingId:
+                            parentCommand = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is DuelParent) as ParentCommand;
+                            int action = ServerSpecificSettingsSync.GetSettingOfUser<SSDropdownSetting>(referenceHub, duelSettings[1].SettingId).SyncSelectionIndexRaw;
+                            command = parentCommand.AllCommands.ElementAt(action);
+                            argument = ServerSpecificSettingsSync.GetSettingOfUser<SSPlaintextSetting>(referenceHub, duelSettings[0].SettingId).SyncInputText;
+                            this.HandleCommand(command, referenceHub, new string[] { argument }, command is ListDuel ? (SSTextArea)duelSettings[3] : null, true);
+                            return;
+                        case int i when i == firearmSettings[2].SettingId:
+                            command = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is GiveFirearm);
+                            argument = ServerSpecificSettingsSync.GetSettingOfUser<SSDropdownSetting>(referenceHub, firearmSettings[1].SettingId).SyncSelectionText;
+                            this.HandleCommand(command, referenceHub, new string[] { argument }, null, true);
+                            return;
+                        case int i when i == deathmatchSettings[1].SettingId:
+                            command = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is Deathmatch);
+                            this.HandleCommand(command, referenceHub, new string[] { "join" }, null, true);
+                            return;
+                        case int i when i == deathmatchSettings[2].SettingId:
+                            command = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is Deathmatch);
+                            this.HandleCommand(command, referenceHub, new string[] { "leave" }, null, true);
                             return;
                         case int i when i == toySettings[1].SettingId:
                             parentCommand = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is ToyParent) as ParentCommand;
@@ -179,17 +194,9 @@ namespace GhostSpectator.Features
                             argument = ServerSpecificSettingsSync.GetSettingOfUser<SSDropdownSetting>(referenceHub, toySettings[8].SettingId).SyncSelectionText;
                             this.HandleCommand(command, referenceHub, new string[] { argument }, null, true);
                             return;
-                        case int i when i == duelSettings[2].SettingId:
-                            parentCommand = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is DuelParent) as ParentCommand;
-                            int action = ServerSpecificSettingsSync.GetSettingOfUser<SSDropdownSetting>(referenceHub, duelSettings[1].SettingId).SyncSelectionIndexRaw;
-                            command = parentCommand.AllCommands.ElementAt(action);
-                            argument = ServerSpecificSettingsSync.GetSettingOfUser<SSPlaintextSetting>(referenceHub, duelSettings[0].SettingId).SyncInputText;
-                            this.HandleCommand(command, referenceHub, new string[] { argument }, command is ListDuel ? (SSTextArea)duelSettings[3] : null, true);
-                            return;
-                        case int i when i == firearmSettings[2].SettingId:
-                            command = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is GiveFirearm);
-                            argument = ServerSpecificSettingsSync.GetSettingOfUser<SSDropdownSetting>(referenceHub, firearmSettings[1].SettingId).SyncSelectionText;
-                            this.HandleCommand(command, referenceHub, new string[] { argument }, null, true);
+                        case int i when i == waveSettings[0].SettingId:
+                            command = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is CheckWaveInfo);
+                            this.HandleCommand(command, referenceHub, new string[0], (SSTextArea)waveSettings[1]);
                             return;
                         default:
                             Log.Debug("Button not found.", Config.Debug);
@@ -208,7 +215,7 @@ namespace GhostSpectator.Features
             bool success = command.Execute(new(arguments), new PlayerCommandSender(referenceHub), out string response);
             textToUpdate?.SendTextUpdate(response, true, h => h == referenceHub);
             referenceHub.gameConsoleTransmission.SendToClient(response, success ? "green" : "magenta");
-            if (receiveHint && (command is not Accept and not ListDuel || !success))
+            if (receiveHint && (!success || command is not Accept and not ListDuel || command is Deathmatch && arguments.Contains("leave")))
             {
                 referenceHub.hints.Show(new TextHint(response, new HintParameter[] { new StringHintParameter(response) }));
             }
@@ -226,14 +233,11 @@ namespace GhostSpectator.Features
             Log.Debug($"Player {referenceHub.nicknameSync.MyNick} changed server-specific settings page to {settingIndex}.", Config.Debug);
         }
 
-        internal static readonly string[] _duelActionOptions = new string[5] { "Accept a duel request", "Cancel a duel (request)", "Challenge to a duel", "Print a list", "Reject a duel" };
-        internal static readonly string[] _headers = new string[4] { "Wave timers", "Voice chats", "Toys", "Duelling" };
+        internal static readonly string[] _duelActions = new string[5] { "Accept a duel request", "Cancel a duel (request)", "Challenge to a duel", "Print a list", "Reject a duel" };
+        internal static readonly string[] _headers = new string[4] { "Duelling & Deathmatch", "Toys", "Voice chats", "Wave timers" };
+        internal static readonly string[] _selections = new string[4] { "Select an action", "Select a firearm", "Select a toy type", "Select a toy area" };
 
-        private static string actionSelect;
         private static string currentPage;
-        private static string firearmSelect;
-        private static string toySelect;
-        private static string toyAreaSelect;
 
         internal Dictionary<ReferenceHub, int> lastSentPages;
         private Dictionary<ReferenceHub, Dictionary<string, string>> lastVoicechatSettings;
@@ -243,14 +247,16 @@ namespace GhostSpectator.Features
         private SSDropdownSetting pageSelector;
         private ServerSpecificSettingBase[] pinnedSection;
 
+        private readonly ServerSpecificSettingBase[] deathmatchSettings = new ServerSpecificSettingBase[3];
         private readonly ServerSpecificSettingBase[] duelSettings = new ServerSpecificSettingBase[4];
         private readonly ServerSpecificSettingBase[] firearmSettings = new ServerSpecificSettingBase[3];
         private readonly ServerSpecificSettingBase[] toySettings = new ServerSpecificSettingBase[10];
         private readonly SSTwoButtonsSetting[] voicechatSettings = new SSTwoButtonsSetting[3];
         private readonly ServerSpecificSettingBase[] waveSettings = new ServerSpecificSettingBase[2];
 
-        private string[] DuelActionOptions { get; }
+        private string[] DuelActions { get; }
         private string[] Headers { get; }
+        private string[] Selections { get; }
         public static SSGhostSpectator Singleton { get; internal set; }
         private Config Config => MainClass.Instance.pluginConfig;
         private Translation Translation => MainClass.Instance.pluginTranslation;

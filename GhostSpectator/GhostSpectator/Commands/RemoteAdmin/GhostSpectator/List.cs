@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Log = LabApi.Features.Console.Logger;
-
 using CommandSystem;
 using GhostSpectator.Features.Extensions;
 using LabApi.Features.Permissions;
+using Log = LabApi.Features.Console.Logger;
 
 namespace GhostSpectator.Commands.RemoteAdmin.GhostSpectator
 {
@@ -19,17 +18,11 @@ namespace GhostSpectator.Commands.RemoteAdmin.GhostSpectator
             Command = command ?? _command;
             Description = description;
             Aliases = aliases;
-            Log.Debug($"Registered {this.Command} subcommand.", Translation.AccessTranslation().Debug);
+            Log.Info($"Registered {this.Command} subcommand.");
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (MainClass.Instance == null)
-            {
-                response = Translation.PluginNotEnabled;
-                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
-                return false;
-            }
             if (sender == null)
             {
                 response = Translation.SenderNull;
@@ -42,7 +35,7 @@ namespace GhostSpectator.Commands.RemoteAdmin.GhostSpectator
                 Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug);
                 return false;
             }
-            response = $"{Translation.ListghostSuccess.Replace("%count%", Ghost.List.Count().ToString())}:\n- {string.Join("\n- ", Ghost.List.Select(p => p.Nickname))}";
+            response = $"{Translation.ListghostSuccess.Replace("%count%", GhostExtensions.GhostList.Count().ToString())}:\n- {string.Join("\n- ", GhostExtensions.GhostList.Select(p => p.Nickname))}";
             return true;
         }
 

@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Log = LabApi.Features.Console.Logger;
-
 using CommandSystem;
 using NorthwoodLib.Pools;
 using Utils.NonAllocLINQ;
+using Log = LabApi.Features.Console.Logger;
 
 namespace GhostSpectator.Commands.RemoteAdmin.GhostSettings
 {
@@ -21,7 +20,7 @@ namespace GhostSpectator.Commands.RemoteAdmin.GhostSettings
             Command = translation.GhostsettingsParentCommand ?? _command;
             Description = translation.GhostsettingsParentDescription;
             Aliases = translation.GhostsettingsParentAliases;
-            Log.Debug($"Registered {this.Command} parent command.", translation.Debug);
+            Log.Info($"Registered {this.Command} parent command.");
             this.LoadGeneratedCommands();
         }
 
@@ -30,22 +29,16 @@ namespace GhostSpectator.Commands.RemoteAdmin.GhostSettings
             this.RegisterCommand(new Disable(translation.DisableCommand, translation.DisableDescription, translation.DisableAliases));
             this.RegisterCommand(new Enable(translation.EnableCommand, translation.EnableDescription, translation.EnableAliases));
             this.RegisterCommand(new Reload(translation.ReloadCommand, translation.ReloadDescription, translation.ReloadAliases));
-            Log.Debug($"Loaded {this.AllCommands.Count()} command(s) for {this.Command} parent command.", translation.Debug);
+            Log.Info($"Loaded {this.AllCommands.Count()} subcommand(s) for {this.Command} parent command.");
         }
 
         protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (MainClass.Instance == null)
-            {
-                response = translation.PluginNotEnabled;
-                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", translation.Debug);
-                return false;
-            }
             StringBuilder stringBuilder = StringBuilderPool.Shared.Rent();
             stringBuilder.AppendLine($"{Description} {translation.Subcommands}:");
             foreach (ICommand command in this.AllCommands)
             {
-                stringBuilder.AppendLine($"- {command.Command} | {translation.Aliases}: {(command.Aliases == null || command.Aliases.IsEmpty() ? "" : string.Join(", ", command.Aliases))} | {translation.Description}: {command.Description}");
+                stringBuilder.AppendLine($"- {command.Command} | {translation.Aliases}: {(command.Aliases?.Length > 0 ? string.Join(", ", command.Aliases) : "")} | {translation.Description}: {command.Description}");
             }
             response = StringBuilderPool.Shared.ToStringReturn(stringBuilder).TrimEnd(Array.Empty<char>());
             return true;

@@ -57,7 +57,7 @@
     </Reference>
     <Reference Include="Mirror-Publicized, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SecretLabFiles)\LabAPI\dependencies\Mirror-Publicized.dll</HintPath>
+      <HintPath>$(SecretLabFiles)\LabAPI\dependencies\7777\Mirror-Publicized.dll</HintPath>
     </Reference>
     <Reference Include="NorthwoodLib">
       <HintPath>$(SecretLabSteam)\NorthwoodLib.dll</HintPath>
@@ -89,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\ClientConsole\CheckWaveInfo.cs" />
+    <Compile Include="Commands\ClientConsole\Deathmatch.cs" />
     <Compile Include="Commands\ClientConsole\Duelling\Accept.cs" />
     <Compile Include="Commands\ClientConsole\Duelling\Cancel.cs" />
     <Compile Include="Commands\ClientConsole\Duelling\Challenge.cs" />
@@ -104,6 +105,8 @@
     <Compile Include="Commands\ClientConsole\Toys\ToyParent.cs" />
     <Compile Include="Commands\ClientConsole\Voicechat\DisableVoicechat.cs" />
     <Compile Include="Commands\ClientConsole\Voicechat\EnableVoicechat.cs" />
+    <Compile Include="Commands\ClientConsole\Voicechat\ListVoicechat.cs" />
+    <Compile Include="Commands\ClientConsole\Voicechat\VoicechatParent.cs" />
     <Compile Include="Commands\RemoteAdmin\GhostSpectator\Despawn.cs" />
     <Compile Include="Commands\RemoteAdmin\GhostSettings\Disable.cs" />
     <Compile Include="Commands\RemoteAdmin\GhostSettings\Enable.cs" />
@@ -115,10 +118,10 @@
     <Compile Include="Commands\ClientConsole\ToyAreaTeleport.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="EventHandler.cs" />
-    <Compile Include="Features\Extensions\Duel.cs" />
-    <Compile Include="Features\Extensions\Ghost.cs" />
-    <Compile Include="Features\Extensions\Other.cs" />
-    <Compile Include="Features\Extensions\Toy.cs" />
+    <Compile Include="Features\Extensions\DeathmatchExtensions.cs" />
+    <Compile Include="Features\Extensions\DuelExtensions.cs" />
+    <Compile Include="Features\Extensions\GhostExtensions.cs" />
+    <Compile Include="Features\Extensions\ToyExtensions.cs" />
     <Compile Include="Features\GhostComponent.cs" />
     <Compile Include="Features\SSGhostSpectator.cs" />
     <Compile Include="MainClass.cs" />

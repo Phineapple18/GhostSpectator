@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using System.Reflection;
 using System.Reflection.Emit;
 
 using GhostSpectator.Features.Extensions;
 using HarmonyLib;
 using InventorySystem.Items.Firearms.Modules;
-using LabApi.Features.Wrappers;
 using MEC;
 using NorthwoodLib.Pools;
 using PlayerStatsSystem;
@@ -18,26 +16,17 @@ using UnityEngine;
 
 namespace GhostSpectator.Patches
 {
-    [HarmonyPatch("FriendlyFireHandler", "IsFriendlyFire")]
-    internal class FriendlyFirePatch
-    {
-        internal static void Postfix(ReferenceHub damagedPlayer, DamageHandlerBase handler, ref bool __result)
-        {
-            if (__result && (handler as AttackerDamageHandler).Attacker.Hub.IsGhost() && damagedPlayer.IsGhost())
-            {
-                __result = false;
-            }
-        }
-    }
-
     [HarmonyPatch(typeof(AttackerDamageHandler), "ProcessDamage")]
     internal class ProcessDamagePatch
     {
-        internal static bool Prefix(AttackerDamageHandler __instance, ReferenceHub ply)
+        internal static void Prefix(AttackerDamageHandler __instance, ReferenceHub ply)
         {
-            return !(!Server.FriendlyFire && __instance.Attacker.Hub.IsGhost() && ply.IsGhost()
-                   && __instance.Attacker.Hub.GetGhostComponent().DuelPartner.ReferenceHub == ply
-                   && ply.GetGhostComponent().DuelPartner.ReferenceHub == __instance.Attacker.Hub);
+            if (__instance.Attacker.Hub.IsGhost() && ply.IsGhost()
+            && (__instance.Attacker.Hub.GetGhostComponent().DuelPartner?.ReferenceHub == ply && ply.GetGhostComponent().DuelPartner?.ReferenceHub == __instance.Attacker.Hub
+            || __instance.Attacker.Hub.IsInDeathmatch() && ply.IsInDeathmatch()))
+            {
+                __instance.ForceFullFriendlyFire = true;
+            }
         }
     }
 

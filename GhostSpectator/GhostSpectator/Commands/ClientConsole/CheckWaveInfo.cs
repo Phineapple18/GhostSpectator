@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Log = LabApi.Features.Console.Logger;
-
 using CommandSystem;
 using GhostSpectator.Features.Extensions;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
+using Log = LabApi.Features.Console.Logger;
 
 namespace GhostSpectator.Commands.ClientConsole
 {
@@ -22,17 +21,11 @@ namespace GhostSpectator.Commands.ClientConsole
             Command = translation.CheckwaveinfoCommand ?? _command;
             Description = translation.CheckwaveinfoDescription;
             Aliases = translation.CheckwaveinfoAliases;
-            Log.Debug($"Registered {this.Command} command.", translation.Debug);
+            Log.Info($"Registered {this.Command} command.");
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (MainClass.Instance == null)
-            {
-                response = Translation.PluginNotEnabled;
-                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
-                return false;
-            }
             if (sender == null)
             {
                 response = Translation.SenderNull;

@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Log = LabApi.Features.Console.Logger;
-
 using AdminToys;
 using CommandSystem;
 using GhostSpectator.Features;
@@ -15,6 +13,7 @@ using LabApi.Features.Wrappers;
 using Mirror;
 using PlayerRoles.FirstPersonControl;
 using Utils.NonAllocLINQ;
+using Log = LabApi.Features.Console.Logger;
 
 namespace GhostSpectator.Commands.ClientConsole.Toys
 {
@@ -25,18 +24,12 @@ namespace GhostSpectator.Commands.ClientConsole.Toys
             Command = command ?? _command;
             Description = description;
             Aliases = aliases;
-            Usage = new[] { string.Join("/", Toy.names.ToArray()) };
-            Log.Debug($"Registered {this.Command} subcommand.", Translation.AccessTranslation().Debug);
+            Usage = new[] { string.Join("/", ToyExtensions.toyNames.ToArray()) };
+            Log.Info($"Registered {this.Command} subcommand.");
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (MainClass.Instance == null)
-            {
-                response = Translation.PluginNotEnabled;
-                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
-                return false;
-            }
             if (sender == null)
             {
                 response = Translation.SenderNull;
@@ -56,13 +49,19 @@ namespace GhostSpectator.Commands.ClientConsole.Toys
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
                 return false;
             }
+            if (commandsender.IsInDeathmatch())
+            {
+                response = Translation.NoToysInDeatchmatch;
+                Log.Debug($"Player {commandsender.Nickname} can't spawn toys during deatchmatch.", Config.Debug);
+                return false;
+            }
             if (Config.ToyLimit <= 0)
             {
                 response = Translation.NoToysAllowed;
                 Log.Debug("Spawning toys is not allowed.", Config.Debug);
                 return false;
             }
-            if (!Toy.SpawnAreas.Any(a => a.Bounds.Contains(commandsender.Position)))
+            if (!ToyExtensions.ToySpawnAreas.Any(a => a.Bounds.Contains(commandsender.Position)))
             {
                 response = Translation.WrongArea;
                 Log.Debug($"Player {commandsender.Nickname} tried to create a toy outside the spawn range(s).", Config.Debug);
@@ -81,11 +80,8 @@ namespace GhostSpectator.Commands.ClientConsole.Toys
                 return false;
             }
             AdminToyBase toyBase = null;
-            try
-            {
-                NetworkClient.prefabs.Values.First(a => a.TryGetComponent(out toyBase) && toyBase.CommandName.ToLower() == arguments.At(0).ToLower());
-            }
-            catch (Exception)
+            if (NetworkClient.prefabs.Values.FirstOrDefault(a => a.TryGetComponent(out toyBase) && (toyBase.CommandName.ToLower() == arguments.At(0).ToLower()
+            || ToyExtensions.toyNames.TryGetValue(arguments.At(0), out string toyName) && toyBase.CommandName.ToLower() == toyName)) == null)
             {
                 response = Translation.WrongArgument;
                 Log.Debug($"Player {commandsender.Nickname} provided non-existent argument.", Config.Debug);
@@ -94,10 +90,10 @@ namespace GhostSpectator.Commands.ClientConsole.Toys
             GhostComponent component = commandsender.GetGhostComponent();
             if (component.Toys.Count >= Config.ToyLimit)
             {
-                Toy.Destroy(commandsender, component.Toys.ElementAt(0));
+                ToyExtensions.DestroyToy(commandsender, component.Toys.ElementAt(0));
                 Log.Debug($"Destroyed first toy due to toy limit ({Config.ToyLimit}).", Config.Debug);
             }
-            AdminToyBase toy = Toy.Create(commandsender, toyBase, arguments);
+            AdminToyBase toy = ToyExtensions.CreateToy(commandsender, toyBase, arguments);
             response = Translation.CreateSuccess.Replace("%toyname%", toy.CommandName).Replace("%toyid%", toy.netId.ToString());
             Log.Debug($"Player {commandsender.Nickname} created a toy ({toy.CommandName}) with ID {toy.netId}.", Config.Debug);
             return true;

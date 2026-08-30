@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-using Log = LabApi.Features.Console.Logger;
-using Object = UnityEngine.Object;
+using System.Text.RegularExpressions;
 
 using CustomPlayerEffects;
 using GhostSpectator.Features;
@@ -24,11 +22,13 @@ using LabApi.Features.Wrappers;
 using MapGeneration;
 using MEC;
 using PlayerRoles;
-using PlayerRoles.Spectating;
 using Respawning.Waves;
 using UnityEngine;
 using Utils.NonAllocLINQ;
 using VoiceChat;
+using static PlayerRoles.PlayableScps.Scp049.Scp049ResurrectAbility;
+using Log = LabApi.Features.Console.Logger;
+using Object = UnityEngine.Object;
 
 namespace GhostSpectator
 {
@@ -36,17 +36,16 @@ namespace GhostSpectator
     {
         public override void OnPlayerChangedRole(PlayerChangedRoleEventArgs ev)
         {
-            if (ev.OldRole == RoleTypeId.Scp0492 && (ev.NewRole.RoleTypeId == RoleTypeId.Spectator || ev.Player.IsGhostSpawning()) && deadZombies.Add(ev.Player.ReferenceHub))
+            if (ev.OldRole == RoleTypeId.Spectator && ev.Player.IsGhostSpawning()
+            || ev.NewRole.RoleTypeId == RoleTypeId.Spectator && (ev.Player.IsGhost() || ev.Player.IsGhostDespawning()))
             {
-                Log.Debug($"Added player {ev.Player.Nickname} to dead zombies list.", Config.Debug);
-                return;
-            }
-            if (!(ev.OldRole == RoleTypeId.Spectator && ev.Player.IsGhostSpawning() || (ev.Player.IsGhostDespawning() || ev.Player.IsGhost()) && ev.NewRole.RoleTypeId == RoleTypeId.Spectator))
-            {
-                if (deadZombies.Remove(ev.Player.ReferenceHub))
+                if (Ragdoll.List.Any(r => r.Role == RoleTypeId.Scp0492 && r.Base.Info.OwnerHub == ev.Player.ReferenceHub) && DeadZombies.Add(ev.Player.NetworkId))
                 {
-                    Log.Debug($"Removed player {ev.Player.Nickname} from dead zombies list.", Config.Debug);
+                    Log.Debug($"Added player {ev.Player.Nickname} to dead zombies list.", Config.Debug);
                 }
+            }
+            else
+            {
                 deathPositions.Remove(ev.Player);
                 if (ev.Player.TryGetGhostComponent(out GhostComponent component) && component.DeadTime != 0f)
                 {
@@ -57,8 +56,9 @@ namespace GhostSpectator
             }
             if (ev.Player.IsGhost())
             {
-                Ghost.Despawn(ev.Player, ev.NewRole.RoleTypeId, false);
+                GhostExtensions.DespawnGhost(ev.Player, ev.NewRole.RoleTypeId, false);
             }
+            return;
         }
 
         public override void OnPlayerCuffing(PlayerCuffingEventArgs ev)
@@ -71,8 +71,8 @@ namespace GhostSpectator
 
         public override void OnPlayerDamagingShootingTarget(PlayerDamagingShootingTargetEventArgs ev)
         {
-            Player ghost = Ghost.List.FirstOrDefault(p => p.GetGhostComponent().Toys.Contains(ev.ShootingTarget.Base));
-            if (ghost != null && !(ev.Player.IsGhost() && ev.Player == ghost))
+            Player ghostOwner = GhostExtensions.GhostList.FirstOrDefault(p => p.GetGhostComponent().Toys.Contains(ev.ShootingTarget.Base));
+            if (!(ghostOwner == null || ev.Player == ghostOwner))
             {
                 ev.IsAllowed = false;
             }
@@ -91,7 +91,7 @@ namespace GhostSpectator
             deathPositions[ev.Player] = ev.OldPosition;
             if (Config.AutoGhostSpawn)
             {
-                Timing.CallDelayed(1f, () => Ghost.Spawn(ev.Player, Config.SpawnAtDeathPos));
+                Timing.CallDelayed(1f, () => GhostExtensions.SpawnGhost(ev.Player, Config.SpawnAtDeathPosition));
             }
         }
 
@@ -112,11 +112,18 @@ namespace GhostSpectator
             if (ev.Item.IsGhostItem())
             {
                 ev.IsAllowed = false;
+                if (ev.Player.HasActiveDuel() || ev.Player.HasPendingDuel())
+                {
+                    ev.Player.SendHint(Translation.TeleportDuelFail);
+                    Log.Debug($"Player {ev.Player.Nickname} can't teleport due to active duel.", Config.Debug);
+                    return;
+                }
                 if ((ev.Item as LanternItem).IsEmitting)
                 {
                     if (!ev.Player.HasPermissions("gs.teleport.player"))
                     {
                         ev.Player.SendHint(Translation.NoPermission);
+                        Log.Debug($"Player {ev.Player.Nickname} has no player teleport permission.", Config.Debug);
                         return;
                     }
                     IEnumerable<Player> validPlayers = Player.List.Where(p => p.IsAlive && !(p.IsGhost() || p.Role == RoleTypeId.Scp079 || Config.RoleTeleportBlacklist.Contains(p.Role)));
@@ -135,6 +142,7 @@ namespace GhostSpectator
                 if (!ev.Player.HasPermissions("gs.teleport.room"))
                 {
                     ev.Player.SendHint(Translation.NoPermission);
+                    Log.Debug($"Player {ev.Player.Nickname} has no room teleport permission.", Config.Debug);
                     return;
                 }
                 if (Warhead.IsDetonated)
@@ -144,6 +152,10 @@ namespace GhostSpectator
                     return;
                 }
                 IEnumerable<Room> rooms = Room.List.Where(r => r.Name is RoomName.Unnamed or RoomName.Outside);
+                if (Decontamination.IsDecontaminating)
+                {
+                    rooms = rooms.Where(r => r.Zone != FacilityZone.LightContainment);
+                }
                 Room room = rooms.ElementAt(random.Next(rooms.Count()));
                 ev.Player.Position = room.Position + Vector3.up;
                 Log.Debug($"Player {ev.Player.Nickname} was successfully teleported to a random room.", Config.Debug);
@@ -163,9 +175,16 @@ namespace GhostSpectator
 
         public override void OnPlayerDying(PlayerDyingEventArgs ev)
         {
-            if (ev.Attacker.IsGhost() && ev.Player.IsGhost())
+            if (ev.Attacker.IsGhost() && ev.Player.IsGhost() && ev.Attacker.GetGhostComponent().DuelPartner == ev.Player)
             {
-                Duel.Finish(ev.Attacker, ev.Player);
+                DuelExtensions.FinishDuel(ev.Attacker, ev.Player, true);
+                ev.IsAllowed = false;
+                return;
+            }
+            if (ev.Player.IsInDeathmatch())
+            {
+                ev.Player.Health = Config.GhostHealth;
+                DeathmatchExtensions.PendingDeathmatch.Add(ev.Player, Timing.RunCoroutine(DeathmatchExtensions.PrepareForDeathmatch(ev.Player)));
                 ev.IsAllowed = false;
             }
         }
@@ -213,7 +232,8 @@ namespace GhostSpectator
                 ev.IsAllowed = false;
                 return;
             }
-            ev.IsAllowed = ev.Attacker.GetGhostComponent().DuelPartner == ev.Player && ev.Player.GetGhostComponent().DuelPartner == ev.Attacker;
+            ev.IsAllowed = ev.Attacker.GetGhostComponent().DuelPartner == ev.Player && ev.Player.GetGhostComponent().DuelPartner == ev.Attacker
+                        || ev.Attacker.IsInDeathmatch() && ev.Player.IsInDeathmatch();
         }
 
         public override void OnPlayerIdlingTesla(PlayerIdlingTeslaEventArgs ev)
@@ -228,7 +248,7 @@ namespace GhostSpectator
         {
             if (ev.Player.IsGhost())
             {
-                ev.Player.Position = Config.SpawnPositions != null ? Config.SpawnPositions.ElementAt(random.Next(Config.SpawnPositions.Count)) : Ghost.DeafultSpawn;
+                ev.Player.Position = Config.SpawnPositions?.ElementAt(random.Next(Config.SpawnPositions.Count)) ?? GhostExtensions.DeafultSpawn;
                 Log.Debug($"Player {ev.Player.Nickname} exited safely Pocket Dimension as a Ghost.", Config.Debug);
                 ev.IsAllowed = false;
             }
@@ -236,14 +256,10 @@ namespace GhostSpectator
 
         public override void OnPlayerLeft(PlayerLeftEventArgs ev)
         {
-            if (ev.Player.TryGetGhostComponent(out GhostComponent ghostComponent))
+            if (ev.Player?.TryGetGhostComponent(out GhostComponent ghostComponent) ?? false)
             {
                 Object.Destroy(ghostComponent);
                 Log.Debug($"Destroyed GhostComponent for player {ev.Player.Nickname}.", Config.Debug);
-            }
-            if (deadZombies.Remove(ev.Player.ReferenceHub))
-            {
-                Log.Debug($"Removed player {ev.Player.Nickname} from dead zombies list.", Config.Debug);
             }
             deathPositions.Remove(ev.Player);
         }
@@ -264,27 +280,23 @@ namespace GhostSpectator
             }
         }
 
+        public override void OnPlayerRaPlayerListAddingPlayer(PlayerRaPlayerListAddingPlayerEventArgs ev)
+        {
+            if (ev.Target.IsGhost())
+            {
+                ev.Body = Regex.Replace(ev.Body, "<color=.*?>", $"<color={Config.GhostColor}>");
+            }
+        }
+
         public override void OnPlayerReceivingVoiceMessage(PlayerReceivingVoiceMessageEventArgs ev)
         {
-            if (ev.Player.TryGetGhostComponent(out GhostComponent component) && component.State == GhostState.Spawned)
+            if (ev.Player.TryGetGhostComponent(out GhostComponent component) && component.State == GhostState.Spawned
+            && (ev.Sender.IsSCP && component.VoiceChats.Contains("scp")
+            || ev.Sender.Role == RoleTypeId.Spectator && component.VoiceChats.Contains("spectator")
+            || ev.Sender.IsGhost() && component.VoiceChats.Contains("ghost") && Vector3.Distance(ev.Sender.Position, ev.Player.Position) > Config.HearDistance))
             {
-                if (ev.Sender.IsSCP && component.VoiceChats.Contains("scp"))
-                {
-                    ev.Message.Channel = VoiceChatChannel.RoundSummary;
-                    ev.IsAllowed = true;
-                    return;
-                }
-                if (ev.Sender.Role == RoleTypeId.Spectator && component.VoiceChats.Contains("spectator"))
-                {
-                    ev.Message.Channel = VoiceChatChannel.RoundSummary;
-                    ev.IsAllowed = true;
-                    return;
-                }
-                if (ev.Sender.IsGhost() && component.VoiceChats.Contains("ghost") && Vector3.Distance(ev.Sender.Position, ev.Player.Position) > Config.HearDistance)
-                {
-                    ev.Message.Channel = VoiceChatChannel.RoundSummary;
-                    ev.IsAllowed = true;
-                }
+                ev.Message.Channel = VoiceChatChannel.RoundSummary;
+                ev.IsAllowed = true;
             }
         }
 
@@ -299,6 +311,14 @@ namespace GhostSpectator
         public override void OnPlayerThrowingProjectile(PlayerThrowingProjectileEventArgs ev)
         {
             if (ev.Player.IsGhost() && !ev.Player.HasPermissions("gs.item"))
+            {
+                ev.IsAllowed = false;
+            }
+        }
+
+        public override void OnPlayerTogglingNoclip(PlayerTogglingNoclipEventArgs ev)
+        {
+            if (ev.Player.HasPendingDuel() || ev.Player.HasActiveDuel() || ev.Player.IsInDeathmatch())
             {
                 ev.IsAllowed = false;
             }
@@ -360,9 +380,9 @@ namespace GhostSpectator
                     ev.IsVisible = MainClass.Instance.pluginConfig.FilmmakerSeeGhosts;
                     return;
                 }
-                if (ReferenceHub.TryGetHubNetID((ev.Player.RoleBase as SpectatorRole).SyncedSpectatedNetId, out ReferenceHub spectated))
+                if (ev.Player.CurrentlySpectating != null)
                 {
-                    ev.IsVisible = spectated.IsGhost() || MainClass.Instance.pluginConfig.AlwaysSeeGhosts;
+                    ev.IsVisible = ev.Player.CurrentlySpectating.IsGhost() || MainClass.Instance.pluginConfig.AlwaysSeeGhosts;
                 }
             }
         }
@@ -407,6 +427,19 @@ namespace GhostSpectator
             }
         }
 
+        public override void OnServerLczDecontaminationStarted()
+        {
+            Timing.CallDelayed(5f, delegate ()
+            {
+                IEnumerable<Door> doors = Map.Doors.Where(d => d.Zone == FacilityZone.LightContainment);
+                foreach (Door door in doors)
+                {
+                    door.IsOpened = true;
+                }
+                DeathmatchExtensions.DeathmatchEnabled = true;
+            });
+        }
+
         public override void OnServerExplosionSpawning(ExplosionSpawningEventArgs ev)
         {
             if (ev.Player.IsGhost() && ev.ExplosionType == ExplosionType.Disruptor)
@@ -418,36 +451,39 @@ namespace GhostSpectator
 
         public override void OnServerRoundEnded(RoundEndedEventArgs ev)
         {
-            foreach (Player player in Ghost.List)
+            foreach (Player player in GhostExtensions.GhostList)
             {
-                Ghost.Despawn(player, player.Role, false);
+                GhostExtensions.DespawnGhost(player, player.Role, false);
             }
             Log.Debug("Despawned all Ghosts due to round end.", Config.Debug);
         }
 
         public override void OnServerWaitingForPlayers()
         {
-            Timing.KillCoroutines(Duel.AllPending.Keys.ToArray());
-            Duel.AllPending.Clear();
-            Duel.Requests.Clear();
+            Timing.KillCoroutines(DuelExtensions.PendingDuels.Keys.ToArray());
+            Timing.KillCoroutines(DeathmatchExtensions.PendingDeathmatch.Values.ToArray());
+            DeathmatchExtensions.DeathmatchEnabled = false;
+            DuelExtensions.PendingDuels.Clear();
+            DuelExtensions.DuelRequests.Clear();
+            
         }
 
         public override void OnWarheadDetonated(WarheadDetonatedEventArgs ev)
         {
             if (Config.DespawnOnDetonation)
             {
-                foreach (Player player in Ghost.List)
+                foreach (Player player in GhostExtensions.GhostList)
                 {
                     if (!player.HasPermissions("gs.warhead"))
                     {
-                        Ghost.Despawn(player);
+                        GhostExtensions.DespawnGhost(player);
                     }
                 }
-                Log.Debug("Despawned all Ghosts, who don't have permission, due to warhead detonation.", Config.Debug);
+                DeathmatchExtensions.DeathmatchEnabled = false;
+                Log.Debug("Despawned all Ghosts, who don't have permission, due to warhead detonation and disabled deathmatch.", Config.Debug);
             }
         }
 
-        internal static HashSet<ReferenceHub> deadZombies = new();
         internal static Dictionary<Player, Vector3> deathPositions = new();
         private readonly System.Random random = new();
 

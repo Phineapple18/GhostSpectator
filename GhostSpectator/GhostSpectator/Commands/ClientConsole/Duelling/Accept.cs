@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Log = LabApi.Features.Console.Logger;
-
 using CommandSystem;
 using GhostSpectator.Features.Extensions;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
 using Utils.NonAllocLINQ;
+using Log = LabApi.Features.Console.Logger;
 
 namespace GhostSpectator.Commands.ClientConsole.Duelling
 {
@@ -22,17 +21,11 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
             Description = description;
             Aliases = aliases;
             Usage = new[] { "PlayerNickname (whole or part, case-insensitive)" };
-            Log.Debug($"Registered {this.Command} subcommand.", Translation.AccessTranslation().Debug);
+            Log.Info($"Registered {this.Command} subcommand.");
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (MainClass.Instance == null)
-            {
-                response = Translation.PluginNotEnabled;
-                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
-                return false;
-            }
             if (sender == null)
             {
                 response = Translation.SenderNull;
@@ -64,7 +57,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
                 Log.Debug($"Player {commandsender.Nickname} didn't provide arguments.", Config.Debug);
                 return false;
             }
-            List<Player> allRequesters = (from p in Duel.Requests where p.Value.Item1 == commandsender select p.Key).ToList();
+            List<Player> allRequesters = (from p in DuelExtensions.DuelRequests where p.Value.Item1 == commandsender select p.Key).ToList();
             if (allRequesters.IsEmpty())
             {
                 response = Translation.NoDuelRequests;
@@ -79,7 +72,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
                 Log.Debug("Provided player(s) doesn't exist.", Config.Debug);
                 return false;
             }
-            commandsender.Accept(requester, allRequesters);
+            commandsender.AcceptRequest(requester, allRequesters);
             response = Translation.AcceptSuccess.Replace("%playernick%", requester.Nickname);
             Log.Debug($"Player {commandsender.Nickname} has accepted a duel request from {requester.Nickname}.", Config.Debug);
             return true;

@@ -9,29 +9,27 @@ using NorthwoodLib.Pools;
 using Utils.NonAllocLINQ;
 using Log = LabApi.Features.Console.Logger;
 
-namespace GhostSpectator.Commands.ClientConsole.Duelling
+namespace GhostSpectator.Commands.ClientConsole.Voicechat
 {
     [CommandHandler(typeof(ClientCommandHandler))]
-    public class DuelParent : ParentCommand
+    public class VoicechatParent : ParentCommand
     {
-        public DuelParent()
+        public VoicechatParent()
         {
             translation = Translation.AccessTranslation();
-            Command = translation.DuelParentCommand ?? _command;
-            Description = translation.DuelParentDescription;
-            Aliases = translation.DuelParentAliases;
+            Command = translation.VoicechatParentCommand ?? _command;
+            Description = translation.VoicechatParentDescription;
+            Aliases = translation.VoicechatParentAliases;
             Log.Info($"Registered {this.Command} parent command.");
             this.LoadGeneratedCommands();
         }
 
         public sealed override void LoadGeneratedCommands()
         {
-            this.RegisterCommand(new Accept(translation.AcceptCommand, translation.AcceptDescription, translation.AcceptAliases));
-            this.RegisterCommand(new Cancel(translation.CancelCommand, translation.CancelDescription, translation.CancelAliases));
-            this.RegisterCommand(new Challenge(translation.ChallengeCommand, translation.ChallengeDescription, translation.ChallengeAliases));
-            this.RegisterCommand(new ListDuel(translation.ListduelCommand, translation.ListduelDescription, translation.ListduelAliases));
-            this.RegisterCommand(new Reject(translation.RejectCommand, translation.RejectDescription, translation.RejectAliases));
-            Log.Info($"Loaded {this.AllCommands.Count()} subcommand(s) for DuelParent.");
+            this.RegisterCommand(new EnableVoicechat(translation.EnablevoicechatCommand, translation.EnablevoicechatDescription, translation.EnablevoicechatAliases));
+            this.RegisterCommand(new DisableVoicechat(translation.DisablevoicechatCommand, translation.DisablevoicechatDescription, translation.DisablevoicechatAliases));
+            this.RegisterCommand(new ListVoicechat(translation.ListvoicechatCommand, translation.ListvoicechatDescription, translation.ListvoicechatAliases));
+            Log.Info($"Loaded {this.AllCommands.Count()} subcommand(s) for VoicechatParent.");
         }
 
         protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender, out string response)
@@ -46,10 +44,11 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
             return true;
         }
 
-        internal const string _command = "duel";
-        internal const string _description = "Parent command for Ghost duelling.";
-        internal static readonly string[] _aliases = Array.Empty<string>();
+        internal const string _command = "voicechat";
+        internal const string _description = "Parent command for voice chats.";
+        internal static readonly string[] _aliases = new[] { "vc" };
         private static Translation translation;
+        internal static readonly List<string> voiceChats = new() { "ghost", "scp", "spectator" };
 
         public override string Command { get; }
         public override string Description { get; }

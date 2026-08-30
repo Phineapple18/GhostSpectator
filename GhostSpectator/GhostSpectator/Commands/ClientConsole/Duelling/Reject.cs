@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Log = LabApi.Features.Console.Logger;
-
 using CommandSystem;
 using GhostSpectator.Features.Extensions;
 using LabApi.Features.Wrappers;
 using Utils.NonAllocLINQ;
+using Log = LabApi.Features.Console.Logger;
 
 namespace GhostSpectator.Commands.ClientConsole.Duelling
 {
@@ -21,17 +20,11 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
             Description = description;
             Aliases = aliases;
             Usage = new[] { "PlayerNickname (whole or part, case-insensitive)" };
-            Log.Debug($"Registered {this.Command} subcommand.", Translation.AccessTranslation().Debug);
+            Log.Info($"Registered {this.Command} subcommand.");
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (MainClass.Instance == null)
-            {
-                response = Translation.PluginNotEnabled;
-                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
-                return false;
-            }
             if (sender == null)
             {
                 response = Translation.SenderNull;
@@ -45,7 +38,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
                 return false;
             }
-            if (!Duel.Requests.Values.Any(p => p.Item1 == commandsender))
+            if (!DuelExtensions.DuelRequests.Values.Any(p => p.Item1 == commandsender))
             {
                 response = Translation.NoDuelRequests;
                 Log.Debug($"Player {commandsender.Nickname} has no duel requests.", Config.Debug);
@@ -57,7 +50,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
                 Log.Debug($"Player {commandsender.Nickname} didn't provide arguments.", Config.Debug);
                 return false;
             }
-            List<Player> allRequesters = (from p in Duel.Requests where p.Value.Item1 == commandsender select p.Key).ToList();
+            List<Player> allRequesters = (from p in DuelExtensions.DuelRequests where p.Value.Item1 == commandsender select p.Key).ToList();
             if (allRequesters.IsEmpty())
             {
                 response = Translation.NoDuelRequests;
@@ -72,7 +65,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
                 Log.Debug($"Player {commandsender.Nickname} provided nonexistent player.", Config.Debug);
                 return false;
             }
-            commandsender.Reject(requester);
+            commandsender.RejectRequest(requester);
             response = Translation.RejectSuccessPlayer.Replace("%playernick%", requester.Nickname);
             Log.Debug($"Player {commandsender.Nickname} has rejected a duel request from {requester.Nickname}.", Config.Debug);
             return true;

@@ -4,37 +4,28 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Log = LabApi.Features.Console.Logger;
-
 using CommandSystem;
 using GhostSpectator.Features.Extensions;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
 using NorthwoodLib.Pools;
+using Log = LabApi.Features.Console.Logger;
 
 namespace GhostSpectator.Commands.ClientConsole.Voicechat
 {
-    [CommandHandler(typeof(ClientCommandHandler))]
     public class DisableVoicechat : ICommand, IUsageProvider
     {
-        public DisableVoicechat()
+        public DisableVoicechat(string command, string description, string[] aliases)
         {
-            Translation translation = Translation.AccessTranslation();
-            Command = translation.DisablevoicechatCommand ?? _command;
-            Description = translation.DisablevoicechatDescription;
-            Aliases = translation.DisablevoicechatAliases;
-            Usage = new[] { $"{string.Join("/", Other.voiceChats.ToArray())}/all" };
-            Log.Debug($"Registered {this.Command} command.", translation.Debug);
+            Command = command ?? _command;
+            Description = description;
+            Aliases = aliases;
+            Usage = new[] { $"{string.Join("/", VoicechatParent.voiceChats.ToArray())}/all" };
+            Log.Info($"Registered {this.Command} subcommand.");
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (MainClass.Instance == null)
-            {
-                response = Translation.PluginNotEnabled;
-                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
-                return false;
-            }
             if (sender == null)
             {
                 response = Translation.SenderNull;
@@ -47,7 +38,7 @@ namespace GhostSpectator.Commands.ClientConsole.Voicechat
                 Log.Debug($"Player {sender.LogName} didn't provide any argument.", Config.Debug);
                 return false;
             }
-            IEnumerable<string> chats = arguments.Contains("all") ? Other.voiceChats : Other.voiceChats.Intersect(arguments);
+            IEnumerable<string> chats = arguments.Contains("all") ? VoicechatParent.voiceChats : VoicechatParent.voiceChats.Intersect(arguments);
             if (chats.IsEmpty())
             {
                 response = Translation.WrongArgument;

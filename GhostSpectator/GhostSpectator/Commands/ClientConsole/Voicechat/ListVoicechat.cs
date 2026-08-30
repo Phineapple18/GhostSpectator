@@ -5,16 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 using CommandSystem;
-using GhostSpectator.Features;
 using GhostSpectator.Features.Extensions;
 using LabApi.Features.Wrappers;
 using Log = LabApi.Features.Console.Logger;
 
-namespace GhostSpectator.Commands.ClientConsole.Toys
+namespace GhostSpectator.Commands.ClientConsole.Voicechat
 {
-    public class ListToy : ICommand
+    public class ListVoicechat : ICommand
     {
-        public ListToy(string command, string description, string[] aliases)
+        public ListVoicechat(string command, string description, string[] aliases)
         {
             Command = command ?? _command;
             Description = description;
@@ -37,8 +36,7 @@ namespace GhostSpectator.Commands.ClientConsole.Toys
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
                 return false;
             }
-            GhostComponent component = commandsender.GetGhostComponent();
-            response = $"{Translation.ListtoySuccess}:\n- {string.Join("\n- ", component.Toys.Select(t => $"{t.CommandName} ({t.netId})"))}";
+            response = $"{Translation.ListvoicechatSuccess}:\n- {string.Join("\n- ", VoicechatParent.voiceChats)}";
             return true;
         }
 

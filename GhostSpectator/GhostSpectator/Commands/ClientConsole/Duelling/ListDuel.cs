@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Log = LabApi.Features.Console.Logger;
-
 using CommandSystem;
 using GhostSpectator.Features.Extensions;
 using LabApi.Features.Wrappers;
+using Log = LabApi.Features.Console.Logger;
 
 namespace GhostSpectator.Commands.ClientConsole.Duelling
 {
@@ -19,17 +18,11 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
             Command = command ?? _command;
             Description = description;
             Aliases = aliases;
-            Log.Debug($"Registered {this.Command} subcommand.", Translation.AccessTranslation().Debug);
+            Log.Info($"Registered {this.Command} subcommand.");
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (MainClass.Instance == null)
-            {
-                response = Translation.PluginNotEnabled;
-                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
-                return false;
-            }
             if (sender == null)
             {
                 response = Translation.SenderNull;
@@ -43,8 +36,8 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
                 return false;
             }
-            string opponentName = Duel.Requests.TryGetValue(commandsender, out Tuple<Player, int> opponent) ? opponent.Item1.Nickname : string.Empty;
-            response = Translation.ListduelSuccess.Replace("%playernick%", opponentName).Replace("%players%", $"{string.Join("\n- ", from entry in Duel.Requests where entry.Value.Item1 == commandsender select entry.Key.Nickname)}");
+            string opponentName = DuelExtensions.DuelRequests.TryGetValue(commandsender, out Tuple<Player, int> opponent) ? opponent.Item1.Nickname : string.Empty;
+            response = Translation.ListduelSuccess.Replace("%playernick%", opponentName).Replace("%players%", $"{string.Join("\n- ", from entry in DuelExtensions.DuelRequests where entry.Value.Item1 == commandsender select entry.Key.Nickname)}");
             return true;
         }
 

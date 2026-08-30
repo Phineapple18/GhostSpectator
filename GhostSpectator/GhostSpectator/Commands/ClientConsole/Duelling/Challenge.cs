@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Log = LabApi.Features.Console.Logger;
-
 using CommandSystem;
 using GhostSpectator.Features;
 using GhostSpectator.Features.Extensions;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
 using UnityEngine;
+using Log = LabApi.Features.Console.Logger;
 
 namespace GhostSpectator.Commands.ClientConsole.Duelling
 {
@@ -23,17 +22,11 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
             Description = description;
             Aliases = aliases;
             Usage = new[] { "PlayerNickname (whole or part, case-insensitive)" };
-            Log.Debug($"Registered {this.Command} subcommand.", Translation.AccessTranslation().Debug);
+            Log.Info($"Registered {this.Command} subcommand.");
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (MainClass.Instance == null)
-            {
-                response = Translation.PluginNotEnabled;
-                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
-                return false;
-            }
             if (sender == null)
             {
                 response = Translation.SenderNull;
@@ -59,8 +52,14 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
                 return false;
             }
+            if (commandsender.IsInDeathmatch())
+            {
+                response = Translation.NoDuelInDeathmatch;
+                Log.Debug($"Player {commandsender.Nickname} tried to use this command during deathmatch.", Config.Debug);
+                return false;
+            }
             GhostComponent component = commandsender.GetGhostComponent();
-            if (component.DuelPartner != null)
+            if (commandsender.HasActiveDuel())
             {
                 response = Translation.ActiveDuelSelf.Replace("%playernick%", component.DuelPartner.Nickname);
                 Log.Debug($"Player {commandsender.Nickname} has already an active duel with {component.DuelPartner.Nickname}.", Config.Debug);
@@ -79,10 +78,10 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
                 return false;
             }
             string opponentName = string.Join(" ", arguments);
-            List<Player> players = Ghost.List.Where(p => p != commandsender && string.Equals(p.Nickname, opponentName, StringComparison.OrdinalIgnoreCase)).ToList();
+            List<Player> players = GhostExtensions.GhostList.Where(p => p != commandsender && string.Equals(p.Nickname, opponentName, StringComparison.OrdinalIgnoreCase)).ToList();
             if (players.IsEmpty())
             {
-                players = Ghost.List.Where(p => p != commandsender && p.Nickname.IndexOf(opponentName, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+                players = GhostExtensions.GhostList.Where(p => p != commandsender && p.Nickname.IndexOf(opponentName, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
                 if (players.IsEmpty())
                 {
                     response = Translation.NoPlayers;
@@ -92,7 +91,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
             }
             Player opponent = players.Aggregate((result, current) 
                             => Vector3.Distance(current.Position, commandsender.Position) < Vector3.Distance(result.Position, commandsender.Position) ? current : result);
-            if (opponent.GetGhostComponent().DuelPartner != null)
+            if (opponent.HasActiveDuel())
             {
                 response = Translation.ActiveDuelOther.Replace("%playernick%", opponent.Nickname);
                 Log.Debug($"Player {commandsender.Nickname} can't challenge {opponent.Nickname} to a duel as they already have an active duel.", Config.Debug);
@@ -104,16 +103,28 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
                 Log.Debug($"Player {commandsender.Nickname} can't challenge {opponent.Nickname} to a duel as they already have a pending duel.", Config.Debug);
                 return false;
             }
-            if (Duel.Requests.TryGetValue(commandsender, out Tuple<Player, int> previousOpponent) && previousOpponent.Item1 == opponent)
+            if (opponent.IsInDeathmatch())
+            {
+                response = Translation.OpponentInDeathmatch.Replace("%playernick%", opponent.Nickname);
+                Log.Debug($"Player {commandsender.Nickname} can't challenge {opponent.Nickname} to a duel as they are in deatchmatch.", Config.Debug);
+                return false;
+            }
+            if (DuelExtensions.DuelRequests.TryGetValue(commandsender, out Tuple<Player, int> previousOpponent) && previousOpponent.Item1 == opponent)
             {
                 response = Translation.RequestAlreadySent;
                 Log.Debug($"Player {commandsender.Nickname} already sent a duel request to {opponent.Nickname}.", Config.Debug);
                 return false;
             }
-            commandsender.Request(opponent, previousOpponent?.Item1);
+            if (Vector3.Distance(commandsender.Position, opponent.Position) > 5)
+            {
+                response = Translation.PlayerTooFar;
+                Log.Debug($"Player {commandsender.Nickname} is to far from player {opponent.Nickname} to send him a duel request.", Config.Debug);
+                return false;
+            }
+            commandsender.SendRequest(opponent, previousOpponent?.Item1);
             if (opponent.IsDummy)
             {
-                opponent.Accept(commandsender, new() { commandsender } );
+                opponent.AcceptRequest(commandsender, new() { commandsender } );
                 response = $"Challenged dummy {opponent.Nickname} to a duel";
                 Log.Debug($"Command sent to a dummy {opponent.Nickname} ({opponent.PlayerId}).", Config.Debug);
                 return true;

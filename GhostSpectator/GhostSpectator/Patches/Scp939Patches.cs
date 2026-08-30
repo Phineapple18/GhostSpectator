@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -39,7 +38,7 @@ namespace GhostSpectator.Patches
             newInstructions.InsertRange(index + offset, new List<CodeInstruction>
             {
                 new(OpCodes.Ldloc_1),
-                new(OpCodes.Call, AccessTools.Method(typeof(Ghost), nameof(Ghost.IsGhost), new[] { typeof(ReferenceHub) })),
+                new(OpCodes.Call, AccessTools.Method(typeof(GhostExtensions), nameof(GhostExtensions.IsGhost), new[] { typeof(ReferenceHub) })),
                 new(OpCodes.Brtrue, moveNext)
             });
 

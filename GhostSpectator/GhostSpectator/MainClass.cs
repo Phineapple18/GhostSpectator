@@ -42,8 +42,9 @@ namespace GhostSpectator
         {
             harmony.UnpatchAll();
             harmony = null;
-            Toy.SpawnAreas = null;
+            ToyExtensions.ToySpawnAreas = null;
             SSGhostSpectator.Singleton?.Disable();
+            CommandLoader.UnregisterCommands(this);
             CustomHandlersManager.UnregisterEventsHandler(Events);
             Events = null;
             pluginConfig = null;
@@ -55,7 +56,7 @@ namespace GhostSpectator
             foreach (ToyArea area in pluginConfig.ToySpawnAreas.ToList())
             {
                 area.Bounds = new((area.Corner1 + area.Corner2) / 2, (area.Corner1 - area.Corner2).Abs());
-                Toy.SpawnAreas.Add(area);
+                ToyExtensions.ToySpawnAreas.Add(area);
             }
         }
 
@@ -70,6 +71,6 @@ namespace GhostSpectator
         public override string Description { get; } = null;
         public override string Name { get; } = "GhostSpectator";
         public override Version RequiredApiVersion { get; } = new(LabApiProperties.CompiledVersion);
-        public override Version Version { get; } = new(3, 3, 1);
+        public override Version Version { get; } = new(3, 3, 2);
     }
 }

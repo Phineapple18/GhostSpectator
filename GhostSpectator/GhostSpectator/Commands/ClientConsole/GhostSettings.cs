@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Log = LabApi.Features.Console.Logger;
-
 using CommandSystem;
 using GhostSpectator.Features;
 using GhostSpectator.Features.Extensions;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
+using Log = LabApi.Features.Console.Logger;
 
 namespace GhostSpectator.Commands.ClientConsole
 {
@@ -23,21 +22,15 @@ namespace GhostSpectator.Commands.ClientConsole
             Command = translation.GhostsettingsCommand ?? _command;
             Description = translation.GhostsettingsDescription;
             Aliases = translation.GhostsettingsAliases;
-            Log.Debug($"Registered {this.Command} command.", translation.Debug);
+            Log.Info($"Registered {this.Command} command.");
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (MainClass.Instance== null)
-            {
-                response = Translation.PluginNotEnabled;
-                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
-                return false;
-            }
             if (SSGhostSpectator.Singleton == null)
             {
                 response = Translation.SssNotEnabled;
-                Log.Debug($"Server-specific settings for {MainClass.Instance.Name} plugin are not enabled.", Translation.Debug);
+                Log.Debug($"Server-specific settings for {MainClass.Instance.Name} plugin are not enabled.", Config.Debug);
                 return false;
             }
             if (sender == null)

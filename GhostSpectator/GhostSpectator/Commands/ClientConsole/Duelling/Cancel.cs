@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Log = LabApi.Features.Console.Logger;
-
 using CommandSystem;
 using GhostSpectator.Features.Extensions;
 using LabApi.Features.Wrappers;
+using Log = LabApi.Features.Console.Logger;
 
 namespace GhostSpectator.Commands.ClientConsole.Duelling
 {
@@ -19,17 +18,11 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
             Command = command ?? _command;
             Description = description;
             Aliases = aliases;
-            Log.Debug($"Registered {this.Command} subcommand.", Translation.AccessTranslation().Debug);
+            Log.Info($"Registered {this.Command} subcommand.");
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (MainClass.Instance == null)
-            {
-                response = Translation.PluginNotEnabled;
-                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
-                return false;
-            }
             if (sender == null)
             {
                 response = Translation.SenderNull;
@@ -37,7 +30,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
                 return false;
             }
             Player commandsender = Player.Get(sender);
-            if (!commandsender.IsGhost())
+            if (!(commandsender.IsGhost() || commandsender.IsGhostDespawning()))
             {
                 response = Translation.NotGhost;
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
@@ -46,21 +39,21 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
             Player opponent = commandsender.GetGhostComponent().DuelPartner;
             if (opponent != null)
             {
-                commandsender.Abandon(opponent);
+                DuelExtensions.FinishDuel(commandsender, opponent);
                 response = Translation.CancelDuelSuccess.Replace("%playernick%", opponent.Nickname);
-                Log.Debug($"Player {commandsender.Nickname} has cancelled a duel with {opponent.Nickname}.", Config.Debug);
+                Log.Debug($"Player {commandsender.Nickname} has cancelled a duel with player {opponent.Nickname}.", Config.Debug);
                 return true;
             }
-            if (Duel.TryAbortPrepare(commandsender, out string opponentName))
+            if (DuelExtensions.TryAbortPendingDuel(commandsender, out string opponentName))
             {
                 response = Translation.CancelDuelSuccess.Replace("%playernick%", opponentName);
-                Log.Debug($"Player {commandsender.Nickname} has cancelled a pending duel with {opponentName}.", Config.Debug);
+                Log.Debug($"Player {commandsender.Nickname} has cancelled a pending duel with player {opponentName}.", Config.Debug);
                 return true;
             }
-            if (Duel.TryRemoveRequest(commandsender, out opponentName))
+            if (DuelExtensions.TryRemoveRequest(commandsender, out opponentName))
             {
                 response = Translation.CancelRequestSuccess.Replace("%playernick%", opponentName);
-                Log.Debug($"Player {commandsender.Nickname} has cancelled a duel request with {opponentName}.", Config.Debug);
+                Log.Debug($"Player {commandsender.Nickname} has cancelled a duel request with player(s) {opponentName}.", Config.Debug);
                 return true;
             }
             response = Translation.CancelFail;

@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Log = LabApi.Features.Console.Logger;
-
 using CommandSystem;
 using GhostSpectator.Features;
 using LabApi.Features.Permissions;
+using Log = LabApi.Features.Console.Logger;
 
 namespace GhostSpectator.Commands.RemoteAdmin.GhostSettings
 {
@@ -20,17 +19,11 @@ namespace GhostSpectator.Commands.RemoteAdmin.GhostSettings
             Command = command ?? _command;
             Description = description;
             Aliases = aliases;
-            Log.Debug($"Registered {this.Command} subcommand.", translation.Debug);
+            Log.Info($"Registered {this.Command} subcommand.");
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (MainClass.Instance == null)
-            {
-                response = translation.PluginNotEnabled;
-                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", translation.Debug);
-                return false;
-            }
             if (sender == null)
             {
                 response = translation.SenderNull;

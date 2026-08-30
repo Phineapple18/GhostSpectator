@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Log = LabApi.Features.Console.Logger;
-
 using CommandSystem;
 using GhostSpectator.Features.Extensions;
 using InventorySystem;
@@ -13,6 +11,7 @@ using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
+using Log = LabApi.Features.Console.Logger;
 
 namespace GhostSpectator.Commands.ClientConsole
 {
@@ -26,17 +25,11 @@ namespace GhostSpectator.Commands.ClientConsole
             Description = translation.GivefirearmDescription;
             Aliases = translation.GivefirearmAliases;
             Usage = new[] { "%item%/ItemType/list" };
-            Log.Debug($"Registered {this.Command} command.", translation.Debug);
+            Log.Info($"Registered {this.Command} command.");
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (MainClass.Instance == null)
-            {
-                response = Translation.PluginNotEnabled;
-                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
-                return false;
-            }
             if (sender == null)
             {
                 response = Translation.SenderNull;
@@ -62,6 +55,12 @@ namespace GhostSpectator.Commands.ClientConsole
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
                 return false;
             }
+            if (commandsender.IsInDeathmatch())
+            {
+                response = Translation.NoWeaponInDeatchmatch;
+                Log.Debug($"Player {commandsender.Nickname} can't use this command in deathmatch.", Config.Debug);
+                return false;
+            }
             if (arguments.IsEmpty())
             {
                 response = $"{Description} {Translation.Usage}: {this.DisplayCommandUsage()}";
@@ -70,7 +69,7 @@ namespace GhostSpectator.Commands.ClientConsole
             }
             if (arguments.At(0).ToLower() == "list")
             {
-                response = $"{Translation.GivefirearmList}:\n- " + string.Join("\n- ", Other.firearmList.Select(f => $"{f} ({(int)f})"));
+                response = $"{Translation.GivefirearmList}:\n- " + string.Join("\n- ", firearmList.Select(f => $"{f} ({(int)f})"));
                 return true;
             }
             int gunLimit = Server.CategoryLimits[ItemCategory.Firearm];
@@ -101,6 +100,7 @@ namespace GhostSpectator.Commands.ClientConsole
         internal const string _command = "givefirearm";
         internal const string _description = "Give yourself a firearm or print a list of available firearms.";
         internal static readonly string[] _aliases = new[] { "firearm", "givegun", "gun" };
+        internal static readonly IEnumerable<ItemType> firearmList = from g in InventoryItemLoader.AvailableItems where g.Value is Firearm select g.Key;
 
         public string Command { get; }
         public string Description { get; }

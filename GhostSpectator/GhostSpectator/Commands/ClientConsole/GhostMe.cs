@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Log = LabApi.Features.Console.Logger;
-
 using CommandSystem;
 using GhostSpectator.Features.Extensions;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
 using PlayerRoles;
+using Log = LabApi.Features.Console.Logger;
 
 namespace GhostSpectator.Commands.ClientConsole
 {
@@ -24,17 +23,11 @@ namespace GhostSpectator.Commands.ClientConsole
             Description = translation.GhostmeDescription;
             Aliases = translation.GhostmeAliases;
             Usage = new[] { "dpl (optional)" };
-            Log.Debug($"Registered {this.Command} command.", translation.Debug);
+            Log.Info($"Registered {this.Command} command.");
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (MainClass.Instance == null)
-            {
-                response = Translation.PluginNotEnabled;
-                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
-                return false;
-            }
             if (sender == null)
             {
                 response = Translation.SenderNull;
@@ -57,7 +50,7 @@ namespace GhostSpectator.Commands.ClientConsole
             Player commandsender = Player.Get(sender);
             if (commandsender.IsGhost())
             {
-                Ghost.Despawn(commandsender);
+                GhostExtensions.DespawnGhost(commandsender);
                 response = Translation.GhostmeSpecSuccess;
                 Log.Debug($"Player {commandsender.Nickname} turned themselves into Spectator.", Config.Debug);
                 return true;
@@ -70,12 +63,12 @@ namespace GhostSpectator.Commands.ClientConsole
                     Log.Debug($"Player {commandsender.Nickname} doesn't have permission to spawn as Ghost after warhead detonation.", Config.Debug);
                     return false;
                 }
-                if (deathPosition && !Config.SpawnAtDeathPos)
+                if (deathPosition && !Config.SpawnAtDeathPosition)
                 {
                     response = Translation.DeathPositionDisabled;
                     return false;
                 }
-                Ghost.Spawn(commandsender, deathPosition);
+                GhostExtensions.SpawnGhost(commandsender, deathPosition);
                 response = Translation.GhostmeGhostSuccess;
                 Log.Debug($"Player {commandsender.Nickname} turned themselves into Ghost.", Config.Debug);
                 return true;

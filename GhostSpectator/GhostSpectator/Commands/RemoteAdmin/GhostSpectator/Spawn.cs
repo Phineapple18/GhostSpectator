@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Log = LabApi.Features.Console.Logger;
-
 using CommandSystem;
 using GhostSpectator.Features.Extensions;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
 using NorthwoodLib.Pools;
 using Utils.NonAllocLINQ;
+using Log = LabApi.Features.Console.Logger;
 
 namespace GhostSpectator.Commands.RemoteAdmin.GhostSpectator
 {
@@ -23,17 +22,11 @@ namespace GhostSpectator.Commands.RemoteAdmin.GhostSpectator
             Description = description;
             Aliases = aliases;
             Usage = new[] { "dpl (optional)", "PlayerID/all" };
-            Log.Debug($"Registered {this.Command} subcommand.", Translation.AccessTranslation().Debug);
+            Log.Info($"Registered {this.Command} subcommand.");
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (MainClass.Instance == null)
-            {
-                response = Translation.PluginNotEnabled;
-                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
-                return false;
-            }
             if (sender == null)
             {
                 response = Translation.SenderNull;
@@ -77,7 +70,7 @@ namespace GhostSpectator.Commands.RemoteAdmin.GhostSpectator
             failure.AppendLine($"{Translation.SpawnFail}:");
             int[] num = new int[2] { 0, 0 };
             bool deathPosition = arguments.ToList().Contains("dpl", StringComparison.OrdinalIgnoreCase);
-            if (deathPosition && !Config.SpawnAtDeathPos)
+            if (deathPosition && !Config.SpawnAtDeathPosition)
             {
                 response = Translation.DeathPositionDisabled;
                 return false;
@@ -86,7 +79,7 @@ namespace GhostSpectator.Commands.RemoteAdmin.GhostSpectator
             {
                 if (!player.IsGhost())
                 {
-                    Ghost.Spawn(player, deathPosition);
+                    GhostExtensions.SpawnGhost(player, deathPosition);
                     num[1]++;
                     return;
                 }

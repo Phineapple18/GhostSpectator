@@ -8,8 +8,8 @@ using GhostSpectator.Features.Extensions;
 using HarmonyLib;
 using PlayerRoles;
 using PlayerRoles.PlayableScps.Scp049;
-using static PlayerRoles.PlayableScps.Scp049.Scp049ResurrectAbility;
 using PlayerRoles.Ragdolls;
+using static PlayerRoles.PlayableScps.Scp049.Scp049ResurrectAbility;
 
 namespace GhostSpectator.Patches
 {
@@ -32,7 +32,7 @@ namespace GhostSpectator.Patches
         {
             ReferenceHub hub = ragdoll.Info.OwnerHub;
             if (ragdoll.Info.RoleType == RoleTypeId.Scp0492 && hub != null && __result == ResurrectError.TargetNull
-            && EventHandler.deadZombies.Contains(hub))
+            && DeadZombies.Contains(hub.netId))
             {
                 __result = __instance.CheckMaxResurrections(hub);
             }

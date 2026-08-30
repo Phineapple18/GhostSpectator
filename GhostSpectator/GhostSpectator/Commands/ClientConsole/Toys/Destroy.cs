@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Log = LabApi.Features.Console.Logger;
-
 using AdminToys;
 using CommandSystem;
 using GhostSpectator.Features;
 using GhostSpectator.Features.Extensions;
 using LabApi.Features.Wrappers;
 using Utils.NonAllocLINQ;
+using Log = LabApi.Features.Console.Logger;
 
 namespace GhostSpectator.Commands.ClientConsole.Toys
 {
@@ -23,17 +22,11 @@ namespace GhostSpectator.Commands.ClientConsole.Toys
             Description = description;
             Aliases = aliases;
             Usage = new[] { "NetID" };
-            Log.Debug($"Registered {this.Command} subcommand.", Translation.AccessTranslation().Debug);
+            Log.Info($"Registered {this.Command} subcommand.");
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (MainClass.Instance == null)
-            {
-                response = Translation.PluginNotEnabled;
-                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
-                return false;
-            }
             if (sender == null)
             {
                 response = Translation.SenderNull;
@@ -72,7 +65,7 @@ namespace GhostSpectator.Commands.ClientConsole.Toys
                 Log.Debug($"Player {commandsender.Nickname} doesn't have any toy with ID {arguments.ElementAt(0)}.", Config.Debug);
                 return false;
             }
-            Toy.Destroy(commandsender, toy);
+            ToyExtensions.DestroyToy(commandsender, toy);
             response = Translation.DestroySuccess.Replace("%toyname%", toy.CommandName).Replace("%toyid%", toy.netId.ToString());
             Log.Debug($"Player {commandsender.Nickname} destroyed their toy ({toy}) with ID {toyId}.", Config.Debug);
             return true;

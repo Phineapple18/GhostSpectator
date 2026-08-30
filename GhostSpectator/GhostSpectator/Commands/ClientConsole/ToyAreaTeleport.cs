@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Log = LabApi.Features.Console.Logger;
-
 using CommandSystem;
 using GhostSpectator.Features.Extensions;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
 using Utils.NonAllocLINQ;
+using Log = LabApi.Features.Console.Logger;
 
 namespace GhostSpectator.Commands.ClientConsole
 {
@@ -24,17 +23,11 @@ namespace GhostSpectator.Commands.ClientConsole
             Description = translation.ToyareateleportDescription;
             Aliases = translation.ToyareateleportAliases;
             Usage = new[] { "AreaName/list" };
-            Log.Debug($"Registered {this.Command} command.", translation.Debug);
+            Log.Info($"Registered {this.Command} command.");
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (MainClass.Instance == null)
-            {
-                response = Translation.PluginNotEnabled;
-                Log.Debug($"Plugin {MainClass.Instance.Name} is not enabled.", Translation.Debug);
-                return false;
-            }
             if (sender == null)
             {
                 response = Translation.SenderNull;
@@ -62,10 +55,10 @@ namespace GhostSpectator.Commands.ClientConsole
             }
             if (arguments.At(0).ToLower() == "list")
             {
-                response = $"{Translation.ToyareateleportList}:\n- " + string.Join("\n- ", Toy.SpawnAreas.Select(a => a.Name));
+                response = $"{Translation.ToyareateleportList}:\n- " + string.Join("\n- ", ToyExtensions.ToySpawnAreas.Select(a => a.Name));
                 return true;
             }
-            if (!Toy.SpawnAreas.TryGetFirst(a => a.Name == arguments.At(0), out ToyArea area))
+            if (!ToyExtensions.ToySpawnAreas.TryGetFirst(a => a.Name == arguments.At(0), out ToyArea area))
             {
                 response = Translation.NoArea.Replace("%areaname%", area.Name);
                 Log.Debug($"Player {commandsender.Nickname} didn't provide valid area's name.", Config.Debug);
