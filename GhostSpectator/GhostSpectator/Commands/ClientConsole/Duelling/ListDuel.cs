@@ -37,7 +37,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duelling
                 return false;
             }
             string opponentName = DuelExtensions.DuelRequests.TryGetValue(commandsender, out Tuple<Player, int> opponent) ? opponent.Item1.Nickname : string.Empty;
-            response = Translation.ListduelSuccess.Replace("%playernick%", opponentName).Replace("%players%", $"{string.Join("\n- ", from entry in DuelExtensions.DuelRequests where entry.Value.Item1 == commandsender select entry.Key.Nickname)}");
+            response = Translation.ListDuelSuccess.Replace("%playernick%", opponentName).Replace("%players%", $"{string.Join("\n- ", from entry in DuelExtensions.DuelRequests where entry.Value.Item1 == commandsender select entry.Key.Nickname)}");
             return true;
         }
 

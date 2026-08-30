@@ -5,16 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 using CommandSystem;
-using GhostSpectator.Features;
 using GhostSpectator.Features.Extensions;
-using LabApi.Features.Wrappers;
+using LabApi.Features.Permissions;
 using Log = LabApi.Features.Console.Logger;
 
-namespace GhostSpectator.Commands.ClientConsole.Toys
+namespace GhostSpectator.Commands.RemoteAdmin.GhostSpectator
 {
-    public class ListToy : ICommand
+    public class ListGs : ICommand
     {
-        public ListToy(string command, string description, string[] aliases)
+        public ListGs(string command, string description, string[] aliases)
         {
             Command = command ?? _command;
             Description = description;
@@ -30,26 +29,23 @@ namespace GhostSpectator.Commands.ClientConsole.Toys
                 Log.Debug("Command sender doesn't exist.", Config.Debug);
                 return false;
             }
-            Player commandsender = Player.Get(sender);
-            if (!commandsender.IsGhost())
+            if (!sender.HasPermissions("gs.list"))
             {
-                response = Translation.NotGhost;
-                Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug);
+                response = Translation.NoPermission;
+                Log.Debug($"Player {sender.LogName} doesn't have permission to use this command.", Config.Debug);
                 return false;
             }
-            GhostComponent component = commandsender.GetGhostComponent();
-            response = $"{Translation.ListToySuccess}:\n- {string.Join("\n- ", component.Toys.Select(t => $"{t.CommandName} ({t.netId})"))}";
+            response = $"{Translation.ListGsSuccess.Replace("%count%", GhostExtensions.GhostList.Count().ToString())}:\n- {string.Join("\n- ", GhostExtensions.GhostList.Select(p => p.Nickname))}";
             return true;
         }
 
         internal const string _command = "list";
-        internal const string _description = "Print a list of all the toys you created.";
+        internal const string _description = "Print a list of all Ghosts.";
         internal static readonly string[] _aliases = new[] { "l" };
 
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
-        public string[] Usage { get; }
         private Config Config => MainClass.Instance.pluginConfig;
         private Translation Translation => MainClass.Instance.pluginTranslation;
     }

@@ -27,7 +27,7 @@ namespace GhostSpectator.Commands.RemoteAdmin.GhostSpectator
         public sealed override void LoadGeneratedCommands()
         {
             this.RegisterCommand(new Despawn(translation.DespawnCommand, translation.DespawnDescription, translation.DespawnAliases));
-            this.RegisterCommand(new List(translation.ListghostCommand, translation.ListghostDescription, translation.ListghostAliases));
+            this.RegisterCommand(new ListGs(translation.ListGsCommand, translation.ListGsDescription, translation.ListGsAliases));
             this.RegisterCommand(new Spawn(translation.SpawnCommand, translation.SpawnDescription, translation.SpawnAliases));
             Log.Info($"Loaded {this.AllCommands.Count()} subcommand(s) for {this.Command} parent command.");
         }

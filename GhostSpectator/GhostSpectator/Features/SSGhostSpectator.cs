@@ -135,7 +135,7 @@ namespace GhostSpectator.Features
                         Log.Debug($"Player {referenceHub.nicknameSync.MyNick} has already set this option, skipped.", Config.Debug);
                         return;
                     }
-                    command = QueryProcessor.DotCommandHandler.AllCommands.First(c => ssTwoButton.SyncIsA ? c is EnableVoicechat : c is DisableVoicechat);
+                    command = QueryProcessor.DotCommandHandler.AllCommands.First(c => ssTwoButton.SyncIsA ? c is EnableVc : c is DisableVc);
                     if (lastVoicechatSettings.ContainsKey(referenceHub))
                     {
                         lastVoicechatSettings[referenceHub][argument] = ssTwoButton.DebugValue;
@@ -190,12 +190,12 @@ namespace GhostSpectator.Features
                             this.HandleCommand(command, referenceHub, new string[] { argument }, null, true);
                             return;
                         case int i when i == toySettings[9].SettingId:
-                            command = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is ToyAreaTeleport);
+                            command = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is ToyareaTeleport);
                             argument = ServerSpecificSettingsSync.GetSettingOfUser<SSDropdownSetting>(referenceHub, toySettings[8].SettingId).SyncSelectionText;
                             this.HandleCommand(command, referenceHub, new string[] { argument }, null, true);
                             return;
                         case int i when i == waveSettings[0].SettingId:
-                            command = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is CheckWaveInfo);
+                            command = QueryProcessor.DotCommandHandler.AllCommands.First(c => c is WaveInfo);
                             this.HandleCommand(command, referenceHub, new string[0], (SSTextArea)waveSettings[1]);
                             return;
                         default:

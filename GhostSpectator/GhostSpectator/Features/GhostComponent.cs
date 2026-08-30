@@ -101,7 +101,7 @@ namespace GhostSpectator.Features
                                                                          .Replace("%duel%", Translation.DuelParentCommand ?? DuelParent._command)
                                                                          .Replace("%toy%", Translation.ToyParentCommand ?? ToyParent._command)
                                                                          .Replace("%vc%", Translation.VoicechatParentCommand ?? VoicechatParent._command)
-                                                                         .Replace("%wavetimer%", Translation.CheckwaveinfoCommand ?? CheckWaveInfo._command)
+                                                                         .Replace("%wavetimer%", Translation.WaveInfoCommand ?? WaveInfo._command)
                                                                          .Replace("%givegun%", Translation.GivefirearmCommand ?? GiveFirearm._command)
                                                                          .Replace("%ghostset%", Translation.GhostsettingsCommand ?? GhostSettings._command), "gray");
             }

@@ -26,9 +26,9 @@ namespace GhostSpectator.Commands.ClientConsole.Voicechat
 
         public sealed override void LoadGeneratedCommands()
         {
-            this.RegisterCommand(new EnableVoicechat(translation.EnablevoicechatCommand, translation.EnablevoicechatDescription, translation.EnablevoicechatAliases));
-            this.RegisterCommand(new DisableVoicechat(translation.DisablevoicechatCommand, translation.DisablevoicechatDescription, translation.DisablevoicechatAliases));
-            this.RegisterCommand(new ListVoicechat(translation.ListvoicechatCommand, translation.ListvoicechatDescription, translation.ListvoicechatAliases));
+            this.RegisterCommand(new EnableVc(translation.EnableVcCommand, translation.EnableVcDescription, translation.EnableVcAliases));
+            this.RegisterCommand(new DisableVc(translation.DisableVcCommand, translation.DisableVcDescription, translation.DisableVcAliases));
+            this.RegisterCommand(new ListVc(translation.ListVcCommand, translation.ListVcDescription, translation.ListVcAliases));
             Log.Info($"Loaded {this.AllCommands.Count()} subcommand(s) for VoicechatParent.");
         }
 

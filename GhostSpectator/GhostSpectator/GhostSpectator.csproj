@@ -88,7 +88,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\ClientConsole\CheckWaveInfo.cs" />
+    <Compile Include="Commands\ClientConsole\WaveInfo.cs" />
     <Compile Include="Commands\ClientConsole\Deathmatch.cs" />
     <Compile Include="Commands\ClientConsole\Duelling\Accept.cs" />
     <Compile Include="Commands\ClientConsole\Duelling\Cancel.cs" />
@@ -103,19 +103,19 @@
     <Compile Include="Commands\ClientConsole\Toys\Destroy.cs" />
     <Compile Include="Commands\ClientConsole\Toys\ListToy.cs" />
     <Compile Include="Commands\ClientConsole\Toys\ToyParent.cs" />
-    <Compile Include="Commands\ClientConsole\Voicechat\DisableVoicechat.cs" />
-    <Compile Include="Commands\ClientConsole\Voicechat\EnableVoicechat.cs" />
-    <Compile Include="Commands\ClientConsole\Voicechat\ListVoicechat.cs" />
+    <Compile Include="Commands\ClientConsole\Voicechat\DisableVc.cs" />
+    <Compile Include="Commands\ClientConsole\Voicechat\EnableVc.cs" />
+    <Compile Include="Commands\ClientConsole\Voicechat\ListVc.cs" />
     <Compile Include="Commands\ClientConsole\Voicechat\VoicechatParent.cs" />
     <Compile Include="Commands\RemoteAdmin\GhostSpectator\Despawn.cs" />
-    <Compile Include="Commands\RemoteAdmin\GhostSettings\Disable.cs" />
-    <Compile Include="Commands\RemoteAdmin\GhostSettings\Enable.cs" />
+    <Compile Include="Commands\RemoteAdmin\GhostSettings\DisableSs.cs" />
+    <Compile Include="Commands\RemoteAdmin\GhostSettings\EnableSs.cs" />
     <Compile Include="Commands\RemoteAdmin\GhostSettings\GhostSettingsParent.cs" />
     <Compile Include="Commands\RemoteAdmin\GhostSettings\Reload.cs" />
     <Compile Include="Commands\RemoteAdmin\GhostSpectator\GhostSpectatorParent.cs" />
-    <Compile Include="Commands\RemoteAdmin\GhostSpectator\List.cs" />
+    <Compile Include="Commands\RemoteAdmin\GhostSpectator\ListGs.cs" />
     <Compile Include="Commands\RemoteAdmin\GhostSpectator\Spawn.cs" />
-    <Compile Include="Commands\ClientConsole\ToyAreaTeleport.cs" />
+    <Compile Include="Commands\ClientConsole\ToyareaTeleport.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="EventHandler.cs" />
     <Compile Include="Features\Extensions\DeathmatchExtensions.cs" />

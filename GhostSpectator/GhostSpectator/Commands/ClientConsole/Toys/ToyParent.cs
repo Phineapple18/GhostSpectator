@@ -28,7 +28,7 @@ namespace GhostSpectator.Commands.ClientConsole.Toys
         {
             this.RegisterCommand(new Create(translation.CreateCommand, translation.CreateDescription, translation.CreateAliases));
             this.RegisterCommand(new Destroy(translation.DestroyCommand, translation.DestroyDescription, translation.DestroyAliases));
-            this.RegisterCommand(new ListToy(translation.ListtoyCommand, translation.ListtoyDescription, translation.ListtoyAliases));
+            this.RegisterCommand(new ListToy(translation.ListToyCommand, translation.ListToyDescription, translation.ListToyAliases));
             Log.Info($"Loaded {this.AllCommands.Count()} subcommand(s) for ToyParent.");
         }
 
